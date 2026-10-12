@@ -1,0 +1,27 @@
+MO Rates Check - setup
+
+WHAT IT DOES
+Each quarter the Missouri DOR posts a boundary file (every address range in
+the state and its jurisdiction code) and a jurisdiction and total rate file.
+This Access database keeps the last two quarters and shows where the use tax
+rate changed, which ship-tos have the wrong rate in the system, and the ones
+to look up on the state's map.
+
+How to use it is on its main screen, in the panel at the right: where to get
+the state's two files each quarter, and every step after. This page is only
+for setting it up, once.
+
+MORatesCheck.bas is the code. Open it on the repo page, click Raw, then
+Ctrl A, Ctrl C.
+
+SETUP, ONCE
+1. Open Access. Blank database. Name it MO Rates Check. Create.
+2. Press Alt+F11. In that window: Insert > Module.
+3. Press Ctrl+A, then paste the whole MORatesCheck.bas over it.
+4. Press Ctrl+S and name it MORatesCode.
+5. Click anywhere inside "Sub SetUp" near the top and press F5.
+   Wait for "Set up is done."
+6. Close that window. Close Access and open the database again. If a yellow
+   bar says some content is disabled, click Enable Content.
+7. The MO Rates Check form opens. Follow How to use it on the right, from
+   step 1. The first time, load this quarter and the one before.

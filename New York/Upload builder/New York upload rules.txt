@@ -1,0 +1,17 @@
+New York PBT Web File upload files, as of Oct 10, 2026.
+
+Web File reads every comma as a column break, so any comma inside a name has to come out before upload, and quote marks around the name don't help [New York Tax Department, "PBT Web File Upload - Common Issues," dated 12/15/2016, official page read Oct 10, 2026]. That is why the Crystal export uses * and each comma gets turned into a space. New York's upload papers never mention 999999999 or any other dummy number [the Common Issues page, plus "Petroleum Business Tax Web File Format for Upload," last revised November 3, 2016, and "PBT Web File Upload Instructions," last revised 3/29/2016, all official pages read Oct 10, 2026]. Clean the file in Notepad or with NY Upload Builder, not by opening it in Excel.
+
+Commas. "Do not use commas as part of the business name. All commas (except those used as column separators) must be removed from the file." The same page adds: "Placing any field in quotation marks will not cause the comma to be ignored: these commas will still be read as column separators and cause an invalid number of columns." [Common Issues, 12/15/2016]
+
+The general rule. The usual CSV convention says the opposite: "Fields containing line breaks (CRLF), double quotes, and commas should be enclosed in double-quotes." [RFC 4180, section 2, rule 6, October 2005, read Oct 10, 2026] The same document says "there is no formal specification in existence" for CSV, so each state's own upload rules win [RFC 4180, section 2].
+
+EINs. The EIN columns in the layout say "Must be between 9 and 11 characters," and the layout never mentions a dummy number [Format for Upload, November 3, 2016]. Turning the 999999999s into nine spaces comes from practice, not a written state rule.
+
+Excel. Opening the file in Excel can turn product code 065 into 65 or drop the leading zero of an EIN. New York lists it as a common upload problem: "When you open a .csv file, the formatting can become corrupt and the leading zeroes may drop." [Common Issues, 12/15/2016]
+
+File type and name. Web File takes only .txt, .csv and .zip files, and "Your File name cannot include a space next to a dash." [Upload Instructions, 3/29/2016] No header row either: "Do not include any headers in your upload file." [Common Issues, 12/15/2016]
+
+One file or several. One upload can hold every schedule part for the return, or each part can go up as its own file [Upload Instructions, 3/29/2016].
+
+Open: whether Web File refuses 999999999 as an EIN, and why nine spaces gets through; nothing written says either.

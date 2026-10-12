@@ -1,0 +1,88 @@
+Mail filing flow: a state or city tax mail arrives, its attachments land
+in a dated spot on OneDrive, the mail gets flagged, and one row goes into
+a log table. Built in the web designer, about an afternoon. Nothing here
+needs a paid plan.
+
+Fill these in before you start:
+- Senders to catch: the part after the @ in their addresses (one per
+  state or city, as many as you like).
+- Subject words to catch, for the ones that come from odd addresses:
+  "notice", "sales tax", "assessment", "penalty", whatever they send.
+- Your time zone, the way Windows names it: Eastern Standard Time,
+  Central Standard Time, and so on. (Flows run on UTC unless told.)
+
+Once, before the flow:
+1. In OneDrive (the web one, onedrive.com, signed in with the work
+   account), make a folder called Tax mail, and inside it a folder for
+   the year, 2026.
+2. Still in OneDrive, make a new Excel workbook called Tax mail log.
+   Type these headers across row 1: Date, From, Subject, Attachments,
+   File, Link, Done. Click in them, Insert > Table, tick "my table has
+   headers". Then on the Table Design tab, change the table name on the
+   far left to MailLog. Close it.
+   (The log is its own small table because the flow can only write to
+   a file on OneDrive, and it locks the file while it writes. Your
+   Tracker stays on the PC; copying a line over is still a hand step.)
+
+The flow, in the designer (make.powerautomate.com, work account):
+3. Create > Automated cloud flow. Name it Tax mail filing. Trigger:
+   "When a new email arrives (V3)" (Office 365 Outlook). Create.
+4. On the trigger, open Show all / advanced options. Folder: Inbox.
+   Include Attachments: Yes. Leave the From and Subject filters blank;
+   the matching happens in the next step so it can be OR, not AND.
+5. Add a Condition. Switch the group to Or (the little menu on the
+   group). One line per sender: From, contains, the @ part. One line
+   per subject word: Subject, contains, the word. Everything from here
+   goes in the True branch; leave False empty.
+6. True branch, first action: "Apply to each". Select an output:
+   Attachments (from the trigger). Inside it, add "Create file"
+   (OneDrive for Business):
+   Folder Path: /Tax mail/2026
+   File Name, as an expression:
+   concat(formatDateTime(convertTimeZone(triggerOutputs()?['body/receivedDateTime'],'UTC','Eastern Standard Time'),'yyyy-MM-dd'),' ',items('Apply_to_each')?['name'])
+   File Content, as an expression:
+   base64ToBinary(items('Apply_to_each')?['contentBytes'])
+   (Swap the time zone for yours. A mail with no attachment just skips
+   this loop.)
+7. After the loop, still in True: "Add a row into a table" (Excel
+   Online (Business)). Location: OneDrive for Business. Document
+   Library: OneDrive. File: Tax mail log.xlsx. Table: MailLog. Then:
+   Date, expression:
+   formatDateTime(convertTimeZone(triggerOutputs()?['body/receivedDateTime'],'UTC','Eastern Standard Time'),'yyyy-MM-dd')
+   From: the From dynamic value.
+   Subject: the Subject dynamic value.
+   Attachments, expression: length(triggerOutputs()?['body/attachments'])
+   File: /Tax mail/2026 (typed).
+   Link: the "Link to message" (webLink) dynamic value.
+   Done: leave blank; you type an x when it's handled.
+8. Last action in True: "Flag email (V2)" (Office 365 Outlook).
+   Message Id: the Message Id dynamic value from the trigger.
+   If you'd rather it moved out of the Inbox too, add "Move email (V2)"
+   after it, folder of your choice. Flag only is the safer first week.
+9. Save. The flow checker (top right) should show nothing red.
+
+Test it:
+10. Forward yourself an old state notice with its PDF, from your own
+    work mailbox, with a subject that has one of your words in it.
+    Within a minute or two the run shows under the flow's 28-day run
+    history. Green: look in OneDrive for the file and the log row, and
+    the mail should be flagged. Red: click the run, the failed step is
+    marked, and the error text names what it didn't like.
+
+If something looks off:
+- A connector greyed out or "blocked by policy" is IT's doing, not a
+  wrong click. Ask them whether Power Automate is allowed with the
+  work license; the standard connectors here come with it.
+- "Table not found": the workbook has a range, not a table. Reopen it,
+  select the headers, Insert > Table, name it MailLog.
+- The file lands but the row doesn't, or the other way round: each
+  action runs on its own, so the mail is still in the Inbox with
+  nothing lost. Fix the one step and press Resubmit on the run.
+- Too many catches: tighten the subject words. Too few: the sender
+  address isn't what you expected; open one of their mails and copy
+  the real @ part.
+
+Shortcut: in the designer, the AI box at the top takes one sentence, "when
+an email arrives from X with attachments, save them to OneDrive and add
+a row to an Excel table", and drafts most of this. Then fix the folder,
+the expressions and the flag by the steps above.

@@ -1,0 +1,71 @@
+PA license list flow: every morning Pennsylvania's list of registered
+motor fuel distributors lands in OneDrive as a dated file, and you get a
+mail only if it didn't. It runs with the PC off. Built in the web
+designer, about half an hour. Nothing here needs a paid plan.
+
+The list is "All Distributor Classes, CSV" on the Revenue department's
+Registered Distributor Listing page. About 1,900 accounts, canceled ones
+too, so look at Account Canceled Date. The state changes it now and then;
+it last changed Oct 9, 2026, at 8:21 am Eastern.
+https://www.eservices.revenue.pa.gov/MAFT/MFT_Class_1-7.csv
+
+Fill this in before you start:
+- Your work mail address, for the "didn't land" mail.
+
+Once, before the flow:
+1. In OneDrive (the web one, signed in with the work account), make a
+   folder called License lists, and inside it a folder called PA.
+
+The flow, in the designer (make.powerautomate.com, work account):
+2. Create > Scheduled cloud flow. Name it PA license list. Repeat every
+   1 Day. Create.
+3. Open the Recurrence trigger. Under Advanced parameters set Time zone
+   to (UTC-05:00) Eastern Time (US & Canada), At these hours to 7 and
+   12, At these minutes to 0. The noon run replaces the morning file, so
+   a change the state makes that morning still gets in.
+4. Add a Compose action (Data Operation) and rename it Path. Inputs, as
+   an expression:
+   concat('/License lists/PA/PA distributors ',convertTimeZone(utcNow(),'UTC','Eastern Standard Time','yyyy-MM-dd'),'.csv')
+   That makes /License lists/PA/PA distributors 2026-10-12.csv, one name
+   per day.
+5. Add "Upload file from URL" (OneDrive for Business).
+   Source URL: the link above.
+   Destination File Path: Outputs, under Path in the dynamic values.
+   Overwrite: Yes.
+   Microsoft's own page says this action reports success after 20
+   seconds whatever happened. Steps 6 to 9 check the file is really
+   there.
+6. Add a Delay: Count 2, Unit Minute. On its Settings tab, under Run
+   after, tick Is successful, Has failed and Has timed out.
+7. Add "Get file metadata using path" (OneDrive for Business). File
+   Path: Outputs, under Path.
+8. Add a Condition. Left box, as an expression:
+   coalesce(body('Get_file_metadata_using_path')?['Size'],0)
+   Middle: is greater than. Right box: 100000.
+   On its Settings tab, under Run after, tick Is successful and Has
+   failed.
+   Today's file is about 220,000 bytes. A missing file counts as 0 and
+   the state's error page is about 1,200, so both go to False.
+9. In False, add "Send an email (V2)" (Office 365 Outlook). To: your
+   address. Subject: PA license list didn't land. Body: Today's file is
+   missing or too small. Open the flow's run history. Leave True empty.
+10. Save. The flow checker at the top right should show nothing red.
+
+Test it, the bad day first:
+11. Put an x on the end of the Source URL and save. Test > Manually >
+    Test > Run flow. In about three minutes the mail should come.
+12. Take the x off and save. Test again. In about three minutes the run
+    shows green and License lists/PA has today's file. Open it in Excel
+    to be sure it's the list.
+
+If something looks off:
+- A connector greyed out or "blocked by policy" is IT's doing, not a
+  wrong click. The connectors here come with the work license; ask IT
+  whether Power Automate is allowed.
+- The mail came but the file is there: the state was slow that morning.
+  Make the Delay 5 minutes.
+- The file is there but opens as a web page: the state turned the
+  request away, or the link moved. Open the link in a browser. If it
+  moved, the new CSV link is on the Registered Distributor Listing page.
+- Step 8 says the expression is invalid: the name in quotes has to match
+  the step 7 action's name, spaces as underscores. Rename one to match.

@@ -1,0 +1,54 @@
+# The content check. Runs on every pull request (again whenever its title
+# or text is edited), on every push to main, and by hand from the
+# Actions tab.
+#
+# Fails if a blocked word is in any file here, inside Excel and Word
+# files too, or in any commit's message, author or committer, or in a
+# pull request's title, text or branch name. The word lists are the
+# repository secrets BLOCKED_WORDS and ALLOWED_PHRASES, one entry per
+# line. The ruleset on main requires this check.
+name: content-check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  content-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Gather every commit message and the pull request's text
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          BRANCH: ${{ github.head_ref || github.ref_name }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/words"
+          git log --all --format='%an%n%ae%n%cn%n%ce%n%B' > "$RUNNER_TEMP/words/commits.txt"
+          printf '%s\n%s\n%s\n' "$BRANCH" "$PR_TITLE" "$PR_BODY" > "$RUNNER_TEMP/words/pull-request.txt"
+
+      - name: Read every file, message and pull request text for a blocked word
+        env:
+          BLOCKED_WORDS: ${{ secrets.BLOCKED_WORDS }}
+          ALLOWED_PHRASES: ${{ secrets.ALLOWED_PHRASES }}
+        run: |
+          set +e
+          python .github/scripts/content_check.py .; files=$?
+          python .github/scripts/content_check.py "$RUNNER_TEMP/words"; words=$?
+          exit $((files | words))

@@ -1,0 +1,1181 @@
+{
+ "off": [
+  [
+   "GA BARROW CO SALES TAX OFF ROAD (7.000000%)",
+   0.07
+  ],
+  [
+   "GA BRYAN  CO SALES TAX OFF ROAD (7.000000%)",
+   0.08
+  ],
+  [
+   "GA BULLOCH  CO SALES TAX OFF ROAD (7.000000%)",
+   0.07
+  ],
+  [
+   "GA CATOOSA CO SALES TAX OFF ROAD (7.000000%)",
+   0.07
+  ],
+  [
+   "GA CHATHAM CO SALES TAX OFF ROAD (7.000000%)",
+   0.07
+  ],
+  [
+   "GA CHEROKEE CO SALES TAX OFF ROAD (6.000000%)",
+   0.06
+  ],
+  [
+   "GA CLARKE CO SALES TAX OFF ROAD (7.000000%)",
+   0.07
+  ],
+  [
+   "GA CLAYTON CO SALES TAX OFF ROAD (8.000000%)",
+   0.08
+  ],
+  [
+   "GA COBB CO SALES TAX OFF ROAD (6.000000%)",
+   0.06
+  ],
+  [
+   "GA COLUMBIA CO SALES TAX OFF ROAD (7.000000%)",
+   0.07
+  ],
+  [
+   "GA COOK CO SALES TAX OFF ROAD (8.000000%)",
+   0.08
+  ],
+  [
+   "GA DEKALB CO SALES TAX OFF ROAD (8.000000%)",
+   0.08
+  ],
+  [
+   "GA DOUGLAS CO SALES TAX OFF ROAD (7.000000%)",
+   0.07
+  ],
+  [
+   "GA FLOYD CO SALES TAX OFF ROAD (6.000000%)",
+   0.07
+  ],
+  [
+   "GA FORSYTH CO SALES TAX OFF ROAD (7.000000%)",
+   0.07
+  ],
+  [
+   "GA FULTON CO SALES TAX OFF ROAD (ATLANTA CITY LIMITS) (8.500000%)",
+   0.085
+  ],
+  [
+   "GA GILMER CO SALES TAX OFF ROAD (7.000000%)",
+   0.07
+  ],
+  [
+   "GA GLYNN CO SALES TAX OFF ROAD (7.000000%)",
+   0.07
+  ],
+  [
+   "GA GORDON CO SALES TAX OFF ROAD (8.000000%)",
+   0.08
+  ],
+  [
+   "GA GWINNETT CO SALES TAX OFF ROAD (6.000000%)",
+   0.06
+  ],
+  [
+   "GA HALL CO SALES TAX OFF ROAD (7.000000%)",
+   0.07
+  ],
+  [
+   "GA LOWNDES CO SALES TAX OFF ROAD (7.000000%)",
+   0.07
+  ],
+  [
+   "GA MONROE CO SALES TAX OFF ROAD (7.000000%)",
+   0.07
+  ],
+  [
+   "GA PAULDING CO SALES TAX OFF ROAD (7.000000%)",
+   0.07
+  ],
+  [
+   "GA PICKENS CO SALES TAX OFF ROAD (7.000000%)",
+   0.07
+  ],
+  [
+   "GA RICHMOND CO SALES TAX OFF ROAD (7.500000%)",
+   0.075
+  ],
+  [
+   "GA ROCKDALE CO SALES TAX OFF ROAD (7.000000%)",
+   0.07
+  ],
+  [
+   "GA SPALDING CO SALES TAX OFF ROAD (6.000000%)",
+   0.06
+  ],
+  [
+   "GA WARREN CO SALES TAX OFF ROAD (8.000000%)",
+   0.08
+  ],
+  [
+   "GA WAYNE CO SALES TAX OFF ROAD (7.000000%)",
+   0.07
+  ]
+ ],
+ "on": [
+  [
+   "APPLING",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Baldwin",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Banks",
+   "Diesel",
+   0.04
+  ],
+  [
+   "BARROW",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Bartow",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Bartow",
+   "Gas",
+   0.03
+  ],
+  [
+   "Bibb",
+   "Diesel",
+   0.04
+  ],
+  [
+   "Bibb",
+   "Gas",
+   0.04
+  ],
+  [
+   "Bleckley",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Bleckley",
+   "Gas",
+   0.03
+  ],
+  [
+   "Bryan",
+   "Diesel",
+   0.04
+  ],
+  [
+   "Bulloch",
+   "Diesel",
+   0.04
+  ],
+  [
+   "Bulloch",
+   "Gas",
+   0.04
+  ],
+  [
+   "Burke",
+   "Diesel",
+   0.02
+  ],
+  [
+   "Camden",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Camden",
+   "Gas",
+   0.03
+  ],
+  [
+   "Candler",
+   "Diesel",
+   0.04
+  ],
+  [
+   "Candler",
+   "Gas",
+   0.04
+  ],
+  [
+   "Carroll",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Carroll",
+   "Gas",
+   0.03
+  ],
+  [
+   "Catoosa",
+   "Gas",
+   0.03
+  ],
+  [
+   "Charlton",
+   "Diesel",
+   0.02
+  ],
+  [
+   "Charlton",
+   "Gas",
+   0.02
+  ],
+  [
+   "Chatham",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Chatham",
+   "Gas",
+   0.03
+  ],
+  [
+   "Chattahoochee",
+   "Diesel",
+   0.04
+  ],
+  [
+   "Chattahoochee",
+   "Gas",
+   0.04
+  ],
+  [
+   "Chattooga",
+   "Diesel",
+   0.04
+  ],
+  [
+   "Chattooga",
+   "Gas",
+   0.04
+  ],
+  [
+   "Cherokee",
+   "Diesel",
+   0.02
+  ],
+  [
+   "Cherokee",
+   "Gas",
+   0.02
+  ],
+  [
+   "Clarke",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Clarke",
+   "Gas",
+   0.03
+  ],
+  [
+   "Clayton",
+   "Diesel",
+   0.04
+  ],
+  [
+   "Clayton",
+   "Gas",
+   0.04
+  ],
+  [
+   "Cobb",
+   "Diesel",
+   0.02
+  ],
+  [
+   "Cobb",
+   "Gas",
+   0.02
+  ],
+  [
+   "Coffee",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Colquitt",
+   "Diesel",
+   0.04
+  ],
+  [
+   "Colquitt",
+   "Gas",
+   0.04
+  ],
+  [
+   "Cook",
+   "Diesel",
+   0.04
+  ],
+  [
+   "Coweta",
+   "Diesel",
+   0.04
+  ],
+  [
+   "Crisp",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Crisp",
+   "Gas",
+   0.03
+  ],
+  [
+   "Dade",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Dade",
+   "Gas",
+   0.03
+  ],
+  [
+   "Decatur",
+   "Diesel",
+   0.04
+  ],
+  [
+   "Decatur",
+   "Gas",
+   0.04
+  ],
+  [
+   "DeKalb",
+   "Diesel",
+   0.04
+  ],
+  [
+   "DeKalb",
+   "Gas",
+   0.04
+  ],
+  [
+   "Dekalb (Atl Limits)",
+   "Diesel",
+   0.045
+  ],
+  [
+   "Dekalb (Atl Limits)",
+   "Gas",
+   0.045
+  ],
+  [
+   "Dodge",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Dooly",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Dooly",
+   "Gas",
+   0.03
+  ],
+  [
+   "Dougherty",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Dougherty",
+   "Gas",
+   0.03
+  ],
+  [
+   "Douglas",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Douglas",
+   "Gas",
+   0.03
+  ],
+  [
+   "Emanuel",
+   "Diesel",
+   0.04
+  ],
+  [
+   "Evans",
+   "Diesel",
+   0.04
+  ],
+  [
+   "Evans",
+   "Gas",
+   0.04
+  ],
+  [
+   "Fannin",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Fannin",
+   "Gas",
+   0.03
+  ],
+  [
+   "Fayette",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Fayette",
+   "Gas",
+   0.03
+  ],
+  [
+   "Floyd",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Floyd",
+   "Gas",
+   0.03
+  ],
+  [
+   "Forsyth",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Forsyth",
+   "Gas",
+   0.03
+  ],
+  [
+   "Franklin",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Fulton",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Fulton",
+   "Gas",
+   0.03
+  ],
+  [
+   "Fulton (ATL Limits)",
+   "Diesel",
+   0.045
+  ],
+  [
+   "Fulton (ATL Limits)",
+   "Gas",
+   0.045
+  ],
+  [
+   "Fulton (College Park)",
+   "Diesel",
+   0.04
+  ],
+  [
+   "Gilmer",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Gilmer",
+   "Gas",
+   0.03
+  ],
+  [
+   "Glynn",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Glynn",
+   "Gas",
+   0.03
+  ],
+  [
+   "Gordon",
+   "Diesel",
+   0.04
+  ],
+  [
+   "Gordon",
+   "Gas",
+   0.04
+  ],
+  [
+   "Grady",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Gwinnett",
+   "Diesel",
+   0.02
+  ],
+  [
+   "Gwinnett",
+   "Gas",
+   0.02
+  ],
+  [
+   "Habersham",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Hall",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Haralson",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Haralson",
+   "Gas",
+   0.03
+  ],
+  [
+   "Harris",
+   "Gas",
+   0.03
+  ],
+  [
+   "Hart",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Heard",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Henry",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Henry",
+   "Gas",
+   0.03
+  ],
+  [
+   "Houston",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Houston",
+   "Gas",
+   0.03
+  ],
+  [
+   "Jackson",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Jackson",
+   "Gas",
+   0.03
+  ],
+  [
+   "Jefferson",
+   "Diesel",
+   0.04
+  ],
+  [
+   "Jenkins",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Johnson",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Jones",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Jones",
+   "Gas",
+   0.03
+  ],
+  [
+   "Lanier",
+   "Gas",
+   0.03
+  ],
+  [
+   "Laurens",
+   "Gas",
+   0.03
+  ],
+  [
+   "Liberty",
+   "Diesel",
+   0.04
+  ],
+  [
+   "Liberty",
+   "Gas",
+   0.04
+  ],
+  [
+   "Lowndes",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Lowndes",
+   "Gas",
+   0.03
+  ],
+  [
+   "Lumpkin",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Lumpkin",
+   "Gas",
+   0.03
+  ],
+  [
+   "Macon",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Madison",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Marion",
+   "Diesel",
+   0.03
+  ],
+  [
+   "McDuffie",
+   "Diesel",
+   0.04
+  ],
+  [
+   "Monroe",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Monroe",
+   "Gas",
+   0.03
+  ],
+  [
+   "Murray",
+   "Diesel",
+   0.04
+  ],
+  [
+   "Murray",
+   "Gas",
+   0.04
+  ],
+  [
+   "Muscogee",
+   "Diesel",
+   0.04
+  ],
+  [
+   "Muscogee",
+   "Gas",
+   0.04
+  ],
+  [
+   "Newton",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Newton",
+   "Gas",
+   0.03
+  ],
+  [
+   "Paulding",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Paulding",
+   "Gas",
+   0.03
+  ],
+  [
+   "Peach",
+   "Diesel",
+   0.04
+  ],
+  [
+   "Pickens",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Pickens",
+   "Gas",
+   0.03
+  ],
+  [
+   "Polk",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Polk",
+   "Gas",
+   0.03
+  ],
+  [
+   "Richmond",
+   "Diesel",
+   0.035
+  ],
+  [
+   "Richmond",
+   "Gas",
+   0.035
+  ],
+  [
+   "Rockdale",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Spalding",
+   "Diesel",
+   0.02
+  ],
+  [
+   "Sumter",
+   "Diesel",
+   0.03
+  ],
+  [
+   "TALBOT",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Tattnall",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Tattnall",
+   "Gas",
+   0.03
+  ],
+  [
+   "Telfair",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Thomas",
+   "Diesel",
+   0.04
+  ],
+  [
+   "Tift",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Tift",
+   "Gas",
+   0.03
+  ],
+  [
+   "Toombs",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Toombs",
+   "Gas",
+   0.03
+  ],
+  [
+   "Towns",
+   "Diesel",
+   0.04
+  ],
+  [
+   "Towns",
+   "Gas",
+   0.04
+  ],
+  [
+   "Troup",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Troup",
+   "Gas",
+   0.03
+  ],
+  [
+   "Union",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Union",
+   "Gas",
+   0.03
+  ],
+  [
+   "Walker",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Walker",
+   "Gas",
+   0.03
+  ],
+  [
+   "Ware",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Ware",
+   "Gas",
+   0.03
+  ],
+  [
+   "Warren",
+   "Diesel",
+   0.04
+  ],
+  [
+   "Warren",
+   "Gas",
+   0.04
+  ],
+  [
+   "Washington",
+   "Diesel",
+   0.04
+  ],
+  [
+   "Wayne",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Whitfield",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Whitfield",
+   "Gas",
+   0.03
+  ],
+  [
+   "Wilkes",
+   "Diesel",
+   0.04
+  ],
+  [
+   "Worth",
+   "Diesel",
+   0.03
+  ],
+  [
+   "Worth",
+   "Gas",
+   0.03
+  ]
+ ],
+ "names": [
+  "GA %  SALES-(STATE & LOCAL GOVT) (pays prepaid only) ON ROAD (3.000000%)",
+  "GA BARROW CO SALES TAX  ON ROAD (3.000000%)",
+  "GA BARROW CO SALES TAX OFF ROAD (7.000000%)",
+  "GA BARTOW CO SALES TAX  ON ROAD (3.000000%)",
+  "GA BIBB CO SALES TAX  ON ROAD (4.000000%)",
+  "GA BIBB CO SALES TAX OFF ROAD (8.000000%)",
+  "GA CAMDEN  CO SALES TAX  ON ROAD (3.000000%)",
+  "GA CATOOSA CO SALES TAX OFF ROAD (7.000000%)",
+  "GA CHATHAM CO SALES TAX OFF ROAD (7.000000%)",
+  "GA CLARKE  CO SALES TAX ON ROAD (3.000000%)",
+  "GA CLARKE CO SALES TAX OFF ROAD (7.000000%)",
+  "GA CLAYTON  CO SALES TAX  ON ROAD (4.000000%)",
+  "GA COBB  CO SALES TAX  ON ROAD (2.000000%)",
+  "GA COLQUITT  CO SALES TAX ON ROAD (4.000000%)",
+  "GA COLQUITT CO SALES TAX OFF ROAD (8.000000%)",
+  "GA CRISP CO SALES TAX ON ROAD (3.000000%)",
+  "GA DEKALB CO SALES TAX ON ROAD (4.000000%)",
+  "GA DODGE CO SALES TAX ON ROAD (3.000000%)",
+  "GA DOOLY  CO SALES TAX ON ROAD (3.000000%)",
+  "GA DOUGHERTY  CO SALES TAX ON ROAD (3.000000%)",
+  "GA DOUGHERTY CO SALES TAX OFF ROAD (7.000000%)",
+  "GA DOUGLAS CO SALES TAX ON ROAD (3.000000%)",
+  "GA ELBERT CO SALES TAX OFF ROAD (8.000000%)",
+  "GA EVANS  CO SALES TAX ON ROAD (4.000000%)",
+  "GA EVANS CO SALES TAX OFF ROAD (8.000000%)",
+  "GA FANNIN  CO SALES TAX ON ROAD (3.000000%)",
+  "GA FAYETTE  CO SALES TAX  ON ROAD (3.000000%)",
+  "GA FORSYTH   CO SALES TAX  ON ROAD (3.000000%)",
+  "GA FORSYTH CO SALES TAX OFF ROAD (7.000000%)",
+  "GA FRANKLIN CO SALES TAX OFF ROAD (7.000000%)",
+  "GA FULTON  CO (COLLEGE PARK) SALES TAX  ON ROAD (4.000000%)",
+  "GA FULTON  CO SALES TAX  ON ROAD (3.000000%)",
+  "GA FULTON  CO SALES TAX  ON ROAD (ATLANTA CITY LIMITS) (4.500000%)",
+  "GA FULTON CO SALES TAX OFF ROAD (ATLANTA CITY LIMITS) (8.500000%)",
+  "GA GORDON CO SALES TAX OFF ROAD (8.000000%)",
+  "GA GWINNETT  CO SALES TAX  ON ROAD (2.000000%)",
+  "GA GWINNETT CO SALES TAX OFF ROAD (6.000000%)",
+  "GA HALL  CO SALES TAX  ON ROAD (3.000000%)",
+  "GA HART CO SALES TAX  ON ROAD (3.000000%)",
+  "GA HENRY  CO SALES TAX  ON ROAD (3.000000%)",
+  "GA HOUSTON  CO SALES TAX  ON ROAD (3.000000%)",
+  "GA JACKSON  CO SALES TAX  ON ROAD (3.000000%)",
+  "GA JACKSON CO SALES TAX OFF ROAD (7.000000%)",
+  "GA JENKINS  CO SALES TAX  ON ROAD (3.000000%)",
+  "GA JONES   CO SALES TAX  ON ROAD (3.000000%)",
+  "GA LOWNDES CO SALES TAX OFF ROAD (7.000000%)",
+  "GA MCDUFFIE  CO SALES TAX  ON ROAD (4.000000%)",
+  "GA MONROE  CO SALES TAX  ON ROAD (3.000000%)",
+  "GA MONROE CO SALES TAX OFF ROAD (7.000000%)",
+  "GA MUSCOGEE  CO SALES TAX  ON ROAD (4.000000%)",
+  "GA MUSCOGEE CO SALES TAX OFF ROAD (8.000000%)",
+  "GA NEWTON  CO SALES TAX  ON ROAD (3.000000%)",
+  "GA PAULDING CO SALES TAX OFF ROAD (7.000000%)",
+  "GA PEACH  CO SALES TAX  ON ROAD (4.000000%)",
+  "GA RICHMOND CO SALES TAX  ON ROAD (3.500000%)",
+  "GA ROCKDALE  CO SALES TAX  ON ROAD (3.000000%)",
+  "GA ROCKDALE CO SALES TAX OFF ROAD (7.000000%)",
+  "GA SPALDING CO SALES TAX  ON ROAD (2.000000%)",
+  "GA SPALDING CO SALES TAX OFF ROAD (6.000000%)",
+  "GA SUMTER  CO SALES TAX  ON ROAD (3.000000%)",
+  "GA TATTNALL  CO SALES TAX ON ROAD (3.000000%)",
+  "GA TATTNALL CO SALES TAX OFF ROAD (7.000000%)",
+  "GA THOMAS  CO SALES TAX  ON ROAD (4.000000%)",
+  "GA TOWNS CO SALES TAX  ON ROAD (4.000000%)",
+  "GA TROUP  CO SALES TAX  ON ROAD (3.000000%)",
+  "GA WARREN  CO SALES TAX  ON ROAD (4.000000%)",
+  "GA WARREN CO SALES TAX OFF ROAD (8.000000%)",
+  "GA WASHINGTON  CO SALES TAX  ON ROAD (4.000000%)",
+  "GA WAYNE  CO SALES TAX  ON ROAD (3.000000%)",
+  "GA WAYNE CO SALES TAX OFF ROAD (7.000000%)"
+ ],
+ "state_codes": [
+  ["APPLING", "001TE - Appling (TSPLOST Exempt)"],
+  ["ATKINSON", "002TE - Atkinson (TSPLOST Exempt)"],
+  ["BACON", "003TE - Bacon (TSPLOST Exempt)"],
+  ["BAKER", "004TE - Baker (TSPLOST Exempt)"],
+  ["BALDWIN", "005TE - Baldwin (TSPLOST Exempt)"],
+  ["BANKS", "006TE - Banks (TSPLOST Exempt)"],
+  ["BARROW", "007TE - Barrow (TSPLOST Exempt)"],
+  ["BARTOW", "008 - Bartow"],
+  ["BEN HILL", "009TE - Ben Hill (TSPLOST Exempt)"],
+  ["BERRIEN", "010TE - Berrien (TSPLOST Exempt)"],
+  ["BIBB", "011 - Bibb"],
+  ["BLECKLEY", "012TE -Bleckley (TSPLOST Exempt)"],
+  ["BRANTLEY", "013TE - Brantley (TSPLOST Exempt)"],
+  ["BROOKS", "014TE - Brooks (TSPLOST Exempt)"],
+  ["BRYAN", "015TE - Bryan (TSPLOST Exempt)"],
+  ["BULLOCH", "016TE - Bulloch (TSPLOST Exempt)"],
+  ["BURKE", "017TE - Burke (TSPLOST Exempt)"],
+  ["BUTTS", "018 - Butts"],
+  ["CALHOUN", "019TE - Calhoun (TSPLOST Exempt)"],
+  ["CAMDEN", "020 - Camden"],
+  ["CANDLER", "021TE - Candler (TSPLOST Exempt)"],
+  ["CARROLL", "022 - Carroll"],
+  ["CATOOSA", "023 - Catoosa"],
+  ["CHARLTON", "024TE - Charlton (TSPLOST Exempt)"],
+  ["CHATHAM", "025 - Chatham"],
+  ["CHATTAHOOCHEE", "026TE - Chattahoochee (TSPLOST Exempt)"],
+  ["CHATTOOGA", "027TE - Chattooga (TSPLOST Exempt)"],
+  ["CHEROKEE", "028TE - Cherokee (TSPLOST Exempt)"],
+  ["CLARKE", "029TE - Clarke (TSPLOST Exempt)"],
+  ["CLAY", "030TE - Clay (TSPLOST Exempt)"],
+  ["CLAYTON", "031 - Clayton"],
+  ["CLINCH", "032TE - Clinch (TSPLOST Exempt)"],
+  ["COBB", "033 - Cobb"],
+  ["COFFEE", "034TE - Coffee (TSPLOST Exempt)"],
+  ["COLQUITT", "035TE - Colquitt (TSPLOST Exempt)"],
+  ["COLUMBIA", "036TE - Columbia (TSPLOST Exempt)"],
+  ["COOK", "037TE - Cook (TSPLOST Exempt)"],
+  ["COWETA", "038 - Coweta"],
+  ["CRAWFORD", "039TE - Crawford (TSPLOST Exempt)"],
+  ["CRISP", "040TE - Crisp (TSPLOST Exempt)"],
+  ["DADE", "041 - Dade"],
+  ["DAWSON", "042TE - Dawson (TSPLOST Exempt)"],
+  ["DECATUR", "043TE - Decatur (TSPLOST Exempt)"],
+  ["DEKALB", "044 - DeKalb"],
+  ["DEKALB (ATL LIMITS)", "044ATE-Dekalb Atlanta (TSPLOST Exempt)"],
+  ["DODGE", "045TE - Dodge (TSPLOST Exempt)"],
+  ["DOOLY", "046TE - Dooly (TSPLOST Exempt)"],
+  ["DOUGHERTY", "047TE - Dougherty (TSPLOST Exempt)"],
+  ["DOUGLAS", "048 - Douglas"],
+  ["EARLY", "049TE - Early (TSPLOST Exempt)"],
+  ["ECHOLS", "050TE - Echols (TSPLOST Exempt)"],
+  ["EFFINGHAM", "051TE - Effingham (TSPLOST Exempt)"],
+  ["ELBERT", "052TE - Elbert (TSPLOST Exempt)"],
+  ["EMANUEL", "053TE - Emanuel (TSPLOST Exempt)"],
+  ["EVANS", "054TE - Evans (TSPLOST Exempt)"],
+  ["FANNIN", "055 - Fannin"],
+  ["FAYETTE", "056 - Fayette"],
+  ["FLOYD", "057 - Floyd"],
+  ["FORSYTH", "058 - Forsyth"],
+  ["FRANKLIN", "059 - Franklin"],
+  ["FULTON (ATL LIMITS)", "060ATE - Fulton Atlanta (TSPLOST Exempt)"],
+  ["FULTON", "060TE - Fulton (TSPLOST Exempt)"],
+  ["GILMER", "061 - Gilmer"],
+  ["GLASCOCK", "062TE - Glascock (TSPLOST Exempt)"],
+  ["GLYNN", "063 - Glynn"],
+  ["GORDON", "064 - Gordon"],
+  ["GRADY", "065TE - Grady (TSPLOST Exempt)"],
+  ["GREENE", "066TE - Greene (TSPLOST Exempt)"],
+  ["GWINNETT", "067 - Gwinnett"],
+  ["HABERSHAM", "068 - Habersham"],
+  ["HALL", "069 - Hall"],
+  ["HANCOCK", "070TE - Hancock (TSPLOST Exempt)"],
+  ["HARALSON", "071TE - Haralson (TSPLOST Exempt)"],
+  ["HARRIS", "072TE - Harris (TSPLOST Exempt)"],
+  ["HART", "073 - Hart"],
+  ["HEARD", "074 - Heard"],
+  ["HENRY", "075TE - Henry (TSPLOST Exempt)"],
+  ["HOUSTON", "076 - Houston"],
+  ["IRWIN", "077TE - Irwin (TSPLOST Exempt)"],
+  ["JACKSON", "078TE - Jackson (TSPLOST Exempt)"],
+  ["JASPER", "079 - Jasper"],
+  ["JEFF DAVIS", "080TE - Jeff Davis (TSPLOST Exempt)"],
+  ["JEFFERSON", "081TE - Jefferson (TSPLOST Exempt)"],
+  ["JENKINS", "082TE - Jenkins (TSPLOST Exempt)"],
+  ["JOHNSON", "083TE - Johnson (TSPLOST Exempt)"],
+  ["JONES", "084 - Jones"],
+  ["LAMAR", "085TE - Lamar (TSPLOST Exempt)"],
+  ["LANIER", "086TE - Lanier (TSPLOST Exempt)"],
+  ["LAURENS", "087TE - Laurens (TSPLOST Exempt)"],
+  ["LEE", "088TE - Lee (TSPLOST exempt)"],
+  ["LIBERTY", "089TE - Liberty (TSPLOST Exempt)"],
+  ["LINCOLN", "090TE - Lincoln (TSPLOST Exempt)"],
+  ["LONG", "091TE - Long (TSPLOST Exempt)"],
+  ["LOWNDES", "092TE - Lowndes (TSPLOST Exempt)"],
+  ["LUMPKIN", "093TE - Lumpkin (TSPLOST Exempt)"],
+  ["MACON", "094TE - Macon (TSPLOST Exempt)"],
+  ["MADISON", "095TE - Madison (TSPLOST Exempt)"],
+  ["MARION", "096TE - Marion (TSPLOST Exempt)"],
+  ["MCDUFFIE", "097TE - McDuffie (TSPLOST Exempt)"],
+  ["MCINTOSH", "098TE - McIntosh (TSPLOST Exempt)"],
+  ["MERIWETHER", "099TE - Meriwether (TSPLOST Exempt)"],
+  ["MILLER", "100TE - Miller (TSPLOST exempt)"],
+  ["MITCHELL", "101TE - Mitchell (TSPLOST Exempt)"],
+  ["MONROE", "102TE - Monroe (TSPLOST Exempt)"],
+  ["MONTGOMERY", "103TE - Montgomery (TSPLOST Exempt)"],
+  ["MORGAN", "104TE - Morgan (TSPLOST Exempt)"],
+  ["MURRAY", "105TE - Murray (TSPLOST Exempt)"],
+  ["MUSCOGEE", "106TE - Muscogee (TSPLOST Exempt)"],
+  ["NEWTON", "107 - Newton"],
+  ["OCONEE", "108TE - Oconee (TSPLOST Exempt)"],
+  ["OGLETHORPE", "109TE - Oglethorpe (TSPLOST exempt)"],
+  ["PAULDING", "110 - Paulding"],
+  ["PEACH", "111TE - Peach (TSPLOST Exempt)"],
+  ["PICKENS", "112 - Pickens"],
+  ["PIERCE", "113TE - Pierce (TSPLOST Exempt)"],
+  ["PIKE", "114 - Pike"],
+  ["POLK", "115 - Polk"],
+  ["PULASKI", "116TE - Pulaski (TSPLOST Exempt)"],
+  ["PUTNAM", "117TE - Putnam (TSPLOST Exempt)"],
+  ["QUITMAN", "118TE - Quitman (TSPLOST Exempt)"],
+  ["RABUN", "119TE - Rabun (TSPLOST Exempt)"],
+  ["RANDOLPH", "120TE - Randolph (TSPLOST Exempt)"],
+  ["RICHMOND", "121TE - Richmond (TSPLOST Exempt)"],
+  ["ROCKDALE", "122 - Rockdale"],
+  ["SCHLEY", "123TE - Schley (TSPLOST Exempt)"],
+  ["SCREVEN", "124TE - Screven (TSPLOST Exempt)"],
+  ["SEMINOLE", "125TE - Seminole (TSPLOST Exempt)"],
+  ["SPALDING", "126TE - Spalding (TSPLOST Exempt)"],
+  ["STEPHENS", "127 - Stephens"],
+  ["STEWART", "128TE - Stewart (TSPLOST Exempt)"],
+  ["SUMTER", "129TE - Sumter (TSPLOST Exempt)"],
+  ["TALBOT", "130TE - Talbot (TSPLOST Exempt)"],
+  ["TALIAFERRO", "131TE - Taliaferro (TSPLOST Exempt)"],
+  ["TATTNALL", "132TE - Tattnall (TSPLOST Exempt)"],
+  ["TAYLOR", "133TE - Taylor (TSPLOST Exempt)"],
+  ["TELFAIR", "134TE - Telfair (TSPLOST Exempt)"],
+  ["TERRELL", "135TE - Terrell (TSPLOST exempt)"],
+  ["THOMAS", "136 - Thomas"],
+  ["TIFT", "137TE - Tift (TSPLOST Exempt)"],
+  ["TOOMBS", "138TE - Toombs (TSPLOST Exempt)"],
+  ["TOWNS", "139 - Towns"],
+  ["TREUTLEN", "140TE - Treutlen (TSPLOST Exempt)"],
+  ["TROUP", "141 - Troup"],
+  ["TURNER", "142TE - Turner (TSPLOST Exempt)"],
+  ["TWIGGS", "143TE - Twiggs (TSPLOST Exempt)"],
+  ["UNION", "144 - Union"],
+  ["UPSON", "145TE - Upson (TSPLOST Exempt)"],
+  ["WALKER", "146TE - Walker (TSPLOST Exempt)"],
+  ["WALTON", "147 - Walton"],
+  ["WARE", "148TE - Ware (TSPLOST 1 & 2 Exempt)"],
+  ["WARREN", "149TE - Warren (TSPLOST Exempt)"],
+  ["WASHINGTON", "150TE - Washington (TSPLOST Exempt)"],
+  ["WAYNE", "151TE - Wayne (TSPLOST Exempt)"],
+  ["WEBSTER", "152TE - Webster (TSPLOST Exempt)"],
+  ["WHEELER", "153TE - Wheeler (TSPLOST Exempt)"],
+  ["WHITE", "154 - White"],
+  ["WHITFIELD", "155 - Whitfield"],
+  ["WILCOX", "156TE - Wilcox (TSPLOST Exempt)"],
+  ["WILKES", "157TE - Wilkes (TSPLOST Exempt)"],
+  ["WILKINSON", "158 - Wilkinson"],
+  ["WORTH", "159TE - Worth (TSPLOST Exempt)"],
+  ["FULTON (HAPEVILLE)", "800TE - Fulton - City of Hapeville (TSPLOST Exempt)"],
+  ["FULTON (COLLEGE PARK)", "801TE - Fulton - City of College Park (TSPLOST Exempt)"],
+  ["FULTON (EAST POINT)", "802TE - Fulton - City of East Point (TSPLOST Exempt)"],
+  ["ATLANTA (CENTENNIAL YARDS)", "803TE - City of Atlanta Centennial Yards (TSPLOST Exempt)"],
+  ["CLAYTON (COLLEGE PARK)", "804 - Clayton - City of College Park"]
+ ]
+}

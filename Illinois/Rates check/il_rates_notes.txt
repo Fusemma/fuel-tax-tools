@@ -1,0 +1,71 @@
+Illinois rates check: shows what changed in the state's sales tax
+rates since the last files you loaded, at the general merchandise
+rate, place by place.
+
+il_rates_check.bas is the macro. Click Raw, then Ctrl A, Ctrl C.
+
+Once:
+1. Open a new blank workbook in Excel.
+2. Alt F11, then Insert > Module. If the new window already has a line
+   in it, Ctrl A and Delete first. Paste, then close that window.
+3. File > Save As > Excel Macro-Enabled Workbook (.xlsm). Name it
+   IL Rates Check and keep it with your other work files.
+4. Alt F8, pick CheckIllinoisRates, Run. It makes the What changed,
+   Read here, Log and Saved rates tabs and the big button, then asks
+   for the files.
+
+The rest is also on the Read here tab, word for word.
+
+This shows what changed in Illinois's sales tax rates since the last
+files you loaded: each place whose rate changed, its county, the old
+rate, the new rate, and when it starts. It watches the general
+merchandise rate.
+
+When to check
+Illinois posts new rates for January 1 and July 1, and sometimes
+another day (August 1 was one in 2026). Once that day comes, What
+changed shows a red GET THE NEW FILES line.
+
+Getting the files
+1. Go to tax.illinois.gov, Research, Tax Rates, Sales Tax Rate -
+   Machine Readable Files.
+2. Under Sales Tax, download the top two links: Effective (it saves as
+   ordmache-current.txt) and Addendum Address File
+   (ordmacha-current.txt). The second one has the rates for places
+   with business districts.
+3. Not the Address Specific page. That file is 2 GB and this won't
+   read it.
+
+Loading them
+1. Click Check new rates file on the What changed tab. The box opens
+   in Downloads.
+2. Hold Ctrl, click both files, then Open. Or pick one and it asks for
+   the other.
+3. Save the workbook when you're done. It never saves itself.
+
+Reading What changed
+Each line is a place, or one business district in a place, whose rate
+changed. Starts is the day the new rate begins.
+Red: went up.
+Green: went down.
+Blue: new.
+Gray: gone.
+Yellow: something else, like a new name.
+Places with business districts get a line for each district (District
+R01 and so on). Those rates come from the address file.
+The first time, with nothing loaded before, it shows what changed on
+the files' start date.
+BUSINESS DISTRICTS NOT CHECKED means the address file wasn't picked.
+Load both next time.
+
+The other tabs
+Log: every change once, the first time a file showed it, with the day
+it was loaded. Nothing new means a load found nothing new. The buttons
+on its top row filter it.
+Saved rates: the rates from the last files loaded. The next files get
+checked against them. It's locked, so leave it alone.
+
+If a box asks something
+If a yellow bar says macros are disabled, click Enable Content.
+If it says the files look older than last time, or cut short, or not
+from the same posting, answer No and download them again.

@@ -1,0 +1,11 @@
+Crystal Reports, as of Oct 10, 2026.
+
+SAP still sells and supports Crystal Reports. The current version, Crystal Reports 2025, is supported until Dec 31, 2027; support for 2020 ends Dec 31, 2026, and support for 2016 ended Dec 31, 2022 [SAP Community, Crystal Reports page, software downloads table, no date on the page, official page read Oct 10, 2026]. In Crystal, Help then About shows which version you have.
+
+Versions. The table lists "SAP Crystal Reports 2025 (64 bit)" with end of mainstream maintenance "31 Dec. 2027", "SAP Crystal Reports 2020 (64 bit)" with "31 Dec. 2026", and "SAP Crystal Reports 2016 (32 bit)" with "31 Dec. 2022" [SAP Community page, read Oct 10, 2026].
+
+The export box. In a Separated Values (CSV) export, the separator is the character between fields, which is where the * goes, and the delimiter is the character wrapped around each field [memory]. Quote marks don't protect a comma in Web File (see the New York upload note), so the delimiter stays blank.
+
+Formulas. A report can carry formulas that clean a field before export, such as one that drops the commas from a name [memory]. Doing the cleanup inside the report would remove the step, but it means changing a shared report and catching every field that can hold a comma.
+
+Open: which version is installed at work.
