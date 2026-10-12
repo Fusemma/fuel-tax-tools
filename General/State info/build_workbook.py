@@ -26,7 +26,7 @@ from openpyxl.worksheet.table import Table, TableStyleInfo
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "State Info.xlsx")
 LAST = 1000  # the State page reads each list down to this row
-CHECKED = dt.date(2026, 10, 1)
+CHECKED = dt.date(2026, 10, 10)
 
 F = lambda **kw: Font(name="Arial", size=10, **kw)
 BOLD = F(bold=True)
@@ -63,8 +63,8 @@ STATES = [
 
 # Georgia sources, all official
 GA_FAQ = "https://dor.georgia.gov/2026-suspension-georgia-motor-fuel-taxes-faqs"
-GA_SUSPENSION = "https://dor.georgia.gov/mft-2026-02-suspension-georgia-motor-fuel-taxes"
-GA_PREPAID = "https://dor.georgia.gov/prepaid-local-tax-motor-fuel-sales-effective-january-1-2026"
+GA_DYED = "https://dor.georgia.gov/mft-2026-04-temporary-waiver-state-dyed-fuel-penalties"
+GA_PREPAID = "https://dor.georgia.gov/prepaid-local-tax-motor-fuel-sales-effective-july-1-2026"
 GA_CONTACT = "https://dor.georgia.gov/find-contact-information-topic"
 GA_ST3 = "DOR ST-3 instructions, rev 07/25/22"
 GA_MF12 = "DOR form MF-12, rev 06/01/17"
@@ -81,7 +81,8 @@ LISTS = {
           None, None,
           "Two sales tax returns, on-road and off-road, both laid out like the "
           "ST-3. On-road is gallons by county, two lines per county, and Fulton "
-          "County splits by rate. State excise suspended Sept 29 to Oct 29, 2026.",
+          "County splits by rate. State excise suspended Sept 29 to Nov 5, 2026, "
+          "and state penalties for dyed diesel on the road waived Oct 6 to Nov 5.",
           GA_CONTACT, CHECKED]
          if code == "GA" else [code, name] + [None] * 9
          for code, name in STATES]),
@@ -100,7 +101,7 @@ LISTS = {
           "sales are product cost plus fees.", GA_ST3, CHECKED],
          ["GA", "Motor fuel excise, distributor return", None,
           "State motor fuel excise", "Monthly", "Georgia Tax Center", None,
-          "Schedules of Receipts and Disbursements. Sept 29 to Oct 29, 2026: "
+          "Schedules of Receipts and Disbursements. Sept 29 to Nov 5, 2026: "
           "report the gallons on both schedules, don't remit the excise.",
           GA_FAQ, CHECKED],
          ["GA", "Refund claim", "MFD-33, with MF-12 waivers",
@@ -126,14 +127,21 @@ LISTS = {
           "The rate at the Sept 2026 suspension. Georgia resets it every Jan 1.",
           GA_FAQ, CHECKED],
          ["GA", "Gasoline and diesel", "State excise, suspended", 0, "$ a gallon",
-          dt.date(2026, 9, 29), dt.date(2026, 10, 29),
-          "Governor's order EO 09.28.26.01. Gallons still get reported.",
-          GA_SUSPENSION, CHECKED],
+          dt.date(2026, 9, 29), dt.date(2026, 11, 5),
+          "Governor's order EO 09.28.26.01, extended to Nov 5 by EO 10.06.26.01. "
+          "Gallons still get reported. Prepaid local tax isn't suspended.",
+          GA_FAQ, CHECKED],
          ["GA", "Gasoline and diesel", "Prepaid local sales tax", None,
           "see notes", None, None,
           "The local rate times a state-set price per gallon, reset each Jan 1 "
-          "and July 1 and never over $3.00. $3.00 for gas and diesel as of "
-          "Sept 2026.", GA_PREPAID, CHECKED]]),
+          "and July 1 and never over $3.00. $3.00 for gas and diesel from "
+          "July 1, 2026.", GA_PREPAID, CHECKED],
+         ["GA", "Dyed diesel, road use", "State penalties waived",
+          None, "see notes", dt.date(2026, 10, 6), dt.date(2026, 11, 5),
+          "EO 10.06.26.01 and Bulletin MFT-2026-04 waive the 48-9-16(e) "
+          "penalties for dyed fuel on the road. The $100 a month notice penalty "
+          "in (f) still applies.",
+          GA_DYED, CHECKED]]),
     "Contacts": (
         [("State", 7), ("Who", 30), ("Phone", 16), ("Email", 28), ("Hours", 18),
          ("What for", 40), ("Source", 44), ("Last checked", 13)],
