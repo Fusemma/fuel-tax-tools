@@ -51,7 +51,7 @@ try:
           and "HYPERLINK" in basics["Website"].Formula, basics["Website"].Formula)
     check("main phone", basics["Main phone"].Text == "(877) 423-6711", basics["Main phone"].Text)
     check("bond required left blank", basics["Bond required"].Text == "", basics["Bond required"].Text)
-    check("last checked is a date", basics["Last checked"].Text == "10/1/2026",
+    check("last checked is a date", basics["Last checked"].Text == "10/10/2026",
           basics["Last checked"].Text)
 
     r = find_row(page, "Returns (")
@@ -67,15 +67,19 @@ try:
           page.Range(f"B{r + 2}").RowHeight)
 
     r = find_row(page, "Current rates (")
-    check("current rates header counts 4", page.Range(f"B{r}").Text == "Current rates (4)",
+    check("current rates header counts 5", page.Range(f"B{r}").Text == "Current rates (5)",
           page.Range(f"B{r}").Text)
     check("gasoline excise rate", page.Range(f"D{r + 2}").Value == 0.333, page.Range(f"D{r + 2}").Value)
     check("suspended rate shows 0, not blank", page.Range(f"D{r + 4}").Text == "0",
           page.Range(f"D{r + 4}").Text)
     check("suspension start date", page.Range(f"F{r + 4}").Text == "9/29/2026",
           page.Range(f"F{r + 4}").Text)
-    check("suspension end date", page.Range(f"G{r + 4}").Text == "10/29/2026",
+    check("suspension end date", page.Range(f"G{r + 4}").Text == "11/5/2026",
           page.Range(f"G{r + 4}").Text)
+    check("dyed diesel waiver shows", page.Range(f"B{r + 6}").Text == "Dyed diesel, road use",
+          page.Range(f"B{r + 6}").Text)
+    check("dyed waiver end date", page.Range(f"G{r + 6}").Text == "11/5/2026",
+          page.Range(f"G{r + 6}").Text)
 
     for name, n in [("Licenses", 1), ("Contacts", 1), ("Tax setups", 0)]:
         r = find_row(page, name + " (")
@@ -113,12 +117,12 @@ try:
 
     # An old rate (To date in the past) stays on the Rates tab, off the page
     rates = wb.Worksheets("Rates")
-    rates.Range("A6").Value = "GA"
-    rates.Range("B6").Value = "Old test rate"
-    rates.Range("G6").Value = "1/1/2020"
+    rates.Range("A7").Value = "GA"
+    rates.Range("B7").Value = "Old test rate"
+    rates.Range("G7").Value = "1/1/2020"
     xl.Calculate()
     rr = find_row(page, "Current rates (")
-    check("an ended rate drops off the page", page.Range(f"B{rr}").Text == "Current rates (4)",
+    check("an ended rate drops off the page", page.Range(f"B{rr}").Text == "Current rates (5)",
           page.Range(f"B{rr}").Text)
     check("and isn't listed", all(page.Range(f"B{rr + 2 + k}").Text != "Old test rate" for k in range(8)))
 
