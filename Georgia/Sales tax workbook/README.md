@@ -5,8 +5,7 @@ Workbook - BLANK.xlsx. Its OFF ROAD UPLOAD and ON ROAD UPLOAD tabs fill
 the state's Excel import template, so a return can go in as a file
 instead of being keyed; state import files/ holds the 3Q26 template.
 recalc.ps1 recalculates a workbook in real Excel and strips author
-details. test_upload.py checks each new quarter's template against a
-filled workbook.
+details.
 
 At work: download GA Sales Tax Workbook - BLANK.xlsx and paste the month's
 AR sales, TERSE and recap reports onto their tabs. Shipped and in use.
