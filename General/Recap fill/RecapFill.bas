@@ -5,10 +5,11 @@
 ' number, text, or a formula pointing at another sheet. Numbers and dates go into Word the
 ' way the value cell shows them, so give that cell the format the recap wants.
 '
-' Fill opens the Word file named on Fields, from this workbook's folder, swaps every tag for
-' its value and saves a filled copy beside it with today's date, like Recap 2026-10-11.docx.
-' The Word file itself never changes. Then it says what it filled and any tag it couldn't
-' match.
+' Fill works in this workbook's folder and nowhere else. Next to Word file on Fields it says
+' EFT, so Fill opens the one Word file there with EFT in its name. An exact name works too.
+' It swaps every tag for its value and saves a filled copy beside it with today's date, like
+' EFT recap 2026-10-14.docx. The Word file itself never changes. Then it says what it
+' filled and any tag it couldn't match.
 '
 ' Setting it up from this text, once:
 '   1. Copy all of this text (click Raw, then Ctrl A, Ctrl C).
@@ -20,7 +21,7 @@
 Option Explicit
 
 Private Const SHEET_NAME As String = "Fields"
-Private Const DEFAULT_FILE As String = "Recap.docx"
+Private Const DEFAULT_WORD As String = "EFT"     ' Fill picks the Word file with this in its name
 Private Const BOX_TITLE As String = "Recap fill"
 
 ' Word's numbers for the settings used here
@@ -80,10 +81,10 @@ Public Sub Fill()
         Exit Sub
     End If
 
-    ' The Word file, from this workbook's folder
+    ' The Word file, from this workbook's folder and nowhere else
     x = Application.Match("Word file", ws.Columns(1), 0)
     If Not IsError(x) Then wordName = Trim$(ws.Cells(x, 2).Text)
-    If wordName = "" Then wordName = DEFAULT_FILE
+    If wordName = "" Then wordName = DEFAULT_WORD
     If ThisWorkbook.Path = "" Then
         MsgBox "Save this workbook first, in the folder with the Word file.", vbExclamation, BOX_TITLE
         Exit Sub
@@ -94,10 +95,16 @@ Public Sub Fill()
             "Save the workbook and the Word file in a folder on the PC, then try again.", vbExclamation, BOX_TITLE
         Exit Sub
     End If
-    src = WordFile(folder, wordName)
+    ' A folder (\ / :) or anything else a file name can't have (* ? " < > |) is turned away
+    If wordName Like "*[\/:*?""<>|]*" Then
+        MsgBox "Fill only uses a Word file in this workbook's own folder:" & vbLf & folder & vbLf & vbLf & _
+            "Next to Word file on Fields, type just the file's name, or a word in it like EFT, " & _
+            "with no folder.", vbExclamation, BOX_TITLE
+        Exit Sub
+    End If
+    src = WordFile(folder, wordName, msg)
     If src = "" Then
-        MsgBox "Can't find " & wordName & " in" & vbLf & folder & vbLf & vbLf & _
-            "Put the Word file there, or fix its name on Fields next to Word file.", vbExclamation, BOX_TITLE
+        MsgBox msg, vbExclamation, BOX_TITLE
         Exit Sub
     End If
     copyPath = CopyName(src)
@@ -252,25 +259,71 @@ Private Function Shorten(ByVal s As String) As String
     Shorten = s
 End Function
 
-' The Word file's full path, or "" if it isn't there. A name with no extension tries .docx,
-' then .doc. A full path works too.
-Private Function WordFile(ByVal folder As String, ByVal wordName As String) As String
-    Dim p As String, tries As Variant, t As Variant, hit As String
-    If wordName Like "?:\*" Or Left$(wordName, 2) = "\\" Then p = wordName Else p = folder & "\" & wordName
-    If InStr(FileOf(p), ".") > 0 Then tries = Array(p) Else tries = Array(p & ".docx", p & ".doc")
+' The Word file to fill, from the folder and nowhere else. An exact name wins; one with no
+' extension tries .docx, then .doc. Otherwise it's the one .docx or .doc with the typed word
+' anywhere in its name, in any case, leaving out the dated copies Fill saved. Word's ~$ temp
+' files never count. Gives back "" when it can't pick one, and the reason in why.
+Private Function WordFile(ByVal folder As String, ByVal typed As String, ByRef why As String) As String
+    Dim tries As Variant, t As Variant, f As String, dot As Long, n As Long
+    Dim pick As String, hits As String, others As String
+    If InStr(typed, ".") > 0 Then tries = Array(typed) Else tries = Array(typed & ".docx", typed & ".doc")
     On Error Resume Next
     For Each t In tries
-        hit = ""
-        hit = Dir$(t)
-        If Len(hit) > 0 Then
-            WordFile = t
+        f = ""
+        f = Dir$(folder & "\" & t)
+        If Len(f) > 0 And Left$(f, 2) <> "~$" Then
+            WordFile = folder & "\" & f
             Exit Function
         End If
     Next
+    On Error GoTo 0
+    f = Dir$(folder & "\*")
+    Do While Len(f) > 0
+        dot = InStrRev(f, ".")
+        If Left$(f, 2) = "~$" Or dot < 2 Then
+            ' Word's temp files, and names with no extension
+        ElseIf LCase$(Mid$(f, dot)) <> ".docx" And LCase$(Mid$(f, dot)) <> ".doc" Then
+            ' not a Word file
+        ElseIf IsDatedCopy(Left$(f, dot - 1)) Then
+            ' a copy Fill saved
+        ElseIf InStr(1, f, typed, vbTextCompare) > 0 Then
+            n = n + 1
+            pick = f
+            hits = hits & f & vbLf
+        Else
+            others = others & f & vbLf
+        End If
+        f = Dir$
+    Loop
+    If n = 1 Then
+        WordFile = folder & "\" & pick
+    ElseIf n > 1 Then
+        why = "More than one Word file in" & vbLf & folder & vbLf & "has " & typed & " in its name. " & _
+            "Type the one to fill next to Word file on Fields:" & vbLf & vbLf & hits
+    ElseIf others <> "" Then
+        why = "No Word file in" & vbLf & folder & vbLf & "has " & typed & " in its name. " & _
+            "Type the one to fill next to Word file on Fields:" & vbLf & vbLf & others
+    Else
+        why = "No Word file in" & vbLf & folder & vbLf & "has " & typed & " in its name." & vbLf & vbLf & _
+            "Put the Word file there, or fix its name on Fields next to Word file."
+    End If
+    If Len(why) > 1000 Then why = Left$(why, 990) & "..."
 End Function
 
-' Recap 2026-10-11.docx beside the Word file, or Recap 2026-10-11 (2).docx if that's taken.
-' A .doc stays a .doc; anything else is saved as .docx.
+' True for a name like the copies Fill saves: ending in a date, like EFT recap 2026-10-14,
+' or a date and a number, like EFT recap 2026-10-14 (2).
+Private Function IsDatedCopy(ByVal stem As String) As Boolean
+    Dim i As Long, k As String
+    i = InStrRev(stem, " (")
+    If i > 0 And Right$(stem, 1) = ")" Then
+        k = Mid$(stem, i + 2, Len(stem) - i - 2)        ' the 2 in (2)
+        If Len(k) > 0 And Not k Like "*[!0-9]*" Then stem = Left$(stem, i - 1)
+    End If
+    IsDatedCopy = stem Like "*####-##-##"
+End Function
+
+' EFT recap 2026-10-14.docx beside the Word file, or EFT recap 2026-10-14 (2).docx if that's
+' taken. A .doc stays a .doc; anything else is saved as .docx.
 Private Function CopyName(ByVal src As String) As String
     Dim stem As String, ext As String, p As String, k As Long
     stem = Left$(src, InStrRev(src, ".") - 1) & " " & Format$(Date, "yyyy-mm-dd")
@@ -325,15 +378,15 @@ Private Function UrlDecode(ByVal s As String) As String
     UrlDecode = s
 End Function
 
-' The Fields sheet: the Word file's name, the sample's three tags, and the Fill button.
+' The Fields sheet: the Word file box, the sample's three tags, the Fill button and the how-to.
 Private Sub MakeFieldsSheet()
     Dim ws As Worksheet
     Set ws = ThisWorkbook.Worksheets.Add(Before:=ThisWorkbook.Worksheets(1))
     ws.Name = SHEET_NAME
-    ws.Range("A1:B1").Value = Array("Word file", DEFAULT_FILE)
+    ws.Range("A1:B1").Value = Array("Word file", DEFAULT_WORD)
     ws.Range("A3:B3").Value = Array("Tag", "Value")
     ws.Range("A1,A3:B3").Font.Bold = True
-    ' The sample Recap.docx has these three. Swap them for your own.
+    ' The sample EFT recap.docx has these three. Swap them for your own.
     ws.Range("A4:A6").Value = Application.Transpose(Array("period", "amount", "due"))
     ws.Range("B4").NumberFormat = "mmmm yyyy"
     ws.Range("B4").Value = DateSerial(2026, 9, 1)
@@ -348,7 +401,9 @@ Private Sub MakeFieldsSheet()
         .Caption = "Fill"
         .OnAction = "Fill"
     End With
-    ws.Range("D4").Value = "In Word, type [[tag]] wherever a value goes."
-    ws.Range("D5").Value = "Fill saves a dated copy beside the Word file."
-    ws.Range("D4:D5").Font.Color = RGB(89, 89, 89)
+    ws.Range("D4").Value = "Keep this workbook and the Word file in one folder."
+    ws.Range("D5").Value = "Fill uses the one Word file there with EFT in its name, or the name you type next to Word file."
+    ws.Range("D6").Value = "In Word, type [[tag]] wherever a value goes."
+    ws.Range("D7").Value = "Fill saves a dated copy beside the Word file."
+    ws.Range("D4:D7").Font.Color = RGB(89, 89, 89)
 End Sub
