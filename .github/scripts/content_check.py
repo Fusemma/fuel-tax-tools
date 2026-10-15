@@ -12,8 +12,9 @@ ASCII and UTF-16. An Office file (.xlsx, .xlsm, .docx and kin) is a zip,
 so each file inside it is read the same way, vbaProject.bin included.
 A hit prints the file and the word's line number in the list, never the
 word, so the log stays clean. Exit 1 on any hit, if the blocked list is
-empty, if it reads no files at all, or if a file it finds will not open
-(a path too long for Windows does both), so nothing passes unread.
+empty, if it reads no files at all, or if a file or folder it finds will
+not open (a path too long for Windows does both), so nothing passes
+unread.
 """
 import io
 import os
@@ -65,17 +66,28 @@ def main():
         return 1
     root = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else ".")
     found, unread, count = set(), [], 0
-    for p in sorted(root.rglob("*")):
-        if SKIP & set(p.relative_to(root).parts) or p.is_dir():
-            continue
-        label = p.relative_to(root).as_posix()
-        try:
-            data = p.read_bytes()
-        except OSError:
-            unread.append(label)
-            continue
-        count += 1
-        scan(label, data, words, allow, found)
+
+    def cannot_list(e):
+        # A folder that will not list (a path too long for Windows) would
+        # otherwise be passed over without a word.
+        folder = pathlib.Path(e.filename or "")
+        if folder != root:
+            unread.append(folder.relative_to(root).as_posix() + "/")
+
+    for top, dirs, files in os.walk(root, onerror=cannot_list):
+        dirs[:] = sorted(d for d in dirs if d not in SKIP)
+        for name in sorted(files):
+            if name in SKIP:
+                continue
+            p = pathlib.Path(top) / name
+            label = p.relative_to(root).as_posix()
+            try:
+                data = p.read_bytes()
+            except OSError:
+                unread.append(label)
+                continue
+            count += 1
+            scan(label, data, words, allow, found)
     for label, n in sorted(found):
         print(f"{label}: blocked word, line {n} of the list")
     for label in unread:
