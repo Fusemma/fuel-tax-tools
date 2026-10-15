@@ -11,7 +11,7 @@ value, and saves a filled copy beside it with the date, like
 EFT recap 2026-10-14.docx. The Word file itself never changes. Numbers
 and dates go in the way their cell shows them, $1,234.56 or October 20,
 2026. Then a box says what it filled and names any tag it couldn't
-match. Tested in real Excel and Word, 128 checks.
+match. Tested in real Excel and Word, 132 checks.
 
 Fill never reads or writes outside the workbook's own folder, and it
 only works in a folder that holds the workbook itself. The box next to

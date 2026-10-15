@@ -304,9 +304,9 @@ Private Function WordFile(ByVal folder As String, ByVal typed As String, ByRef w
             "Type the one to fill next to Word file on Fields:" & vbLf & vbLf & hits
     ElseIf copies <> "" Then
         why = "Fill skipped every Word file in" & vbLf & folder & vbLf & "with " & typed & " in its name. " & _
-            "Each one ends in a date, like the copies Fill saves:" & vbLf & vbLf & copies & vbLf & _
-            "To fill one anyway, type its exact name next to Word file on Fields."
-        If others <> "" Then why = why & vbLf & vbLf & "Other Word files there:" & vbLf & others
+            "Each one ends in a date, like the copies Fill saves. " & _
+            "To fill one anyway, type its exact name next to Word file on Fields:" & vbLf & vbLf & copies
+        If others <> "" Then why = why & vbLf & "Other Word files there:" & vbLf & others
     ElseIf others <> "" Then
         why = "No Word file in" & vbLf & folder & vbLf & "has " & typed & " in its name. " & _
             "Type the one to fill next to Word file on Fields:" & vbLf & vbLf & others
