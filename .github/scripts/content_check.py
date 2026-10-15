@@ -11,8 +11,9 @@ Every file is read: text as UTF-8, everything else as bytes in both
 ASCII and UTF-16. An Office file (.xlsx, .xlsm, .docx and kin) is a zip,
 so each file inside it is read the same way, vbaProject.bin included.
 A hit prints the file and the word's line number in the list, never the
-word, so the log stays clean. Exit 1 on any hit, or if the blocked list
-is empty.
+word, so the log stays clean. Exit 1 on any hit, if the blocked list is
+empty, if it reads no files at all, or if a file it finds will not open
+(a path too long for Windows does both), so nothing passes unread.
 """
 import io
 import os
@@ -63,16 +64,27 @@ def main():
         print("BLOCKED_WORDS is empty or missing; the check cannot run")
         return 1
     root = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else ".")
-    found, count = set(), 0
+    found, unread, count = set(), [], 0
     for p in sorted(root.rglob("*")):
-        if not p.is_file() or SKIP & set(p.relative_to(root).parts):
+        if SKIP & set(p.relative_to(root).parts) or p.is_dir():
+            continue
+        label = p.relative_to(root).as_posix()
+        try:
+            data = p.read_bytes()
+        except OSError:
+            unread.append(label)
             continue
         count += 1
-        scan(p.relative_to(root).as_posix(), p.read_bytes(), words, allow, found)
+        scan(label, data, words, allow, found)
     for label, n in sorted(found):
         print(f"{label}: blocked word, line {n} of the list")
+    for label in unread:
+        print(f"{label}: will not open, so it was not checked")
     print(f"{count} files read, {len(found)} hit(s)")
-    return 1 if found else 0
+    if count == 0:
+        print(f"No files read in {root}: the folder is empty, missing, or its "
+              "paths are too long to open. Nothing was checked, so this fails.")
+    return 1 if found or unread or count == 0 else 0
 
 
 if __name__ == "__main__":
