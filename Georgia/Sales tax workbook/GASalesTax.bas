@@ -271,7 +271,8 @@ Private Function FillOne(ByVal offRoad As Boolean, ByVal tplPath As String, ByVa
         Next i
         msg = k & IIf(k = 1, " county", " counties") & " on the distribution tab."
     Else
-        ' College Park on the distribution tab (line 4), every other county on the motor fuel tab (line 6)
+        ' College Park, East Point and Hapeville on the distribution tab (line 4), the rest on the
+        ' motor fuel tab (line 6); ON ROAD RETURN's Goes on column says which
         Set mfd = wb.Worksheets("MFD On-Road Worksheet")
         codes = Nm("OnCodes").Value
         a = Nm("OnFuelType").Value
@@ -282,7 +283,7 @@ Private Function FillOne(ByVal offRoad As Boolean, ByVal tplPath As String, ByVa
         For i = 1 To UBound(codes, 1)
             If Txt(codes(i, 1)) <> "" And Val(Txt(b(i, 1))) <> 0 Then
                 If Txt(e(i, 1)) = "line 4" Then
-                    ' one row per code: College Park's diesel and gas add up on the same row
+                    ' one row per code: a city's diesel and gas add up on the same row
                     For cp = 1 To k
                         If dist.Cells(2 + cp, 1).Value = codes(i, 1) Then Exit For
                     Next cp

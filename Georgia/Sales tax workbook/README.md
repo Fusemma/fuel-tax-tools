@@ -70,6 +70,16 @@ the 3Q26 template. recalc.ps1 recalculates a workbook in real Excel and
 strips the author details. static_lists.json is the state's code for each
 county and city area, from the template's motor fuel county list.
 
+## College Park, East Point and Hapeville
+
+On the on-road return these three cities go on line 4 as sales tax. That's
+how College Park has always been filed. They share one 1% city tax, so
+they go together, and College Park's Clayton side goes with them. The
+state's bulletin on that tax, Policy Bulletin SUT-2022-01 (August 30,
+2022), calls it prepaid local tax, which would be line 6. The dollars due
+are the same either way. Ask DOR. If they say line 6, the build moves all
+of them in one line.
+
 ## Open
 
 No upload has gone into GTC yet. September 2026's return is the first
