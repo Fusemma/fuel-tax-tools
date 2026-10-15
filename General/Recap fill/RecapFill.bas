@@ -409,14 +409,15 @@ Private Sub MakeFieldsSheet()
     ws.Range("A1:B1").Value = Array("Word file", DEFAULT_WORD)
     ws.Range("A3:B3").Value = Array("Tag", "Value")
     ws.Range("A1,A3:B3").Font.Bold = True
-    ' The sample EFT recap.docx has these three. Swap them for your own.
-    ws.Range("A4:A6").Value = Application.Transpose(Array("period", "amount", "due"))
+    ' The four things that change on an EFT each month. The sample EFT recap.docx has all four.
+    ws.Range("A4:A7").Value = Application.Transpose(Array("period", "amount", "draft", "due"))
     ws.Range("B4").NumberFormat = "mmmm yyyy"
     ws.Range("B4").Value = DateSerial(2026, 9, 1)
     ws.Range("B5").NumberFormat = "$#,##0.00"
     ws.Range("B5").Value = 1234.56
-    ws.Range("B6").NumberFormat = "mmmm d, yyyy"
-    ws.Range("B6").Value = DateSerial(2026, 10, 20)
+    ws.Range("B6:B7").NumberFormat = "mmmm d, yyyy"
+    ws.Range("B6").Value = DateSerial(2026, 10, 17)
+    ws.Range("B7").Value = DateSerial(2026, 10, 20)
     ws.Range("B:B").HorizontalAlignment = xlLeft
     ws.Columns("A").ColumnWidth = 16
     ws.Columns("B").ColumnWidth = 30

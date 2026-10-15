@@ -1,57 +1,108 @@
 # EFT recap fill
 
-What it does: fills the EFT recap in Word from Excel, so the copy you
-hand over to be keyed in already has the values in it. In the Word file,
-a tag like [[amount]] marks each spot a value goes, in the text, a
-table, a header or a footer. Recap Fill.xlsm lists each tag on its
-Fields sheet with its value: a number, text, or a formula pointing at
-another sheet. The Fill button opens the one Word file in the
-workbook's own folder with EFT in its name, swaps every tag for its
-value, and saves a filled copy beside it with the date, like
-EFT recap 2026-10-14.docx. The Word file itself never changes. Numbers
-and dates go in the way their cell shows them, $1,234.56 or October 20,
-2026. Then a box says what it filled and names any tag it couldn't
-match. Tested in real Excel and Word, 132 checks.
+Fills the four things that change on an EFT form each month: the tax
+period, the amount, the draft date and the due date. You type them once in
+Excel and press Fill. Fill makes a new copy of the EFT form with today's
+date in its name and those four filled in. Your master EFT form never
+changes, and the rest of it, the parts that never change, stay as you
+typed them.
 
-Fill never reads or writes outside the workbook's own folder, and it
-only works in a folder that holds the workbook itself. The box next to
-Word file on Fields says EFT, so Fill looks there for a Word file with
-EFT in its name, capitals or not, and no letter right before it. So
-EFT recap and IN EFT recap count, but Left recap and Theft log don't.
-It skips the dated copies it saved before and Word's ~$ temp files. If
-no Word file there has EFT in its name, or more than one does, Fill
-stops and lists them. If the only ones are dated copies, it says so and
-names them. Type the exact name of the one you want next to Word file.
-Fill turns away a name with a folder in it.
+It doesn't matter what the state's recap looks like. You read the numbers
+off the recap and type them into Excel. You never touch the macro.
 
-Try it first: put Recap Fill.xlsm and the sample EFT recap.docx in one
-folder, open the workbook and press Fill. A copy with today's date shows
-up beside the sample, three values filled.
+## Once per state: set it up
 
-At work:
+Do this one time for each state. After that, skip to Each month.
 
-1. Put Recap Fill.xlsm and the recap's Word file in one folder. Give the
-   Word file a name with EFT in it, or type its exact name next to Word
-   file on Fields.
-2. In the Word file, type a tag wherever a value goes, like [[amount]]
-   or [[period]], and save it.
-3. On Fields, under Tag, list each tag without the brackets and its
-   value beside it, formatted the way the recap should show it. Replace
-   the sample's three rows.
-4. Press Fill.
+1. Make a folder for the state, like Georgia EFT. Put a copy of
+   Recap Fill.xlsm in it.
+2. Put the state's EFT form, the Word file, in that same folder. Its name
+   needs EFT in it, like Georgia EFT.docx. Rename it if it doesn't.
+3. Open the Word file. Find the amount. Delete the whole amount, dollar
+   sign and all, and type this in its place:
 
-If Excel blocks the macros, close the workbook, right-click it,
-Properties, tick Unblock, OK, and open it again. If the .xlsm won't
-download at all, RecapFill.bas is the same code as text, and the steps
-at its top make the same workbook from a blank one.
+       [[amount]]
 
-A second fill the same day saves EFT recap 2026-10-14 (2).docx and
-keeps the first. Fill reads the saved Word file in a Word of its own
-you never see, so anything open in Word stays as it is; save your
-tagging before you press Fill.
+   That's two square brackets, the word, two square brackets. No spaces.
+4. Do the same for the other three:
 
-Open: the real recap's tags and values, which go on Fields at work.
-Whether one filled copy per payment does the job, or you want one
-document for all of them. Whether macros run at work. A workbook in a
-OneDrive folder is handled, but only tested on made-up folders; if Fill
-says it can't find its folder, move both files to a folder on the PC.
+       [[period]]   where the tax period goes, like September 2026
+       [[draft]]    where the draft date goes
+       [[due]]      where the due date goes
+
+5. Save the Word file and close it.
+
+That Word file is now the master. Don't type numbers into it again. If
+something on it that never changes needs fixing, like a bank line, fix it
+in the master and save.
+
+## Each month
+
+1. Open Recap Fill.xlsm in the state's folder.
+2. On the Fields sheet, column B, type over the four values:
+   - period: the month the return is for. Type 9/1/2026 and it shows
+     September 2026.
+   - amount: the payment, off the state's recap. Type 66601.02 and it
+     shows $66,601.02.
+   - draft: the date the payment goes through. Type 10/17/2026.
+   - due: the due date. Type 10/20/2026.
+3. Press Fill.
+4. The box lists what it filled. Check the four against the recap.
+5. A new Word file is next to the master, with today's date in its name,
+   like Georgia EFT 2026-10-14.docx. That's this month's EFT. Use that one.
+
+If you press Fill twice on the same day, the second copy ends in (2) and
+the first one stays.
+
+## Adding a fifth blank later
+
+Say you want the invoice number filled too. In the master Word file, type
+[[invoice]] where it goes and save. On Fields, in the first empty row
+under the others, type invoice in column A and the value in column B.
+That's it. Any word works as long as Word and Fields spell it the same.
+Capitals don't matter.
+
+## If the box says something went wrong
+
+**In the Word file but not on Fields.** Word has a tag that Fields
+doesn't. Usually a spelling difference, like [[ammount]]. Make them match.
+
+**Not in the Word file.** Fields has a row that Word doesn't. Same fix, or
+delete the row on Fields if you don't need it.
+
+**No Word file has EFT in its name.** The Word file isn't in the same
+folder as the workbook, or EFT isn't in its name. Move it or rename it.
+EFT right after a letter doesn't count, so Left recap and Theft log are
+skipped.
+
+**More than one Word file has EFT in its name.** Fill lists them. Next to
+Word file at the top of Fields, type the exact name of the one to fill.
+
+**Fill skipped every Word file, each one ends in a date.** Only the dated
+copies are there, not the master. Put the master back in the folder.
+
+**Fix these on Fields first.** A value on Fields shows an error, like
+#DIV/0!. Fix that cell and press Fill again.
+
+**Excel blocks the macros.** Close the workbook, right-click it,
+Properties, tick Unblock, OK, and open it again.
+
+**Can't find this workbook's folder on the PC.** Usually OneDrive. Move
+the workbook and the Word file to a folder on the PC itself.
+
+## Try it first
+
+Put Recap Fill.xlsm and the sample EFT recap.docx in one folder, open the
+workbook and press Fill. A copy with today's date shows up beside the
+sample, all four filled.
+
+## What else to know
+
+Fill only reads and writes in the workbook's own folder. It opens the
+Word file in a hidden Word of its own, so whatever you have open in Word
+stays as it is. Save the master before you press Fill.
+
+If the .xlsm won't download, RecapFill.bas is the same macro as text. The
+steps at its top make the same workbook from a blank one.
+
+Tested in real Excel and Word, 132 checks.
