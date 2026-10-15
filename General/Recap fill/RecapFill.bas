@@ -89,7 +89,8 @@ Public Sub Fill()
         MsgBox "Save this workbook first, in the folder with the Word file.", vbExclamation, BOX_TITLE
         Exit Sub
     End If
-    folder = LocalFolder(ThisWorkbook.Path, Array(Environ$("OneDriveCommercial"), Environ$("OneDriveConsumer"), Environ$("OneDrive")))
+    folder = LocalFolder(ThisWorkbook.Path, ThisWorkbook.Name, _
+        Array(Environ$("OneDriveCommercial"), Environ$("OneDriveConsumer"), Environ$("OneDrive")))
     If folder = "" Then
         MsgBox "Can't find this workbook's folder on the PC:" & vbLf & ThisWorkbook.Path & vbLf & vbLf & _
             "Save the workbook and the Word file in a folder on the PC, then try again.", vbExclamation, BOX_TITLE
@@ -261,11 +262,12 @@ End Function
 
 ' The Word file to fill, from the folder and nowhere else. An exact name wins; one with no
 ' extension tries .docx, then .doc. Otherwise it's the one .docx or .doc with the typed word
-' anywhere in its name, in any case, leaving out the dated copies Fill saved. Word's ~$ temp
-' files never count. Gives back "" when it can't pick one, and the reason in why.
+' in its name, any case, with no letter right before it, leaving out the dated copies Fill
+' saved. Word's ~$ temp files never count. Gives back "" when it can't pick one, and the
+' reason in why.
 Private Function WordFile(ByVal folder As String, ByVal typed As String, ByRef why As String) As String
     Dim tries As Variant, t As Variant, f As String, dot As Long, n As Long
-    Dim pick As String, hits As String, others As String
+    Dim pick As String, hits As String, others As String, copies As String
     If InStr(typed, ".") > 0 Then tries = Array(typed) Else tries = Array(typed & ".docx", typed & ".doc")
     On Error Resume Next
     For Each t In tries
@@ -285,8 +287,8 @@ Private Function WordFile(ByVal folder As String, ByVal typed As String, ByRef w
         ElseIf LCase$(Mid$(f, dot)) <> ".docx" And LCase$(Mid$(f, dot)) <> ".doc" Then
             ' not a Word file
         ElseIf IsDatedCopy(Left$(f, dot - 1)) Then
-            ' a copy Fill saved
-        ElseIf InStr(1, f, typed, vbTextCompare) > 0 Then
+            If HasWord(f, typed) Then copies = copies & f & vbLf     ' a copy Fill saved
+        ElseIf HasWord(f, typed) Then
             n = n + 1
             pick = f
             hits = hits & f & vbLf
@@ -300,6 +302,11 @@ Private Function WordFile(ByVal folder As String, ByVal typed As String, ByRef w
     ElseIf n > 1 Then
         why = "More than one Word file in" & vbLf & folder & vbLf & "has " & typed & " in its name. " & _
             "Type the one to fill next to Word file on Fields:" & vbLf & vbLf & hits
+    ElseIf copies <> "" Then
+        why = "Fill skipped every Word file in" & vbLf & folder & vbLf & "with " & typed & " in its name. " & _
+            "Each one ends in a date, like the copies Fill saves:" & vbLf & vbLf & copies & vbLf & _
+            "To fill one anyway, type its exact name next to Word file on Fields."
+        If others <> "" Then why = why & vbLf & vbLf & "Other Word files there:" & vbLf & others
     ElseIf others <> "" Then
         why = "No Word file in" & vbLf & folder & vbLf & "has " & typed & " in its name. " & _
             "Type the one to fill next to Word file on Fields:" & vbLf & vbLf & others
@@ -308,6 +315,19 @@ Private Function WordFile(ByVal folder As String, ByVal typed As String, ByRef w
             "Put the Word file there, or fix its name on Fields next to Word file."
     End If
     If Len(why) > 1000 Then why = Left$(why, 990) & "..."
+End Function
+
+' True when w is in s, any case, with no letter right before it. So EFT counts in IN EFT recap,
+' eft_recap and 2026EFT recap, but not in Left recap or Theft log.
+Private Function HasWord(ByVal s As String, ByVal w As String) As Boolean
+    Dim i As Long, c As String
+    i = InStr(1, s, w, vbTextCompare)
+    Do While i > 1
+        c = Mid$(s, i - 1, 1)
+        If UCase$(c) = LCase$(c) Then Exit Do           ' not a letter
+        i = InStr(i + 1, s, w, vbTextCompare)
+    Loop
+    HasWord = i > 0
 End Function
 
 ' True for a name like the copies Fill saves: ending in a date, like EFT recap 2026-10-14,
@@ -341,13 +361,16 @@ Private Function FileOf(ByVal p As String) As String
     FileOf = Mid$(p, InStrRev(p, "\") + 1)
 End Function
 
-' On OneDrive, Excel gives the workbook's folder as a web address. This finds the same
-' folder on the PC under one of the OneDrive folders in roots. Anything else comes back
-' as it is, and "" means it couldn't be found.
-Private Function LocalFolder(ByVal p As String, ByVal roots As Variant) As String
+' The workbook's folder on the PC, p, as long as the workbook's own file, book, is in it.
+' On OneDrive, Excel gives the folder as a web address, so this finds the same folder under
+' one of the OneDrive folders in roots, and only one holding the workbook counts, never a
+' folder that just has the same name. "" means it couldn't be found.
+Private Function LocalFolder(ByVal p As String, ByVal book As String, ByVal roots As Variant) As String
     Dim bits() As String, root As Variant, tail As String, hit As String, i As Long
     If LCase$(Left$(p, 4)) <> "http" Then
-        LocalFolder = p
+        On Error Resume Next
+        hit = Dir$(p & "\" & book)
+        If Len(hit) > 0 Then LocalFolder = p
         Exit Function
     End If
     bits = Split(UrlDecode(p), "/")         ' https:, blank, the site, then the folders
@@ -355,10 +378,10 @@ Private Function LocalFolder(ByVal p As String, ByVal roots As Variant) As Strin
     For Each root In roots
         If root <> "" Then
             tail = ""
-            For i = UBound(bits) To 3 Step -1   ' keeps the longest tail that's there
+            For i = UBound(bits) To 3 Step -1   ' keeps the longest tail that holds the workbook
                 tail = "\" & bits(i) & tail
                 hit = ""
-                hit = Dir$(root & tail, vbDirectory)
+                hit = Dir$(root & tail & "\" & book)
                 If Len(hit) > 0 Then LocalFolder = root & tail
             Next
             If LocalFolder <> "" Then Exit Function
