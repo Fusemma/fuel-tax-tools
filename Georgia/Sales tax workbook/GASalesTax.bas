@@ -83,10 +83,17 @@ Public Function LoadRates(ByVal path As String) As String
     Dim tpl As Workbook, ws As Worksheet, v As Variant, outRows() As Variant
     Dim hr As Long, r As Long, c As Long, n As Long
     Dim cCode As Long, cFrom As Long, cTo As Long, cState As Long, cLocal As Long
-    Dim covFrom As Variant, covTo As Variant, why As String
+    Dim covFrom As Variant, covTo As Variant, why As String, w As Workbook, wasOpen As Boolean
     Application.ScreenUpdating = False
     On Error GoTo Failed
-    Set tpl = OpenQuiet(path, True)
+    ' already open in Excel: read it there and leave it open
+    For Each w In Workbooks
+        If LCase$(w.FullName) = LCase$(path) Then
+            Set tpl = w
+            wasOpen = True
+        End If
+    Next w
+    If tpl Is Nothing Then Set tpl = OpenQuiet(path, True)
     On Error Resume Next
     Set ws = tpl.Worksheets(RATE_SHEET)
     On Error GoTo Failed
@@ -155,7 +162,7 @@ Public Function LoadRates(ByVal path As String) As String
         .Range("H4").Value = path
     End With
 Done:
-    If Not tpl Is Nothing Then tpl.Close False
+    If Not tpl Is Nothing And Not wasOpen Then tpl.Close False
     Application.ScreenUpdating = True
     Application.CalculateFull
     LoadRates = why
@@ -187,9 +194,14 @@ Public Function MakeFilesFrom(ByVal tplPath As String) As String
             "Download that quarter's template, press Get rates and pick it."
         Exit Function
     End If
+    ' beside this workbook; in a OneDrive folder its path is a web address, so beside the template
+    Dim outDir As String
+    outDir = ThisWorkbook.Path
+    If LCase$(Left$(outDir, 4)) = "http" Or outDir = "" Then outDir = Left$(tplPath, InStrRev(tplPath, "\") - 1)
     Application.ScreenUpdating = False
     Application.CalculateFull
-    MakeFilesFrom = FillOne(True, tplPath, monEnd) & vbLf & vbLf & FillOne(False, tplPath, monEnd)
+    MakeFilesFrom = "In " & outDir & ":" & vbLf & vbLf & _
+        FillOne(True, tplPath, outDir, monEnd) & vbLf & FillOne(False, tplPath, outDir, monEnd)
     Application.ScreenUpdating = True
     Application.StatusBar = False
     Exit Function
@@ -211,19 +223,22 @@ Private Function Stopped(ByVal road As String, ByVal stepAt As String) As String
         " (error " & Err.Number & ")"
 End Function
 
-Private Function FillOne(ByVal offRoad As Boolean, ByVal tplPath As String, ByVal monEnd As Date) As String
+Private Function FillOne(ByVal offRoad As Boolean, ByVal tplPath As String, ByVal outDir As String, _
+                         ByVal monEnd As Date) As String
     Dim road As String, dest As String, wb As Workbook, m As Worksheet, dist As Worksheet, mfd As Worksheet
     Dim lines As Range, acct As Variant, i As Long, k As Long, j As Long, msg As String
     Dim codes As Variant, a As Variant, b As Variant, cc As Variant, d As Variant, e As Variant
-    Dim stepAt As String
+    Dim stepAt As String, copied As Boolean, saved As Boolean, cp As Long
     road = IIf(offRoad, "off-road", "on-road")
     On Error GoTo Failed
     stepAt = Progress(road, "reading RECAP")
     Set lines = Nm(IIf(offRoad, "OffLines", "OnLines"))
-    dest = FreeName(ThisWorkbook.Path & "\GA ST-3 " & road & " " & Format$(monEnd, "yyyy-mm"), _
+    dest = FreeName(outDir & "\GA ST-3 " & road & " " & Format$(monEnd, "yyyy-mm"), _
         Mid$(tplPath, InStrRev(tplPath, ".")))
     stepAt = Progress(road, "copying the template")
-    FileCopy tplPath, dest
+    ' this copy works even with the template open in Excel; FileCopy doesn't
+    CreateObject("Scripting.FileSystemObject").CopyFile tplPath, dest, False
+    copied = True
     stepAt = Progress(road, "opening the copy")
     ' Events off, so none of the template's own code runs. Not "macros off": Excel quietly ends
     ' the macro that saves a workbook it opened that way.
@@ -267,9 +282,15 @@ Private Function FillOne(ByVal offRoad As Boolean, ByVal tplPath As String, ByVa
         For i = 1 To UBound(codes, 1)
             If Txt(codes(i, 1)) <> "" And Val(Txt(b(i, 1))) <> 0 Then
                 If Txt(e(i, 1)) = "line 4" Then
-                    k = k + 1
-                    dist.Cells(2 + k, 1).Value = codes(i, 1)
-                    dist.Cells(2 + k, 4).Value = Round(d(i, 1), 2)
+                    ' one row per code: College Park's diesel and gas add up on the same row
+                    For cp = 1 To k
+                        If dist.Cells(2 + cp, 1).Value = codes(i, 1) Then Exit For
+                    Next cp
+                    If cp > k Then
+                        k = k + 1
+                        dist.Cells(2 + k, 1).Value = codes(i, 1)
+                    End If
+                    dist.Cells(2 + cp, 4).Value = Round(Val(Txt(dist.Cells(2 + cp, 4).Value)) + d(i, 1), 2)
                 Else
                     j = j + 1
                     mfd.Cells(2 + j, 1).Value = codes(i, 1)
@@ -296,6 +317,7 @@ Private Function FillOne(ByVal offRoad As Boolean, ByVal tplPath As String, ByVa
     stepAt = Progress(road, "saving the copy")
     Application.DisplayAlerts = False
     wb.Save
+    saved = True
     Application.DisplayAlerts = True
     wb.Close False
     Application.EnableEvents = True
@@ -306,6 +328,8 @@ Failed:
     FillOne = Stopped(road, stepAt)
     On Error Resume Next
     If Not wb Is Nothing Then wb.Close False
+    ' a half-filled copy must not be there to import by mistake
+    If copied And Not saved Then Kill dest
     Application.EnableEvents = True
 End Function
 
