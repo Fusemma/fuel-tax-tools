@@ -401,7 +401,7 @@ Private Function UrlDecode(ByVal s As String) As String
     UrlDecode = s
 End Function
 
-' The Fields sheet: the Word file box, the sample's three tags, the Fill button and the how-to.
+' The Fields sheet: the Word file box, the sample's four tags, the Fill button and the how-to.
 Private Sub MakeFieldsSheet()
     Dim ws As Worksheet
     Set ws = ThisWorkbook.Worksheets.Add(Before:=ThisWorkbook.Worksheets(1))
