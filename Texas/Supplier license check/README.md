@@ -9,7 +9,7 @@ delete. Red: licensed, but not as a supplier of that fuel. Orange: the
 number isn't on the state's list. Grey: no number, or the supplier
 license is suspended. Each line it moves gets the licenses the seller
 does hold, in the column just past the data. A permissive supplier
-counts as a supplier. Tested in Excel on the state's list of Oct 18,
+comes out too, unless it also holds a supplier license. Tested in Excel on the state's list of Oct 18,
 2026 (6,531 licenses).
 
 The state's list: on comptroller.texas.gov go to Taxes, Motor Fuels

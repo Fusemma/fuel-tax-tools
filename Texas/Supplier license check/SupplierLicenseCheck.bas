@@ -31,9 +31,9 @@ Option Explicit
 Private Const WORK_ON_A_COPY As Boolean = True
 
 ' The licenses that keep a line, split by |. A permissive supplier
-' gets the same deferral and allowance as a supplier.
-Private Const DIESEL_KEEPS As String = "DIESEL FUEL SUPPLIER|DIESEL FUEL PERMISSIVE SUPPLIER"
-Private Const GAS_KEEPS As String = "GASOLINE SUPPLIER|GASOLINE PERMISSIVE SUPPLIER"
+' comes out like a distributor.
+Private Const DIESEL_KEEPS As String = "DIESEL FUEL SUPPLIER"
+Private Const GAS_KEEPS As String = "GASOLINE SUPPLIER"
 
 ' Say so when the state's list was saved more than this many days ago.
 Private Const STALE_DAYS As Long = 7
