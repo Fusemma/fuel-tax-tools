@@ -1,16 +1,16 @@
 # Supplier license check
 
-What it does: an Excel macro (SupplierLicenseCheck.bas) for the Texas
-files where every seller not licensed as a supplier has to come out. It
-reads the state's list of licensed fuels taxpayers and moves each line
-whose seller holds no supplier license for that fuel, diesel or
-gasoline, below the lines to keep, under a banner, for you to check and
-delete. Red: licensed, but not as a supplier of that fuel. Orange: the
-number isn't on the state's list. Grey: no number, or the supplier
-license is suspended. Each line it moves gets the licenses the seller
-does hold, in the column just past the data. A permissive supplier
-comes out too, unless it also holds a supplier license. Tested in Excel on the state's list of Oct 18,
-2026 (6,531 licenses).
+What it does: an Excel macro (SupplierLicenseCheck.bas) for a Texas
+file that may only hold sellers licensed as a supplier. It reads the
+state's list of licensed fuels taxpayers and moves each line whose
+seller holds no supplier license for that fuel, diesel or gasoline,
+below the lines to keep, under a banner, for you to check and delete.
+Red: licensed, but not as a supplier of that fuel; a distributor or a
+permissive supplier lands here. Orange: the number isn't on the state's
+list. Grey: no number, or the supplier license is suspended. Each line
+it moves gets the licenses the seller does hold, in the column just
+past the data. Tested in Excel on the state's list of Oct 18, 2026
+(6,531 licenses).
 
 The state's list: on comptroller.texas.gov go to Taxes, Motor Fuels
 IFTA and Interstate Truckers, then Diesel Fuel or Gasoline. Under
@@ -39,7 +39,7 @@ Each row shows every Texas license that number holds. To refresh by
 itself: Data, Queries & Connections, right-click the query, Properties,
 tick Refresh data when opening the file.
 
-Open: not yet run on a real file. Which column on each of the two files
-holds the seller's taxpayer number, and that it is the 11-digit Texas
-number and not a federal ID (if not one number matches, the macro says
-so).
+Open: it matches on the 11-digit Texas taxpayer number only, so a
+column of federal IDs finds nothing; when not one number matches, the
+message says so. The state's list has no dates: it shows who is
+licensed today, not when a license started or ended.
