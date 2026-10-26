@@ -2,9 +2,12 @@
 # or text is edited), on every push to main, and by hand from the
 # Actions tab.
 #
-# Fails if a blocked word is in any file here, inside Excel and Word
-# files too, or in any commit's message, author or committer, or in a
-# pull request's title, text or branch name. The word lists are the
+# Fails if a blocked word is in any file or folder name here, in any
+# file, inside Excel and Word files and on PDF pages too, or in any
+# commit's message, author or committer, or in a pull request's title,
+# text or branch name. Also fails on a picture or other file it can't
+# read, until a person has looked and listed it in .github/looked-at.txt.
+# content_check.py says exactly what is read. The word lists are the
 # repository secrets BLOCKED_WORDS and ALLOWED_PHRASES, one entry per
 # line. The ruleset on main requires this check.
 name: content-check
@@ -32,6 +35,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      - name: Test the check itself
+        run: python .github/scripts/test_content_check.py
 
       - name: Gather every commit message and the pull request's text
         env:
