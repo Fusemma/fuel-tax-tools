@@ -70,7 +70,7 @@ Public Sub BuildNYUpload()
 End Sub
 
 Public Function NyUploadTest(ByVal paths As String) As String
-    ' For the test at home: builds from these files, joined by |, with no boxes, and
+    ' For test runs: builds from these files, joined by |, with no boxes, and
     ' returns what the boxes would have said.
     mQuiet = True
     mSaid = ""

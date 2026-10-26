@@ -66,9 +66,7 @@ GA Sales Tax Workbook.xlsm is the workbook, with the two buttons and the
 the .xlsm won't download, open GA Sales Tax Workbook - BLANK.xlsx and
 follow the steps at the top of the .bas to paste the macro in. Then Alt
 F8 runs GetRates and MakeStateFiles. The state import files folder holds
-the 3Q26 template. recalc.ps1 recalculates a workbook in real Excel and
-strips the author details. static_lists.json is the state's code for each
-county and city area, from the template's motor fuel county list.
+the 3Q26 template.
 
 ## College Park, East Point and Hapeville
 
