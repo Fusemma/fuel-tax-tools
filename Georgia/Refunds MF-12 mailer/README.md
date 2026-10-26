@@ -1,27 +1,38 @@
 # Georgia refunds, the MF-12 mailer
 
 What it does: an Excel macro (GARefunds.bas) that lives in the GA
-tracking workbook. Each cycle it makes the month's folders, renames and
-files the pulled invoices into packets, fills each supplier's MF-12 on the
-state's own form (mf12_template.pdf), lays it out on CHECK, draws the
-ENTRY sheet for the portal, and makes one Outlook draft per supplier. It
-never sends.
+tracking workbook and works Refunds Due as the running list of every
+refund still out, whatever its period. Build packets makes a folder for
+each period, refund type and supplier, files the pulled invoices into
+them from INBOX, and fills each supplier's MF-12 on the state's own form
+(mf12_template.pdf). Make drafts makes one Outlook draft per supplier per
+period; it never sends. Every click stamps MF-12 Sent and MF-12 Signed on
+the rows. ENTRY is the typing sheet for the portal, one group per period
+and refund type, and Mark filed stamps Filed Date once it's keyed. Rows
+with a Refund Receive Date move to Refunds Received.
 
-At work: paste GARefunds.bas into the tracking workbook, save as .xlsm,
-run Refunds1_BuildPackets once (it adds the HOW TO tab with the buttons
-and the SETUP sheet), fill the yellow cells, and save mf12_template.pdf
-where the workbook can reach it. The steps are at the top of the macro.
+At work: paste GARefunds.bas into the tracking workbook, save it as
+.xlsm, and save mf12_template.pdf in the same folder. Run
+Refunds1_BuildPackets once (Alt F8). It asks for the company's name and
+address, the folder the packets go in, and the oldest period to work,
+once each, then puts the HOW TO tab with the three buttons at the front.
+You don't make any folders.
+
+Before that first click, any row on Refunds Due already filed by hand
+needs its Filed Date, unless it's from before the oldest period you pick.
+Otherwise it gets a packet again.
 
 The headers it needs, any order, any capitals, the name alone in each
-cell: Refunds Due, on row 4, Refund Type (or Schedule), Period, Corp,
-License Number, BOL, INV, Inv Date, Gallons, Refund, Allowance, TTL
-Refund, Fuel; Corp License Number, on row 1, Corp, License Number,
+cell: on Refunds Due, Refund Type (or Schedule), Period, Corp, License
+Number, BOL, INV, Inv Date, Gallons, Refund, Allowance, TTL Refund, Fuel,
+plus MF-12 Sent, MF-12 Signed, Filed Date and Refund Receive Date, which
+it adds if they're missing. On Corp License Number, Corp, License Number,
 Contact name, Email address, Group Email Address, plus Short Name and
-NET, which the first run adds for you to fill.
+NET, which the first click adds. A blank Short Name gets the Corp name's
+first word.
 
 mf12_template.pdf is the state's 2017 MF-12 with room set aside in each
 box for the macro to write in. If Georgia revises the form, the template
 has to be rebuilt from the new blank before the macro can fill it.
 
-Open: first run at work, drafts only. Part 2, a running-list version,
-is not built yet.
+Open: first run at work, drafts only.
