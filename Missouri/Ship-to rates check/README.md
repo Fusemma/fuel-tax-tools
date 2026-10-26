@@ -7,8 +7,7 @@ use tax rate changed, which ship-tos need fixing (one scrolling list; a
 click on a ship-to's 100879/4 copies it), and a lookup by code. Each
 quarter's state data goes in its own file on the PC's own drive (the
 DataFolder setting, %LOCALAPPDATA%\MO Rates Check unless changed), so the
-database stays a few MB and never compacts. mo_changes.py, mo_match.py
-and mo_shiptos.py are the same logic in Python, for testing.
+database stays a few MB and never compacts.
 
 At work: in a new blank Access database, Alt F11, Insert, Module, paste
 the whole of MORatesCheck.bas, save it as MORatesCode, run SetUp once
@@ -30,11 +29,7 @@ the database holds only the ship-tos, settings, forms and the code. The
 quarter files are opened directly, not linked, because the matching
 seeks on their indexes.
 
-Tests: python test_match.py 5000, then python test_access.py (about ten
-minutes; it loads test_hooks.bas, the test-only module, beside the
-code). They start their own hidden Access, so a test copy left open on
-the screen is fine. python make_test_copy.py builds the
-desktop test copy and its data folder beside it.
-
-Open: how the ship-to list comes. The okayed-pending defaults in
-mo_shiptos.py's docstring.
+Open: how the ship-to list comes. Three defaults wait on your okay: an
+active, non-exempt ship-to with Tax empty is flagged as no rate set up;
+Tax matching the sales rate is said so; the list's county is a
+cross-check, and a different county goes to the map.

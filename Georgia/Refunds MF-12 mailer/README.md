@@ -3,10 +3,9 @@
 What it does: an Excel macro (GARefunds.bas) that lives in the GA
 tracking workbook. Each cycle it makes the month's folders, renames and
 files the pulled invoices into packets, fills each supplier's MF-12 on the
-state's own form (mf12_template.pdf, built by build_mf12_template.py),
-lays it out on CHECK, draws the ENTRY sheet for the portal, and makes one
-Outlook draft per supplier. It never sends. vba_harness.py runs the
-macro in real Excel for testing.
+state's own form (mf12_template.pdf), lays it out on CHECK, draws the
+ENTRY sheet for the portal, and makes one Outlook draft per supplier. It
+never sends.
 
 At work: paste GARefunds.bas into the tracking workbook, save as .xlsm,
 run Refunds1_BuildPackets once (it adds the HOW TO tab with the buttons
@@ -20,10 +19,9 @@ Refund, Fuel; Corp License Number, on row 1, Corp, License Number,
 Contact name, Email address, Group Email Address, plus Short Name and
 NET, which the first run adds for you to fill.
 
-If Georgia revises the MF-12: download the new blank, point BLANK in
-build_mf12_template.py at it, run it, and fill a proof with
-fill_twin.py. Field keys come from each box's position, so a moved box
-is fine; a new column needs a code change.
+mf12_template.pdf is the state's 2017 MF-12 with room set aside in each
+box for the macro to write in. If Georgia revises the form, the template
+has to be rebuilt from the new blank before the macro can fill it.
 
 Open: first run at work, drafts only. Part 2, a running-list version,
 is not built yet.

@@ -116,7 +116,7 @@ Oops:
 End Sub
 
 Public Function QfrTest() As String
-    ' For the test at home: runs the build with no boxes and returns what they would say.
+    ' For test runs: runs the build with no boxes and returns what they would say.
     mQuiet = True
     mSaid = ""
     BuildQFRRows

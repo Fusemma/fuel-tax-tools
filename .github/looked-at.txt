@@ -2,17 +2,13 @@
 # by a person and found to hold no blocked word. One line each: its
 # SHA-256, then where it is. Only the SHA-256 counts, so a changed file
 # needs a new look and a new line. The check prints the line to add.
-66311f914f4d1c804594d896c29115f2664d92d29be8eeab9c2a9872608cd85a  California/Rates check/state files/2026-10 L-1037 notice of new rates (CDTFA).pdf > picture, object 1481
 96367138dc44ce09bf2c8f0f8e49348a1478d2c5c0af69bbc2bbc38b63cdcead  Federal/Forms templates/Exemption Certificate - TEMPLATE.docx > docProps/thumbnail.jpeg
 96367138dc44ce09bf2c8f0f8e49348a1478d2c5c0af69bbc2bbc38b63cdcead  Federal/Forms templates/Notification Certificate - TEMPLATE.docx > docProps/thumbnail.jpeg
-84438163d4a40a52a7406caf7094801202e66d3996b09bfdc41bce762d8825a8  Federal/Forms templates/p510.pdf > picture, object 154
-7143d1f15bde5f2154a5ed7cb7866a5076d6d039e60970bd9289109888be5b5e  Federal/Forms templates/p510.pdf > picture, object 18306
 8bb84f4d7e4e5f43849b7d9ecea3c8681311138a1aa245adf737523715f5db13  General/State info/preview/State page 1.png
 9168a998dbae5fa9ed4de36cfd413af28c989b7457c7055f4e82267cea7a22d1  General/State info/preview/State page 2.png
 7afca8db58715b28714dfa72ee5193e71bbc4e3f4d1d6195f751599bffc1b72b  General/Work tracker/pictures/Items.png
 51a05811ca38a85f018ba7a56b6b99b98000de23dbab64cc22d0c7df0f711945  General/Work tracker/pictures/Log.png
 7dfba5fb22e6720a170092f4877bd70c8dd331f57647237ff77e859109b0cbe0  General/Work tracker/pictures/Month.png
 ba457de8511253184fc636396772b0d38104f9b2ba7ba31b2dd1895bbf069d54  General/Work tracker/pictures/Today.png
-a94033bd19a94dce5d07deb14aabae912814f8bfacbba2d48390d1df6a72068f  Georgia/Refunds MF-12 mailer/MF-12 blank (state 2017 rev).pdf
 451f12097dc9016f30e3f273a990fbcc5391d917836139eb8ef3bff1e81c79f3  Georgia/Refunds MF-12 mailer/mf12_template.pdf > picture, object 439
 7f68143580d7b54ef3477a8a1148d1ac6176ca757704b4e64b68060fd3c54919  Georgia/Refunds MF-12 mailer/mf12_template.pdf > picture, object 440
