@@ -27,9 +27,11 @@ cell: on Refunds Due, Refund Type (or Schedule), Period, Corp, License
 Number, BOL, INV, Inv Date, Gallons, Refund, Allowance, TTL Refund, Fuel,
 plus MF-12 Sent, MF-12 Signed, Filed Date and Refund Receive Date, which
 it adds if they're missing. On Corp License Number, Corp, License Number,
-Contact name, Email address, Group Email Address, plus Short Name and
-NET, which the first click adds. A blank Short Name gets the Corp name's
-first word.
+Contact name, Email address, Group Email Address, and Additional Email if
+it's there (it goes on CC), plus Short Name and NET, which the first
+click adds. A blank Short Name gets the Corp name's first word. A paid
+row moves under Refunds Received's own headers; a column that tab doesn't
+have, like FUEL, stays behind.
 
 mf12_template.pdf is the state's 2017 MF-12 with room set aside in each
 box for the macro to write in. If Georgia revises the form, the template
