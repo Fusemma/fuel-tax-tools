@@ -33,4 +33,4 @@ copy, and paste it into a module (Alt F11, Insert, Module).
 | General | [Sales tax recon](General/Sales%20tax%20recon/) | Reconciles the TERSE report against the AR sales report and shows only what disagrees. | [SalesTaxRecon.bas](General/Sales%20tax%20recon/SalesTaxRecon.bas) |
 | General | [State info](General/State%20info/) | One workbook for every state's returns, licenses, rates and contacts, one state per page. | [State Info.xlsx](General/State%20info/State%20Info.xlsx) |
 | General | [Work guide](General/Work%20guide/) | Where each thing lives at work, how a doc and an email look, how to cite, and how a state's how-to-file doc is written. | [Work guide.html](General/Work%20guide/Work%20guide.html) |
-| General | [Work tracker](General/Work%20tracker/) | One list of everything you track, with a dated log and pop-up reminders. | [Tracker.bas](General/Work%20tracker/Tracker.bas) |
+| General | [Work tracker](General/Work%20tracker/) | One list of everything you track, added one plain line at a time, with Outlook doing the popups. | [Tracker.bas](General/Work%20tracker/Tracker.bas) |
