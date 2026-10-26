@@ -34,6 +34,7 @@ Private Const TODAY_FORMATS As String = "0|@|@|@|@"
 Private Const TODAY_WIDTHS As String = "7|26|62|24|50"
 Private Const TODAY_PT As Long = 12         ' Today's words, a size up from Excel's 11
 Private Const TODAY_ROW_PT As Double = 21   ' and its rows, with room around them
+Private Const TODAY_STRIPE As Long = &HF2F2F2   ' light gray, on every other thing under a heading
 Private Const HOWTO_WIDTH As Double = 84    ' Today: the how-to's column, right of the list
 
 Private Const TABLE_TOP As Long = 2        ' List, Log and Days off: a note in row 1, the table under it
@@ -2648,7 +2649,7 @@ Private Sub DrawToday()
     Dim sk As Variant, wk As Variant
     Dim rest As Variant, nRest As Long, room As Long, out As Variant, n As Long
     Dim heads As Collection, lates As Collection, folds As Collection, notes As Object, f As Variant
-    Dim nowShown As Long, soonShown As Long
+    Dim nowShown As Long, soonShown As Long, band As Long
     Set ws = ThisWorkbook.Worksheets(TODAY_SHEET)
     mDrawn = mToday
     SortDay mToday, False, late, nLate, untimed, nUn, timed, nTi     ' the same counts the morning list has
@@ -2721,6 +2722,15 @@ Private Sub DrawToday()
             .Font.Bold = True
             .Interior.Color = RGB(221, 235, 247)
         End With
+    Next
+    ' every other thing under a heading in light gray, so a row is easy to follow across
+    For i = 1 To n
+        If VarType(out(i, 1)) = vbString Then
+            band = 0
+        ElseIf Not IsEmpty(out(i, 1)) Then
+            band = band + 1
+            If band Mod 2 = 0 Then ws.Range(ws.Cells(FIRST_ROW + i - 1, 1), ws.Cells(FIRST_ROW + i - 1, 5)).Interior.Color = TODAY_STRIPE
+        End If
     Next
     For Each f In lates
         With ws.Cells(FIRST_ROW + f - 1, 2).Font
