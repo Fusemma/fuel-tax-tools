@@ -62,6 +62,7 @@ Private Const H_RECEIVED As String = "refund receive date|refund received date|r
 Private Const H_CONTACT As String = "contact name|contact"
 Private Const H_EMAIL As String = "email address|email"
 Private Const H_GROUP As String = "group email address|group email"
+Private Const H_EXTRA As String = "additional email|additional email address|additional emails"
 Private Const H_SHORT As String = "short name"
 Private Const H_NET As String = "net"
 
@@ -117,6 +118,7 @@ Private Type RSup
     Contact As String
     Email As String
     GroupMail As String
+    Extra As String          ' Additional Email
     SheetRow As Long
     Problem As String
     NRows As Long
@@ -765,7 +767,7 @@ End Function
 Private Sub LoadContacts()
     Dim ws As Worksheet, hr As Long, lastCol As Long, lastRow As Long, r As Long
     Dim cLic As Long, cCorp As Long, cContact As Long, cEmail As Long, cGroup As Long, cShort As Long, cNet As Long
-    Dim lic As String, i As Long, j As Long, n As String, taken As String
+    Dim cExtra As Long, lic As String, i As Long, j As Long, n As String, taken As String
 
     Set ws = FindContactsSheet(mBook)
     hr = HeaderRow(ws, Array(H_LICENSE, H_EMAIL))
@@ -775,6 +777,7 @@ Private Sub LoadContacts()
     cContact = FindCol(ws, hr, H_CONTACT, lastCol)
     cEmail = FindCol(ws, hr, H_EMAIL, lastCol)
     cGroup = FindCol(ws, hr, H_GROUP, lastCol)
+    cExtra = FindCol(ws, hr, H_EXTRA, lastCol)
     cShort = FindCol(ws, hr, H_SHORT, lastCol)
     cNet = FindCol(ws, hr, H_NET, lastCol)
     lastRow = ws.Cells(ws.Rows.Count, cLic).End(xlUp).Row
@@ -797,6 +800,7 @@ Private Sub LoadContacts()
                     If cContact > 0 Then .Contact = CellStr(ws.Cells(r, cContact).Value)
                     If cEmail > 0 Then .Email = CellStr(ws.Cells(r, cEmail).Value)
                     If cGroup > 0 Then .GroupMail = CellStr(ws.Cells(r, cGroup).Value)
+                    If cExtra > 0 Then .Extra = CellStr(ws.Cells(r, cExtra).Value)
                     If cShort > 0 Then .ShortName = UCase$(SafeName(CellStr(ws.Cells(r, cShort).Value)))
                     If cNet > 0 Then
                         n = LCase$(CellStr(ws.Cells(r, cNet).Value))
@@ -1136,8 +1140,7 @@ End Sub
 ' ======================================================================================
 
 ' Rows with a Refund Receive Date move to the bottom of Refunds Received, matched column by
-' column on the headers (a header it doesn't have gets added), and come off Refunds Due.
-' Hands back how many moved.
+' column on the headers, and come off Refunds Due. Hands back how many moved.
 Private Function MoveReceived() As Long
     Dim rd As Worksheet, rr As Worksheet, hr As Long, rhr As Long, lastCol As Long, rLast As Long, cRecv As Long
     Dim lastRow As Long, r As Long, c As Long, dest As Long, map() As Long, moving() As Long, n As Long, i As Long, nm As String
@@ -1170,17 +1173,12 @@ Private Function MoveReceived() As Long
             rd.Rows(hr).Copy rr.Rows(rhr)
         End If
     End If
+    ' a column Refunds Received doesn't have (FUEL, say) isn't carried over; its layout stays yours
     rLast = LastHeaderCol(rr, rhr)
     ReDim map(1 To lastCol)
     For c = 1 To lastCol
         nm = Squash(CellStr(rd.Cells(hr, c).Value))
-        If Len(nm) > 0 Then
-            map(c) = FindCol(rr, rhr, nm, rLast)
-            If map(c) = 0 Then
-                rLast = AddHeader(rr, rhr, rLast, CellStr(rd.Cells(hr, c).Value))
-                map(c) = rLast
-            End If
-        End If
+        If Len(nm) > 0 Then map(c) = FindCol(rr, rhr, nm, rLast)
     Next c
     dest = LastDataRow(rr, rhr, rLast) + 1
     For i = 1 To n
@@ -1760,7 +1758,7 @@ Private Sub DecideReady()
         s = mMail(m).Sup
         why = mMail(m).Held
         If Len(why) = 0 And Len(mSup(s).Problem) > 0 Then why = mSup(s).Problem
-        If Len(why) = 0 And Len(mSup(s).Email) = 0 And Len(mSup(s).GroupMail) = 0 Then
+        If Len(why) = 0 And Len(mSup(s).Email) + Len(mSup(s).GroupMail) + Len(mSup(s).Extra) = 0 Then
             why = "no email address on " & CONTACTS_SHEET
             AddLook mSup(s).ShortName & ": no email address", CONTACTS_SHEET & " row " & mSup(s).SheetRow, "Fill in Email address or Group Email Address."
         End If
@@ -1873,15 +1871,11 @@ Private Sub MakeDrafts()
 End Sub
 
 Private Sub OutlookDraft(ol As Object, ByVal m As Long, ByVal subj As String, ByVal body As String)
-    Dim d As Object, insp As Object, f As Variant, html As String, pos As Long, s As Long
-    s = mMail(m).Sup
+    Dim d As Object, insp As Object, f As Variant, html As String, pos As Long, toAddr As String, ccAddr As String
+    Addresses mMail(m).Sup, toAddr, ccAddr
     Set d = ol.CreateItem(0)
-    If Len(mSup(s).Email) > 0 Then
-        d.To = mSup(s).Email
-        If Len(mSup(s).GroupMail) > 0 Then d.CC = mSup(s).GroupMail
-    Else
-        d.To = mSup(s).GroupMail
-    End If
+    d.To = toAddr
+    If Len(ccAddr) > 0 Then d.CC = ccAddr
     d.Subject = subj
     For Each f In Split(mMail(m).Files, vbLf)
         If Len(f) > 0 Then d.Attachments.Add CStr(f)
@@ -1902,23 +1896,35 @@ Private Sub OutlookDraft(ol As Object, ByVal m As Long, ByVal subj As String, By
     d.Close 0
 End Sub
 
+' Who a supplier's email goes to: Email address, else Group Email Address, else Additional
+' Email. The others go on CC.
+Private Sub Addresses(ByVal s As Long, ByRef toAddr As String, ByRef ccAddr As String)
+    Dim a As Variant, i As Long
+    a = Array(mSup(s).Email, mSup(s).GroupMail, mSup(s).Extra)
+    toAddr = "": ccAddr = ""
+    For i = 0 To 2
+        If Len(a(i)) > 0 Then
+            If Len(toAddr) = 0 Then
+                toAddr = a(i)
+            Else
+                ccAddr = ccAddr & IIf(Len(ccAddr) > 0, "; ", "") & a(i)
+            End If
+        End If
+    Next i
+End Sub
+
 Private Function TestDraftPath(ByVal m As Long) As String
     TestDraftPath = mTestDraftDir & "\" & mSup(mMail(m).Sup).ShortName & " " & (mMail(m).PerKey \ 100) & "-" & _
         Format$(mMail(m).PerKey Mod 100, "00") & " draft.txt"
 End Function
 
 Private Sub TestDraft(ByVal m As Long, ByVal subj As String, ByVal body As String)
-    Dim f As Integer, s As Long
-    s = mMail(m).Sup
+    Dim f As Integer, toAddr As String, ccAddr As String
+    Addresses mMail(m).Sup, toAddr, ccAddr
     f = FreeFile
     Open TestDraftPath(m) For Output As #f
-    If Len(mSup(s).Email) > 0 Then
-        Print #f, "To: " & mSup(s).Email
-        Print #f, "CC: " & mSup(s).GroupMail
-    Else
-        Print #f, "To: " & mSup(s).GroupMail
-        Print #f, "CC: "
-    End If
+    Print #f, "To: " & toAddr
+    Print #f, "CC: " & ccAddr
     Print #f, "Subject: " & subj
     Print #f, "Body: " & body
     Print #f, "Attachments:"
@@ -1998,6 +2004,7 @@ End Function
 Private Sub WriteCheck(ByVal stepNo As Long)
     Dim ws As Worksheet, r As Long, i As Long, m As Long, p As Long, t As Long, first As Long, ix As Variant, s As Long
     Dim n As Long, g As Double, rf As Double, al As Double, tt As Double, k As Long, keys As Collection
+    Dim toAddr As String, ccAddr As String
 
     Set ws = SheetNamed(CHECK_SHEET)
     If ws Is Nothing Then
@@ -2105,12 +2112,9 @@ Private Sub WriteCheck(ByVal stepNo As Long)
         ws.Cells(r, 7).Value = Round(g, 2)
         ws.Cells(r, 7).NumberFormat = "#,##0.00"
         ws.Cells(r, 8).Value = IIf(mSup(s).IsNet, "NET", "gross")
-        If Len(mSup(s).Email) > 0 Then
-            ws.Cells(r, 9).Value = mSup(s).Email
-            ws.Cells(r, 10).Value = mSup(s).GroupMail
-        Else
-            ws.Cells(r, 9).Value = mSup(s).GroupMail
-        End If
+        Addresses s, toAddr, ccAddr
+        ws.Cells(r, 9).Value = toAddr
+        ws.Cells(r, 10).Value = ccAddr
         If mMail(m).FileCount > 0 Then ws.Cells(r, 11).Value = AttachSummary(m)
         ws.Cells(r, 12).Value = mMail(m).Status
         If Len(mMail(m).Held) = 0 Or mMail(m).IsSent Then ws.Cells(r, 12).Interior.Color = GREEN Else ws.Cells(r, 12).Interior.Color = RED
