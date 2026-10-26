@@ -6,8 +6,8 @@ a thing with one line of plain words, like "call Huntsville back 11/17 9am"
 or "GA refund mailer monthly on the 5th", and it lands on the right day. A
 flagged email comes in by itself, and Pull from Outlook brings in your
 calendar's repeats. A thing with a set time pops up then; the rest come in
-one list at 8:30 AM on workdays. How to use it is on the Today sheet, beside
-the buttons. This copy replaces v2.
+one list at 8:30 AM on workdays. How to use it is on the Today sheet, on the
+right. This copy replaces v2.
 
 At work, once: new blank workbook, paste Tracker.bas into a new module, run
 TrackerSetup (Alt F8), and save it as a macro workbook (.xlsm). Days off

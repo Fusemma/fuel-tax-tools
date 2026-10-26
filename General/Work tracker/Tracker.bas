@@ -2,7 +2,7 @@
 ' To install, paste this whole module into a new module in a blank workbook, run TrackerSetup
 ' (Alt F8) and save it as a macro workbook (.xlsm). To update, paste a newer copy over this one
 ' and run TrackerSetup again; every row stays.
-' How to use it is on the Today sheet, beside the buttons.
+' How to use it is on the Today sheet, on the right.
 
 Option Explicit
 
@@ -31,7 +31,10 @@ Private Const OFF_FORMATS As String = "ddd m/d/yy|@"
 Private Const OFF_WIDTHS As String = "14|32"
 Private Const TODAY_COLS As String = "#|When|What|Repeats|Latest note"
 Private Const TODAY_FORMATS As String = "0|@|@|@|@"
-Private Const TODAY_WIDTHS As String = "6|24|56|22|62"
+Private Const TODAY_WIDTHS As String = "7|26|62|24|50"
+Private Const TODAY_PT As Long = 12         ' Today's words, a size up from Excel's 11
+Private Const TODAY_ROW_PT As Double = 21   ' and its rows, with room around them
+Private Const HOWTO_WIDTH As Double = 84    ' Today: the how-to's column, right of the list
 
 Private Const TABLE_TOP As Long = 2        ' List, Log and Days off: a note in row 1, the table under it
 Private Const COUNT_ROW As Long = 1        ' Today: the count line
@@ -2712,6 +2715,7 @@ Private Sub DrawToday()
     last = ws.UsedRange.Row + ws.UsedRange.Rows.Count - 1
     If last >= FIRST_ROW Then ws.Rows(FIRST_ROW & ":" & last).Delete
     ws.Range(ws.Cells(FIRST_ROW, 1), ws.Cells(FIRST_ROW + n - 1, 5)).Value = out
+    ws.Rows(FIRST_ROW & ":" & (FIRST_ROW + n - 1)).RowHeight = TODAY_ROW_PT
     For Each f In heads
         With ws.Range(ws.Cells(FIRST_ROW + f - 1, 1), ws.Cells(FIRST_ROW + f - 1, 5))
             .Font.Bold = True
@@ -2904,7 +2908,7 @@ End Sub
 
 Private Sub DressToday(ByVal ws As Worksheet)
     ' Today's buttons, how-to, count line and column headers
-    Dim names As Variant, f As Variant, w As Variant, k As Long, b As Object
+    Dim names As Variant, f As Variant, w As Variant, k As Long, b As Object, tb As Object
     names = Split(TODAY_COLS, "|"): f = Split(TODAY_FORMATS, "|"): w = Split(TODAY_WIDTHS, "|")
     For k = 0 To UBound(names)
         ws.Columns(k + 1).NumberFormat = f(k)
@@ -2916,27 +2920,43 @@ Private Sub DressToday(ByVal ws As Worksheet)
         .Font.Color = vbWhite
         .Interior.Color = RGB(31, 78, 121)
     End With
-    ws.Rows(COUNT_ROW).RowHeight = 22
-    ws.Rows(2).RowHeight = 28
-    ws.Rows(3).RowHeight = 28
-    ws.Rows(SAID_ROW).RowHeight = 80
+    ws.Range(ws.Columns(1), ws.Columns(UBound(names) + 1)).Font.Size = TODAY_PT
+    ws.Columns(UBound(names) + 2).ColumnWidth = HOWTO_WIDTH
+    ws.Rows(COUNT_ROW).RowHeight = 27
+    ws.Rows(2).RowHeight = 39
+    ws.Rows(3).RowHeight = 30
+    ws.Rows(SAID_ROW).RowHeight = 48
+    ws.Rows(HEAD_ROW).RowHeight = TODAY_ROW_PT
     With ws.Cells(COUNT_ROW, 1)
         .Font.Bold = True
-        .Font.Size = 12
+        .Font.Size = TODAY_PT + 1
         .VerticalAlignment = xlCenter
     End With
-    ws.Range(ws.Cells(SAID_ROW, 1), ws.Cells(SAID_ROW, 4)).Merge
+    ' an earlier copy kept the how-to at the top right; what a button says now runs the width of the list
+    ws.Range(ws.Cells(1, 1), ws.Cells(SAID_ROW, 6)).UnMerge
+    ws.Range(ws.Cells(1, 5), ws.Cells(SAID_ROW, 6)).Clear
+    ws.Range(ws.Cells(SAID_ROW, 1), ws.Cells(SAID_ROW, 5)).Merge
     With ws.Cells(SAID_ROW, 1)
         .WrapText = True
         .VerticalAlignment = xlTop
         .Font.Italic = True
         .Font.Color = RGB(31, 78, 121)
     End With
-    ws.Columns(6).ColumnWidth = 44
-    ws.Range(ws.Cells(1, 5), ws.Cells(SAID_ROW, 6)).Merge
-    With ws.Cells(1, 5)
-        .Value = "Add: press Add, or Ctrl+Shift+A, and type one line, like call Huntsville back 11/17 9am. " & _
-            "No date means today. What it understood shows on the left." & vbLf & _
+    ' the how-to: a text box right of the list, under the rows that stay put, so a fold never cuts it
+    On Error Resume Next
+    ws.Shapes("trkHowTo").Delete
+    On Error GoTo 0
+    Set tb = ws.Shapes.AddTextbox(msoTextOrientationHorizontal, ws.Columns(6).Left + 6, ws.Rows(FIRST_ROW).Top + 4, _
+        ws.Columns(6).Width - 12, 300)
+    tb.Name = "trkHowTo"
+    tb.Placement = xlFreeFloating
+    tb.Line.Visible = msoFalse
+    tb.Fill.Visible = msoFalse
+    With tb.TextFrame2
+        .WordWrap = msoTrue
+        .AutoSize = msoAutoSizeShapeToFitText
+        .TextRange.Text = "Add: press Add, or Ctrl+Shift+A, and type one line, like call Huntsville back 11/17 9am. " & _
+            "No date means today. What it understood shows above the list." & vbLf & _
             "Repeats: every monday, monthly on the 5th, quarterly, renew bond 1/15 yearly, until 12/31." & vbLf & _
             "Click a row, then: Done takes it off Today (a repeat moves to its next date). Move to tomorrow puts it " & _
             "on the next workday. Change date takes one line, like fri 2pm or 11/20. Note adds a dated line to the Log. " & _
@@ -2951,26 +2971,25 @@ Private Sub DressToday(ByVal ws As Worksheet)
             "then press Take the Yes ones. Take them off my calendar then moves those to Deleted Items." & vbLf & _
             "Paste a list: paste one thing per line, then press Take these." & vbLf & _
             "A line like ""8 more for today"" folds the rest away. Press the + at the far left to open it."
-        .WrapText = True
-        .VerticalAlignment = xlTop
-        .Font.Size = 9
-        .Font.Color = RGB(89, 89, 89)
+        .TextRange.Font.Size = 11
+        .TextRange.Font.Fill.ForeColor.RGB = RGB(64, 64, 64)
+        .TextRange.ParagraphFormat.SpaceAfter = 6
     End With
     For Each b In ws.Buttons
         If Left$(b.Name, 3) = "trk" Then b.Delete
     Next
-    ' the first row works on a row, the second on the whole list and Outlook
-    AddButton ws, "trkAdd", "Add", "AddThing", 0, 0, 50
-    AddButton ws, "trkDone", "Done", "DoneThing", 0, 54, 50
-    AddButton ws, "trkMove", "Move to tomorrow", "MoveTomorrow", 0, 108, 100
-    AddButton ws, "trkChange", "Change date", "ChangeDate", 0, 212, 80
-    AddButton ws, "trkNote", "Note", "NoteThing", 0, 296, 50
-    AddButton ws, "trkDrop", "Drop it", "DropIt", 0, 350, 60
-    AddButton ws, "trkOpen", "Open email", "OpenEmail", 0, 414, 80
-    AddButton ws, "trkUndo", "Undo", "UndoLast", 1, 0, 50
-    AddButton ws, "trkPaste", "Paste a list", "PasteList", 1, 54, 80
-    AddButton ws, "trkPull", "Pull from Outlook", "PullFromOutlook", 1, 138, 110
-    AddButton ws, "trkOffCal", "Take them off my calendar", "TakeOffCalendar", 1, 252, 150
+    ' the top row is what you press all day, big; the rest go under it
+    AddButton ws, "trkAdd", "Add", "AddThing", 0, 0, 80, True
+    AddButton ws, "trkDone", "Done", "DoneThing", 0, 86, 80, True
+    AddButton ws, "trkMove", "Move to tomorrow", "MoveTomorrow", 0, 172, 140, True
+    AddButton ws, "trkChange", "Change date", "ChangeDate", 0, 318, 116, True
+    AddButton ws, "trkNote", "Note", "NoteThing", 1, 0, 50
+    AddButton ws, "trkDrop", "Drop it", "DropIt", 1, 54, 60
+    AddButton ws, "trkOpen", "Open email", "OpenEmail", 1, 118, 80
+    AddButton ws, "trkUndo", "Undo", "UndoLast", 1, 202, 50
+    AddButton ws, "trkPaste", "Paste a list", "PasteList", 1, 272, 80
+    AddButton ws, "trkPull", "Pull from Outlook", "PullFromOutlook", 1, 356, 110
+    AddButton ws, "trkOffCal", "Take them off my calendar", "TakeOffCalendar", 1, 470, 150
     ws.Activate
     With ActiveWindow
         .FreezePanes = False
@@ -2984,17 +3003,24 @@ Private Sub DressToday(ByVal ws As Worksheet)
 End Sub
 
 Private Sub AddButton(ByVal ws As Worksheet, ByVal key As String, ByVal caption As String, _
-                      ByVal macroName As String, ByVal rowSlot As Long, ByVal x As Double, ByVal w As Double)
-    ' Buttons sit in rows 2 and 3 on Today, row 1 elsewhere, x points in from the left and w wide
-    Dim b As Object, top As Double
+                      ByVal macroName As String, ByVal rowSlot As Long, ByVal x As Double, ByVal w As Double, _
+                      Optional ByVal big As Boolean = False)
+    ' Buttons sit in rows 2 and 3 on Today, row 1 elsewhere, x points in from the left and w wide.
+    ' A big one is taller, in bold.
+    Dim b As Object, r As Range, h As Double
     On Error Resume Next
     ws.Buttons(key).Delete
     On Error GoTo 0
-    If ws.Name = TODAY_SHEET Then top = ws.Rows(2).Top Else top = ws.Rows(1).Top
-    Set b = ws.Buttons.Add(ws.Range("A1").Left + 4 + x, top + 2 + rowSlot * 28, w, 24)
+    If ws.Name = TODAY_SHEET Then Set r = ws.Rows(2 + rowSlot) Else Set r = ws.Rows(1)
+    If big Then h = 30 Else h = 24
+    Set b = ws.Buttons.Add(ws.Range("A1").Left + 4 + x, r.Top + (r.RowHeight - h) / 2, w, h)
     b.Name = key
     b.Caption = caption
     b.OnAction = macroName
+    If big Then
+        b.Font.Bold = True
+        b.Font.Size = TODAY_PT
+    End If
 End Sub
 
 
