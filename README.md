@@ -7,14 +7,17 @@ folder has a README: what it does, how to set it up, what is open.
 
 To get a file: click its name below, then the download button at the
 top right of the file. A .bas file is a macro; open it, select all,
-copy, and paste it into a module (Alt F11, Insert, Module).
+copy, and paste it into a module (Alt F11, Insert, Module). The Georgia
+refunds mailer comes as two .bas files instead, GARefundsReader.bas and
+GARefundsWorker.bas: don't paste them. Its README says to remove the old
+pieces first, then bring each file in with File, Import File.
 
 | State | Tool | What it does | Download |
 |---|---|---|---|
 | Alabama | [Rates check](Alabama/Rates%20check/) | Shows which local rates changed going into this month and next, from the state's taxrates.csv. | [ALRates.bas](Alabama/Rates%20check/ALRates.bas) |
 | California | [Rates check](California/Rates%20check/) | Shows what changed in city and county rates, from the CDTFA's quarterly rates file. | [CARates.bas](California/Rates%20check/CARates.bas) |
 | Federal | [Forms templates](Federal/Forms%20templates/) | Word templates for the 637 notification certificate and the excise exemption certificate. | [Notification Certificate - TEMPLATE.docx](Federal/Forms%20templates/Notification%20Certificate%20-%20TEMPLATE.docx), [Exemption Certificate - TEMPLATE.docx](Federal/Forms%20templates/Exemption%20Certificate%20-%20TEMPLATE.docx) |
-| Georgia | [Refunds MF-12 mailer](Georgia/Refunds%20MF-12%20mailer/) | Works the running list of GA refunds: files the invoices into packets, fills each supplier's MF-12, makes the Outlook drafts, and follows each refund until it's paid. | [GARefunds.bas](Georgia/Refunds%20MF-12%20mailer/GARefunds.bas), [mf12_template.pdf](Georgia/Refunds%20MF-12%20mailer/mf12_template.pdf) |
+| Georgia | [Refunds MF-12 mailer](Georgia/Refunds%20MF-12%20mailer/) | Works the running list of GA refunds: files the invoices into packets, fills each supplier's MF-12, makes the Outlook drafts, and follows each refund until it's paid. | [GARefundsReader.bas](Georgia/Refunds%20MF-12%20mailer/GARefundsReader.bas), [GARefundsWorker.bas](Georgia/Refunds%20MF-12%20mailer/GARefundsWorker.bas), [mf12_template.pdf](Georgia/Refunds%20MF-12%20mailer/mf12_template.pdf) |
 | Georgia | [Sales tax workbook](Georgia/Sales%20tax%20workbook/) | The monthly sales tax returns; paste the reports in, rates come from the state's template, and a button makes both upload files. | [GA Sales Tax Workbook.xlsm](Georgia/Sales%20tax%20workbook/GA%20Sales%20Tax%20Workbook.xlsm), [GASalesTax.bas](Georgia/Sales%20tax%20workbook/GASalesTax.bas), [GA Sales Tax Workbook - BLANK.xlsx](Georgia/Sales%20tax%20workbook/GA%20Sales%20Tax%20Workbook%20-%20BLANK.xlsx) |
 | Illinois | [Rates check](Illinois/Rates%20check/) | Shows which rates changed since the last machine-readable files you loaded. | [ILRates.bas](Illinois/Rates%20check/ILRates.bas) |
 | Missouri | [Ship-to rates check](Missouri/Ship-to%20rates%20check/) | An Access database that re-matches every ship-to against the DOR's boundary file each quarter. | [MORatesCheck.bas](Missouri/Ship-to%20rates%20check/MORatesCheck.bas) |
