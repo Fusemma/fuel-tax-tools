@@ -18,6 +18,7 @@ Public Const TEMPLATE_NAME As String = "mf12_template.pdf"
 
 ' Words on SETUP
 Private Const PACKETS_HINT As String = "Each period gets its own folder inside it, like 2026-08 August, and INBOX sits here too."
+Private Const MONTH_NOTE As String = "Only this month's rows are worked. Every button asks for it, with this filled in."
 Private Const TYPE_WORD_HEAD As String = "Name in folders and files"
 Private Const OLD_PREFIX_HEAD As String = "Old folder prefix"
 Private Const TYPE_NOTE As String = "A refund type the list doesn't have lands on CHECK. Add it on a yellow line: the words " & _
@@ -158,7 +159,9 @@ Public mLook() As RLook, mNLook As Long
 Public mTypeText() As String, mTypeWord() As String, mTypePrefix() As String, mTypePhrase() As String, mNType As Long
 
 Public mBook As Workbook
-Public mLeftAlone As Long       ' open rows from before the oldest period, not worked
+Public mByHand As Long          ' this month's open rows sent by hand, with no packet from this macro, left alone
+Public mHandRows As Object      ' their sheet rows, found once the click has looked in the folders
+Public mOtherBols As Object     ' the BOLs of other months' open rows, so their INBOX files wait for that month
 Public mShortsFilled As Long    ' Short Names filled in from the Corp name this click
 Public mPeriodNote As String    ' periods it couldn't read and went by the invoice date for, for under CHECK's bar
 Private mPaidStuck As String    ' paid rows Refunds Received couldn't take this click, one to a line
@@ -172,7 +175,7 @@ Public Const SORT_NAMES As Long = 4      ' plain names, any capitals
 
 ' from SETUP
 Private mBuyer As String, mAddress As String, mCity As String, mState As String, mZip As String
-Public mUs As String, mBase As String, mTemplatePath As String, mOldest As Long
+Public mUs As String, mBase As String, mTemplatePath As String, mMonth As Long
 Public mSubject As String, mBody As String
 
 ' ======================================================================================
@@ -230,7 +233,7 @@ Private Sub MakeSetupSheet()
     ws.Columns(2).ColumnWidth = 60
     ws.Columns(3).ColumnWidth = 40
     ws.Range("B8").NumberFormat = "@"     ' a ZIP like 02134 keeps its zero
-    ws.Range("B13").NumberFormat = "@"    ' Aug-26 stays a period, not August 26
+    ws.Range("B13").NumberFormat = "@"    ' Aug-26 stays a month, not August 26
     ws.Range("A1").Value = "GA refunds setup"
     ws.Range("A1").Font.Bold = True
     ws.Range("A1").Font.Size = 14
@@ -246,8 +249,8 @@ Private Sub MakeSetupSheet()
     ws.Range("C11").Value = PACKETS_HINT
     SetupLine ws, 12, "MF-12 template file", ""
     ws.Range("C12").Value = "Full path to " & TEMPLATE_NAME & ". Found by itself when it's beside this workbook."
-    SetupLine ws, 13, "Oldest period to work", ""
-    ws.Range("C13").Value = "Rows from before this period are left alone. Type none to work every row with no Filed Date."
+    SetupLine ws, 13, "Month to work", ""
+    ws.Range("C13").Value = MONTH_NOTE
     SetupLine ws, 15, "Email subject", ">MONTH< >YEAR< GA MF-12 Waiver - >US< / >SUPPLIER<"
     SetupLine ws, 16, "Email text", NewLetter()
     ws.Range("B16").WrapText = True
@@ -273,8 +276,9 @@ Private Sub MakeSetupSheet()
 End Sub
 
 ' A SETUP sheet from before the running list: its Month folder line becomes Packets folder,
-' and an Oldest period line goes in under the template line. One from before the new names
-' gets them in its refund type list.
+' and a Month to work line goes in under the template line. The last version's Oldest period
+' line becomes Month to work, blank, so the click asks. One from before the new names gets
+' them in its refund type list.
 Private Sub UpgradeSetupSheet(ws As Worksheet)
     Dim r As Long, v As String
     If SetupRow(ws, "packets folder") = 0 Then
@@ -297,13 +301,21 @@ Private Sub UpgradeSetupSheet(ws As Worksheet)
     End If
     UpgradeTypeList ws
     UpgradeLetter ws
-    If SetupRow(ws, "oldest period") = 0 Then
-        r = SetupRow(ws, "mf-12 template")
+    If SetupRow(ws, "month to work") = 0 Then
+        r = SetupRow(ws, "oldest period")
         If r > 0 Then
-            ws.Rows(r + 1).Insert
-            SetupLine ws, r + 1, "Oldest period to work", ""
-            ws.Cells(r + 1, 2).NumberFormat = "@"
-            ws.Cells(r + 1, 3).Value = "Rows from before this period are left alone. Type none to work every row with no Filed Date."
+            ws.Cells(r, 1).Value = "Month to work"
+            ws.Cells(r, 2).NumberFormat = "@"
+            ws.Cells(r, 2).Value = ""
+            ws.Cells(r, 3).Value = MONTH_NOTE
+        Else
+            r = SetupRow(ws, "mf-12 template")
+            If r > 0 Then
+                ws.Rows(r + 1).Insert
+                SetupLine ws, r + 1, "Month to work", ""
+                ws.Cells(r + 1, 2).NumberFormat = "@"
+                ws.Cells(r + 1, 3).Value = MONTH_NOTE
+            End If
         End If
     End If
 End Sub
@@ -416,8 +428,8 @@ Public Function ReadSetup() As String
     mSubject = SetupValue(ws, "email subject")
     mBody = SetupValue(ws, "email text")
     If Right$(mBase, 1) = "\" Then mBase = Left$(mBase, Len(mBase) - 1)
-    mOldest = 0
-    t = PeriodText(ws.Cells(SetupRow(ws, "oldest period"), 2).Value)
+    mMonth = 0
+    t = PeriodText(ws.Cells(SetupRow(ws, "month to work"), 2).Value)
 
     If Len(mBuyer) = 0 Then miss = miss & "  Purchaser name" & vbLf
     If Len(mAddress) = 0 Then miss = miss & "  Purchaser street address" & vbLf
@@ -427,9 +439,7 @@ Public Function ReadSetup() As String
     If Len(mUs) = 0 Then miss = miss & "  Company short name for the email subject" & vbLf
     If InStr(mBase, "\") = 0 Then miss = miss & "  Packets folder, a full path like C:\GA Refunds or \\server\share\GA Refunds" & vbLf
     If Len(mTemplatePath) = 0 Then miss = miss & "  MF-12 template file" & vbLf
-    If LCase$(t) <> "none" Then
-        If ParsePeriod(t, m, y) Then mOldest = y * 100 + m Else miss = miss & "  Oldest period to work, a period like Aug-26, or none" & vbLf
-    End If
+    If ParsePeriod(t, m, y) Then mMonth = y * 100 + m Else miss = miss & "  Month to work, a month like Aug-26" & vbLf
     If Len(mSubject) = 0 Then miss = miss & "  Email subject" & vbLf
     If Len(mBody) = 0 Then miss = miss & "  Email text" & vbLf
 
@@ -484,7 +494,7 @@ End Function
 ' counts too; a click reads the tabs again partway (after Mark filed) but SETUP only once.
 Public Sub ClearLists(Optional ByVal newClick As Boolean = False)
     Erase mRow, mSup, mMail, mPkt, mLook
-    mNRow = 0: mNSup = 0: mNMail = 0: mNPkt = 0: mNLook = 0: mLeftAlone = 0: mPeriodNote = ""
+    mNRow = 0: mNSup = 0: mNMail = 0: mNPkt = 0: mNLook = 0: mByHand = 0: mPeriodNote = ""
     If newClick Then
         Erase mTypeText, mTypeWord, mTypePrefix, mTypePhrase
         mNType = 0: mShortsFilled = 0: mPaidStuck = ""
@@ -648,14 +658,17 @@ Private Function GuessShort(ByVal corp As String, ByVal taken As String) As Stri
     GuessShort = s
 End Function
 
-' Every row on Refunds Due that's still open: no Filed Date, no Refund Receive Date, and not
-' from before the oldest period on SETUP.
+' Every row on Refunds Due that's still open (no Filed Date, no Refund Receive Date) from the
+' month to work on SETUP, but not one sent by hand. Other months' rows are left alone; only
+' their BOLs are kept, so their INBOX files wait for their month.
 Private Sub LoadRows()
     Dim ws As Worksheet, hr As Long, lastCol As Long, lastRow As Long, r As Long, data As Variant, ok As Boolean
     Dim cType As Long, cPer As Long, cCorp As Long, cLic As Long, cBol As Long, cInv As Long, cInvDate As Long
     Dim cGal As Long, cRef As Long, cAllow As Long, cTtl As Long, cFuel As Long, cSent As Long, cSigned As Long
     Dim cFiled As Long, cRecv As Long, key As Long, odd As Object, k As Variant, d As Date, per As String
+    Dim byDate As Boolean, bk As String
 
+    Set mOtherBols = CreateObject("Scripting.Dictionary")
     Set ws = DueSheet(hr, lastCol)
     cType = FindCol(ws, hr, H_TYPE, lastCol)
     cPer = FindCol(ws, hr, H_PERIOD, lastCol)
@@ -689,16 +702,21 @@ Private Sub LoadRows()
            Len(CellStr(data(r, cFiled))) + Len(CellStr(data(r, cRecv))) = 0 Then
             per = PeriodText(data(r, cPer))
             key = PeriodKey(per)
+            byDate = False
             If key = 0 Then
                 d = ToDate(data(r, cInvDate), ok)
-                If ok Then
-                    key = Year(d) * 100 + Month(d)
+                If ok Then key = Year(d) * 100 + Month(d): byDate = True
+            End If
+            ' a row with no month to go by stays in, so its line on CHECK says what to fix
+            If key > 0 And key <> mMonth Then
+                bk = BolKey(CellStr(data(r, cBol)))
+                If Len(bk) > 0 And Not mOtherBols.Exists(bk) Then mOtherBols.Add bk, key
+            ElseIf IsHandRow(hr + r) Then
+                mByHand = mByHand + 1
+            Else
+                If byDate Then
                     If odd.Exists(per) Then odd(per) = odd(per) & ", " & (hr + r) Else odd.Add per, CStr(hr + r)
                 End If
-            End If
-            If mOldest > 0 And key > 0 And key < mOldest Then
-                mLeftAlone = mLeftAlone + 1
-            Else
                 mNRow = mNRow + 1
                 ReDim Preserve mRow(1 To mNRow)
                 With mRow(mNRow)
@@ -741,6 +759,22 @@ Private Sub LoadRows()
     Next k
 End Sub
 
+' A row's month as 202608: its Period, or its invoice date when the Period can't be read. 0 for neither.
+Private Function RowMonth(ws As Worksheet, ByVal r As Long, ByVal cPer As Long, ByVal cInvDate As Long) As Long
+    Dim d As Date, ok As Boolean
+    If cPer > 0 Then RowMonth = PeriodKey(PeriodText(ws.Cells(r, cPer).Value))
+    If RowMonth = 0 And cInvDate > 0 Then
+        d = ToDate(ws.Cells(r, cInvDate).Value, ok)
+        If ok Then RowMonth = Year(d) * 100 + Month(d)
+    End If
+End Function
+
+' True for a row this click found sent by hand: MF-12 Sent filled in, no packet from this macro.
+Private Function IsHandRow(ByVal sheetRow As Long) As Boolean
+    If mHandRows Is Nothing Then Exit Function
+    IsHandRow = mHandRows.Exists(CStr(sheetRow))
+End Function
+
 ' The last row with anything in a header column, for reading a sheet down to its end.
 Private Function LastDataRow(ws As Worksheet, ByVal hr As Long, ByVal lastCol As Long) As Long
     Dim c As Long, r As Long
@@ -751,7 +785,7 @@ Private Function LastDataRow(ws As Worksheet, ByVal hr As Long, ByVal lastCol As
     Next c
 End Function
 
-' The periods of the rows still open on Refunds Due, oldest first, for the first click's question.
+' The months of the rows still open on Refunds Due, oldest first, for the month question.
 Public Function OpenPeriods() As Collection
     Dim ws As Worksheet, hr As Long, lastCol As Long, lastRow As Long, r As Long, data As Variant
     Dim cPer As Long, cBol As Long, cLic As Long, cFiled As Long, cRecv As Long, key As Long, i As Long, done As Boolean
@@ -934,23 +968,26 @@ End Sub
 '  Rows that are paid, filed, sent and signed
 ' ======================================================================================
 
-' Rows with a Refund Receive Date move to the bottom of Refunds Received, matched column by
-' column on the headers, and come off Refunds Due. Safe to cut off halfway: a row that's
-' already on Refunds Received (same license, BOL, invoice number and period) isn't copied
-' again, and a row only comes off Refunds Due once its copy is there. A row Refunds Received
-' won't take stays on Refunds Due with a line on CHECK; the rest still move. Hands back how
-' many came off.
+' The month to work's rows with a Refund Receive Date move to the bottom of Refunds Received,
+' matched column by column on the headers, and come off Refunds Due. Safe to cut off halfway:
+' a row that's already on Refunds Received (same license, BOL, invoice number and period) isn't
+' copied again, and a row only comes off Refunds Due once its copy is there. A row Refunds
+' Received won't take stays on Refunds Due with a line on CHECK; the rest still move. Hands
+' back how many came off.
 Public Function MoveReceived() As Long
     Dim rd As Worksheet, rr As Worksheet, hr As Long, rhr As Long, lastCol As Long, rLast As Long, cRecv As Long
     Dim lastRow As Long, r As Long, c As Long, dest As Long, map() As Long, moving() As Long, n As Long, i As Long, nm As String
-    Dim have As Object, key As String, gone() As Boolean
+    Dim have As Object, key As String, gone() As Boolean, cPer As Long, cInvDate As Long, mo As Long
 
     Set rd = DueSheet(hr, lastCol)
     cRecv = FindCol(rd, hr, H_RECEIVED, lastCol)
     If cRecv = 0 Then Exit Function
+    cPer = FindCol(rd, hr, H_PERIOD, lastCol)
+    cInvDate = FindCol(rd, hr, H_DATE, lastCol)
     lastRow = LastDataRow(rd, hr, lastCol)
     For r = hr + 1 To lastRow
-        If Len(CellStr(rd.Cells(r, cRecv).Value)) > 0 Then
+        mo = RowMonth(rd, r, cPer, cInvDate)
+        If Len(CellStr(rd.Cells(r, cRecv).Value)) > 0 And (mo = mMonth Or mo = 0) Then
             n = n + 1
             ReDim Preserve moving(1 To n)
             moving(n) = r

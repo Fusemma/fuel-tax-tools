@@ -18,6 +18,10 @@ Do this the first time and each time the macro is updated.
 ## The first one to run
 
 Press Alt F8 and run Refunds1_BuildPackets. It asks for the company's
-name and address, the packets folder and the oldest period, once each.
-Then it puts the HOW TO tab at the front, with the three buttons and
-the rest of the steps.
+name and address and the packets folder, once each, then which month to
+work. Then it puts the HOW TO tab at the front, with the three buttons
+and the rest of the steps.
+
+It works one month at a time: every button asks which month, and only
+that month's rows are touched. A row with MF-12 Sent filled in and no
+packet from this macro counts as sent by hand and is left alone.
