@@ -18,7 +18,8 @@ Public Const TEMPLATE_NAME As String = "mf12_template.pdf"
 
 ' Words on SETUP
 Private Const PACKETS_HINT As String = "Each period gets its own folder inside it, like 2026-08 August, and INBOX sits here too."
-Private Const MONTH_NOTE As String = "Only this month's rows are worked. Every button asks for it, with this filled in."
+Private Const MONTH_NOTE As String = "Only this month's rows are worked. Every button asks for the month: " & _
+    "Build packets fills in the newest month with open rows, Make drafts and Mark filed fill in this one."
 Private Const TYPE_WORD_HEAD As String = "Name in folders and files"
 Private Const OLD_PREFIX_HEAD As String = "Old folder prefix"
 Private Const TYPE_NOTE As String = "A refund type the list doesn't have lands on CHECK. Add it on a yellow line: the words " & _
@@ -509,8 +510,6 @@ Public Sub LoadAll()
     LoadRows
     mStage = "matching rows to suppliers"
     AssignPackets
-    mStage = "writing the Corp names onto Refunds Due"
-    WriteCorpNames
     PaidStuckLooks
 End Sub
 
@@ -785,14 +784,17 @@ Private Function LastDataRow(ws As Worksheet, ByVal hr As Long, ByVal lastCol As
     Next c
 End Function
 
-' The months of the rows still open on Refunds Due, oldest first, for the month question.
+' The months of the rows still open on Refunds Due, oldest first, for the month question. A
+' Period it can't read goes by the invoice date, the way the rows are read.
 Public Function OpenPeriods() As Collection
     Dim ws As Worksheet, hr As Long, lastCol As Long, lastRow As Long, r As Long, data As Variant
     Dim cPer As Long, cBol As Long, cLic As Long, cFiled As Long, cRecv As Long, key As Long, i As Long, done As Boolean
+    Dim cInvDate As Long, d As Date, ok As Boolean
     Dim out As New Collection
 
     Set OpenPeriods = out
     Set ws = DueSheet(hr, lastCol)
+    cInvDate = FindCol(ws, hr, H_DATE, lastCol)
     cPer = FindCol(ws, hr, H_PERIOD, lastCol)
     cBol = FindCol(ws, hr, H_BOL, lastCol)
     cLic = FindCol(ws, hr, H_LICENSE, lastCol)
@@ -805,6 +807,10 @@ Public Function OpenPeriods() As Collection
         If Len(CellStr(data(r, cBol))) + Len(CellStr(data(r, cLic))) > 0 And _
            Len(CellStr(data(r, cFiled))) + Len(CellStr(data(r, cRecv))) = 0 Then
             key = PeriodKey(PeriodText(data(r, cPer)))
+            If key = 0 And cInvDate > 0 Then
+                d = ToDate(data(r, cInvDate), ok)
+                If ok Then key = Year(d) * 100 + Month(d)
+            End If
             If key > 0 Then
                 done = False
                 For i = 1 To out.Count
@@ -946,7 +952,7 @@ End Function
 ' The Corp name as typed on Corp License Number goes onto every open matched row of Refunds
 ' Due, so the report's own spelling of a supplier never shows anywhere you work from. A row
 ' whose license isn't on Corp License Number keeps what was pasted.
-Private Sub WriteCorpNames()
+Public Sub WriteCorpNames()
     Dim ws As Worksheet, hr As Long, lastCol As Long, c As Long, i As Long, nm As String
     Set ws = DueSheet(hr, lastCol)
     If ws Is Nothing Then Exit Sub
