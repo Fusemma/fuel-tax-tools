@@ -8,6 +8,7 @@ Option Explicit
 
 Private Const BIG_EMAIL_MB As Double = 20      ' a draft bigger than this gets a warning on CHECK
 Private Const TAG_FILE As String = "packet.txt"   ' in each packet folder: whose packet it is
+Private Const MARKS_SHEET As String = "Keyed marks"   ' hidden: Keyed x's of a month ENTRY isn't showing
 ' ENTRY's columns, in the portal's order. Keyed is first: the x's are read back by these words.
 Private Const ENTRY_HEADS As String = "Keyed|Seller Name|Seller License Number|Date|Invoice Number|Gallons|" & _
     "Tax Paid to Seller|Exempt Portion|Type of Fuel|Running total"
@@ -21,6 +22,7 @@ Private Const ST_OUT As Long = 5         ' sent, waiting on the notarized MF-12
 Private Const ST_BACK As Long = 6        ' back notarized: key it from ENTRY, then Mark filed
 
 Private mMoved As Long           ' paid rows moved to Refunds Received this click
+Private mOtherInbox As Long      ' INBOX files for other months' rows, left there this click
 Private mMonthDirs As Variant    ' the folders in the packets folder, to find a month's whatever its capitals
 Private mTemplate As String      ' the template's bytes
 Private mQuiet As Boolean        ' test runs: no popups
@@ -32,6 +34,8 @@ Private mLastSaid As String      ' what the last box said, for CHECK when a clic
 Private mWaitOnly() As Boolean   ' an email held only by an invoice not in yet or an MF-12 not made yet
 ' the packet.txt files found this click: the folder, the packet it names, and what else it says
 Private mTagDir() As String, mTagKey() As String, mTagShort() As String, mTagSubject() As String, mNTag As Long
+Private mTagHand() As String     ' and the BOLs it lists as sent by hand, each between |s
+Private mHandByKey As Object     ' this click's rows sent by hand, by packet: their BOLs, for its packet.txt
 
 ' ======================================================================================
 '  The three macros
@@ -98,7 +102,7 @@ Private Sub RunStep(ByVal stepNo As Long)
     mStage = "checking the setup"
     msg = EnsureSetup()
     If Len(msg) > 0 Then StopEarly stepNo, msg: Exit Sub
-    If Not AskSetup() Then WriteCheckStopped stepNo, mLastSaid: Exit Sub
+    If Not AskSetup(stepNo) Then WriteCheckStopped stepNo, mLastSaid: Exit Sub
     msg = ReadSetup()
     If Len(msg) > 0 Then StopEarly stepNo, "Fill these in on the SETUP sheet first:" & vbLf & msg: Exit Sub
     If Not LoadTemplate() Then
@@ -189,10 +193,15 @@ End Sub
 
 ' Reads the tabs again from the top, and puts each packet in its folder.
 Private Sub ReadAll()
+    Set mHandRows = Nothing
+    Set mHandByKey = CreateObject("Scripting.Dictionary")
     ClearLists
     LoadAll
     mStage = "finding the packet folders"
     PlaceFolders
+    ' only now, so a row sent by hand keeps the Corp name it was pasted with
+    mStage = "writing the Corp names onto Refunds Due"
+    WriteCorpNames
 End Sub
 
 ' Every packet's folder, found one packet at a time, then every rename that's needed, one packet
@@ -200,6 +209,14 @@ End Sub
 Private Sub PlaceFolders()
     Dim p As Long, pass As Long, taken As String, waiting() As Boolean
 
+    ' rows sent by hand come off first, and the tabs are read again without them
+    mMonthDirs = ListFolders(mBase)
+    ReadTags
+    If FindHandRows() Then
+        ClearLists
+        LoadAll
+        mStage = "finding the packet folders"
+    End If
     FixMonthFolders
     mMonthDirs = ListFolders(mBase)
     ReadTags
@@ -287,6 +304,60 @@ Failed:
     HoldPacket p, "finding its folder"
 End Sub
 
+' This month's rows with something in MF-12 Sent that this macro didn't send: sent by hand, so
+' they're left alone and the rest of their packet goes on without them. A row is sent by hand
+' when its packet.txt lists it so, or when its packet has no folder from this macro at all.
+' Its packet.txt lists it from then on, so a folder made later for the packet's other rows
+' never pulls it back in. True when there are any; their rows are kept for the second read to skip.
+Private Function FindHandRows() As Boolean
+    Dim i As Long, p As Long, hand As Boolean, made() As Long, k As String
+
+    If mNPkt > 0 Then ReDim made(1 To mNPkt)        ' each packet's PacketTag, once looked up
+    Set mHandRows = CreateObject("Scripting.Dictionary")
+    For i = 1 To mNRow
+        If mRow(i).HasSent Then
+            p = mRow(i).Pkt
+            hand = True
+            If p > 0 Then
+                If made(p) = 0 Then made(p) = PacketTag(p)
+                If made(p) > 0 Then
+                    hand = (InStr(mTagHand(made(p)), "|" & mRow(i).BolK & "|") > 0)
+                ElseIf made(p) = -1 Then
+                    hand = False
+                End If
+            End If
+            If hand Then
+                mHandRows(CStr(mRow(i).SheetRow)) = True
+                If p > 0 Then
+                    k = mPkt(p).Key
+                    If mHandByKey.Exists(k) Then mHandByKey(k) = mHandByKey(k) & ", " & mRow(i).Bol Else mHandByKey(k) = mRow(i).Bol
+                End If
+            End If
+        End If
+    Next i
+    FindHandRows = (mHandRows.Count > 0)
+End Function
+
+' Which packet.txt names the packet. -1 when none does but a folder of this macro's holds it
+' (one with the name it gives the packet, or one the last version made); -2 when it has none.
+' A folder it can't look in counts as this macro's, so nothing is dropped on a guess.
+Private Function PacketTag(ByVal p As Long) As Long
+    Dim t As Long
+    On Error GoTo Unsure
+    For t = 1 To mNTag
+        If mTagKey(t) = mPkt(p).Key Then PacketTag = t: Exit Function
+    Next t
+    PacketTag = -2
+    If FolderExists(MonthFolder(mPkt(p).PerKey) & "\" & mPkt(p).PName) Then
+        PacketTag = -1
+    ElseIf Len(mPkt(p).Prefix) > 0 Then
+        If Len(OldClaims(p, "")) > 0 Then PacketTag = -1
+    End If
+    Exit Function
+Unsure:
+    PacketTag = -1
+End Function
+
 ' True once something stopped partway on this packet this click.
 Private Function StoppedOn(ByVal p As Long) As Boolean
     StoppedOn = (Left$(mPkt(p).Problem, 14) = "stopped while ")
@@ -320,12 +391,12 @@ End Sub
 ' True when a month folder holds a packet folder whose packet.txt names a packet that isn't open
 ' this click: one filed or paid already. One it can't look in counts as holding one.
 Private Function HoldsClosedPacket(ByVal mf As String) As Boolean
-    Dim dirs As Variant, i As Long, p As Long, key As String, sh As String, subj As String, isOpen As Boolean
+    Dim dirs As Variant, i As Long, p As Long, key As String, sh As String, subj As String, hand As String, isOpen As Boolean
     On Error GoTo Unsure
     dirs = ListFolders(mf)
     If IsEmpty(dirs) Then Exit Function
     For i = 1 To UBound(dirs)
-        If ParseTag(mf & "\" & dirs(i), key, sh, subj) Then
+        If ParseTag(mf & "\" & dirs(i), key, sh, subj, hand) Then
             isOpen = False
             For p = 1 To mNPkt
                 If mPkt(p).Key = key Then isOpen = True: Exit For
@@ -342,7 +413,7 @@ End Function
 Private Sub ReadTags()
     Dim p As Long, i As Long, mf As String, done As String, dirs As Variant
     mNTag = 0
-    Erase mTagDir, mTagKey, mTagShort, mTagSubject
+    Erase mTagDir, mTagKey, mTagShort, mTagSubject, mTagHand
     For p = 1 To mNPkt
         mf = MonthFolder(mPkt(p).PerKey)
         If InStr(done, "|" & UCase$(mf) & "|") = 0 Then
@@ -360,22 +431,26 @@ End Sub
 ' One folder's packet.txt, kept for this click. One that can't be read, or doesn't say whose
 ' packet it is, counts as none, so the folder is found by its name instead.
 Private Sub ReadTag(ByVal fld As String)
-    Dim key As String, sh As String, subj As String
-    If Not ParseTag(fld, key, sh, subj) Then Exit Sub
+    Dim key As String, sh As String, subj As String, hand As String
+    If Not ParseTag(fld, key, sh, subj, hand) Then Exit Sub
     mNTag = mNTag + 1
     ReDim Preserve mTagDir(1 To mNTag): ReDim Preserve mTagKey(1 To mNTag)
     ReDim Preserve mTagShort(1 To mNTag): ReDim Preserve mTagSubject(1 To mNTag)
+    ReDim Preserve mTagHand(1 To mNTag)
     mTagDir(mNTag) = fld
     mTagKey(mNTag) = key
     mTagShort(mNTag) = sh
     mTagSubject(mNTag) = subj
+    mTagHand(mNTag) = hand
 End Sub
 
-' What a folder's packet.txt says: the packet it names, the Short Name and the subject. False
-' when there's none, it can't be read, or it doesn't say whose packet it is.
-Private Function ParseTag(ByVal fld As String, ByRef key As String, ByRef sh As String, ByRef subj As String) As Boolean
-    Dim lines As Variant, i As Long, k As String, v As String, lic As String, tw As String, per As String
-    key = "": sh = "": subj = ""
+' What a folder's packet.txt says: the packet it names, the Short Name, the subject, and the
+' BOLs it lists as sent by hand (each between |s). False when there's none, it can't be read,
+' or it doesn't say whose packet it is.
+Private Function ParseTag(ByVal fld As String, ByRef key As String, ByRef sh As String, ByRef subj As String, _
+    ByRef hand As String) As Boolean
+    Dim lines As Variant, i As Long, k As String, v As String, lic As String, tw As String, per As String, b As Variant
+    key = "": sh = "": subj = "": hand = "|"
     If Not FileExists(fld & "\" & TAG_FILE) Then Exit Function
     On Error GoTo Unreadable
     lines = Split(Replace(ReadText(fld & "\" & TAG_FILE), vbCr, ""), vbLf)
@@ -389,6 +464,10 @@ Private Function ParseTag(ByVal fld As String, ByRef key As String, ByRef sh As 
                 Case "refund type": tw = v
                 Case "period": per = v
                 Case "subject": subj = v
+                Case "sent by hand"
+                    For Each b In Split(v, ",")
+                        If Len(BolKey(CStr(b))) > 0 Then hand = hand & BolKey(CStr(b)) & "|"
+                    Next b
             End Select
         End If
     Next i
@@ -670,7 +749,7 @@ Private Function Finished(ByVal stepNo As Long, ByVal marked As Long) As String
     ElseIf stepNo = 3 Then
         msg = "Marked " & marked & " packet(s) filed today. They're off ENTRY."
     ElseIf mNPkt = 0 Then
-        msg = "Nothing open on Refunds Due: every row has a Filed Date or a Refund Receive Date."
+        msg = "Nothing open for " & MonthWords(mMonth) & ": every row has a Filed Date or a Refund Receive Date, or was sent by hand."
     Else
         msg = mNPkt & " packet(s) open."
     End If
@@ -714,10 +793,11 @@ End Function
 ' ======================================================================================
 
 ' The first click's questions, each asked only while its SETUP cell is blank: the template
-' (found by itself if it can be), the company on the MF-12, the packets folder, and the oldest
-' period to work. False if a question was cancelled or the template can't be found.
-Private Function AskSetup() As Boolean
-    Dim ws As Worksheet, v As String, q As Variant, f As String, pers As Collection, i As Long, lst As String
+' (found by itself if it can be), the company on the MF-12 and the packets folder. Then, every
+' click, the month to work: Build packets fills in the newest month with open rows, the other
+' buttons the month picked last. False if a question was cancelled or the template can't be found.
+Private Function AskSetup(ByVal stepNo As Long) As Boolean
+    Dim ws As Worksheet, v As String, q As Variant, f As String, pers As Collection, i As Long, lst As String, done As Boolean
 
     Set ws = SheetNamed(SETUP_SHEET)
 
@@ -762,26 +842,35 @@ Private Function AskSetup() As Boolean
         SetSetup ws, "packets folder", v
     End If
 
-    If Len(PeriodText(ws.Cells(SetupRow(ws, "oldest period"), 2).Value)) = 0 Then
-        Set pers = OpenPeriods()
-        If pers.Count <= 1 Then
-            v = "none"
-        Else
-            For i = 1 To pers.Count
-                If i <= 24 Then lst = lst & IIf(Len(lst) > 0, ", ", "") & PeriodLabel(pers(i))
-            Next i
-            If pers.Count > 24 Then lst = lst & " and " & (pers.Count - 24) & " more"
-            v = Ask("Refunds Due has rows with no Filed Date from these periods:" & vbLf & lst & vbLf & vbLf & _
-                "Which is the oldest period to make packets for? Rows from before it are left alone, so a refund " & _
-                "you already filed by hand doesn't get a second packet. Type none to take every row." & vbLf & vbLf & _
-                "Asked once. It goes on the SETUP tab, where you can change it.", PeriodLabel(pers(pers.Count)))
-            If Len(v) = 0 Then
-                Say "Stopped. Click Build packets again to pick up where you left off.", vbInformation
-                Exit Function
-            End If
-        End If
-        SetSetup ws, "oldest period", v
+    Set pers = OpenPeriods()
+    For i = 1 To pers.Count
+        If i <= 24 Then lst = lst & IIf(Len(lst) > 0, ", ", "") & PeriodLabel(pers(i))
+    Next i
+    If pers.Count > 24 Then lst = lst & " and " & (pers.Count - 24) & " more"
+    If Len(lst) > 0 Then lst = "Months with rows still open: " & lst & vbLf & vbLf
+    v = PeriodText(ws.Cells(SetupRow(ws, "month to work"), 2).Value)
+    If (stepNo = 1 Or Len(v) = 0) And pers.Count > 0 Then v = PeriodLabel(pers(pers.Count))
+    v = Ask(lst & "Which month are you working? Only that month's rows are touched; the rest wait for their own month.", v)
+    If Len(v) = 0 Then
+        Say "Stopped. Click the button again and pick a month.", vbInformation
+        Exit Function
     End If
+    If PeriodKey(v) = 0 Then
+        Say "Couldn't read " & v & " as a month. Click the button again and type it like Aug-26.", vbExclamation
+        Exit Function
+    End If
+    ' a typo like Aug-25 would otherwise show a month with nothing to do
+    done = False
+    For i = 1 To pers.Count
+        If pers(i) = PeriodKey(v) Then done = True: Exit For
+    Next i
+    If Not done Then
+        If Not AskYes("No rows still open are from " & PeriodLabel(PeriodKey(v)) & ". Work it anyway?") Then
+            Say "Stopped. Click the button again and pick a month.", vbInformation
+            Exit Function
+        End If
+    End If
+    SetSetup ws, "month to work", PeriodLabel(PeriodKey(v))
     AskSetup = True
 End Function
 
@@ -824,6 +913,11 @@ End Function
 ' 2026-08 August: still sorts by date.
 Private Function MonthFolderName(ByVal perKey As Long) As String
     MonthFolderName = (perKey \ 100) & "-" & Format$(perKey Mod 100, "00") & " " & MonthName(perKey Mod 100)
+End Function
+
+' August 2026, for CHECK.
+Private Function MonthWords(ByVal perKey As Long) As String
+    If perKey Mod 100 >= 1 And perKey Mod 100 <= 12 Then MonthWords = MonthName(perKey Mod 100) & " " & (perKey \ 100)
 End Function
 
 ' A filed invoice's name, without .pdf: Acme BOL 123456 Invoice 7890 VI, and a 2 on the end
@@ -898,6 +992,7 @@ End Sub
 Private Sub SortInbox(ByVal fileThem As Boolean)
     Dim files As Variant, i As Long
 
+    mOtherInbox = 0
     files = ListFiles(InboxFolder())
     If IsEmpty(files) Then Exit Sub
     For i = 1 To UBound(files)
@@ -930,9 +1025,11 @@ Private Sub FileFromInbox(ByVal f As String, ByVal fileIt As Boolean)
             End If
         Next r
         invs = BolInvoices(BolKey(bolPart), 0, bolShown)
-        If Len(bolShown) = 0 Then
+        If Len(bolShown) = 0 And OtherMonthBol(bolPart) Then
+            mOtherInbox = mOtherInbox + 1         ' it waits for its own month
+        ElseIf Len(bolShown) = 0 Then
             AddLookItem "INBOX: no open row has the BOL of", "INBOX: no open row has the BOLs of", f, "Left in INBOX.", _
-                "Check the BOL. Its row may be filed already, or from before the Oldest period to work on SETUP."
+                "Check the BOL. Its row may be filed already, or sent by hand."
         ElseIf waiting > 0 Then
             AddLookItem "INBOX: waiting on a row that needs a fix first:", "INBOX: waiting on rows that need a fix first:", _
                 f & " (row " & waiting & ")", "Left in INBOX.", "Fix the row (its line is above), then click Build packets again."
@@ -961,6 +1058,12 @@ Failed:
             FixFor(Err.Number, "Build packets")
     End If
 End Sub
+
+' True when the BOL is on an open row of another month.
+Private Function OtherMonthBol(ByVal bolPart As String) As Boolean
+    If mOtherBols Is Nothing Then Exit Function
+    OtherMonthBol = mOtherBols.Exists(BolKey(bolPart))
+End Function
 
 ' "12345 VI", "12345 VI 2", "12345VI". The BOL, the kind of copy, and an optional number.
 Private Function ParseInboxName(ByVal stem As String, ByRef bolPart As String, ByRef kind As String, ByRef sq As String) As Boolean
@@ -1712,7 +1815,7 @@ Private Sub WriteCheck(ByVal stepNo As Long)
     Dim toAddr As String, ccAddr As String, x As Variant, small As String, bar As String
 
     Set ws = CheckSheet()
-    bar = mNPkt & " packet" & IIf(mNPkt = 1, "", "s") & " open."
+    bar = mNPkt & " packet" & IIf(mNPkt = 1, "", "s") & " open for " & MonthWords(mMonth) & "."
     If mNLook = 0 Then
         bar = "Nothing needs you.   " & bar
     Else
@@ -1720,8 +1823,9 @@ Private Sub WriteCheck(ByVal stepNo As Long)
     End If
     small = "Built " & Format$(Now, "m/d/yyyy h:nn AM/PM") & " by " & Choose(stepNo, "Build packets", "Make drafts", "Mark filed") & "."
     If Len(mPeriodNote) > 0 Then small = small & "  " & mPeriodNote
-    If mLeftAlone > 0 Then small = small & "  Left alone: " & mLeftAlone & " open row(s) from before " & PeriodLabel(mOldest) & _
-        ", the Oldest period to work on SETUP."
+    If mByHand > 0 Then small = small & "  Sent by hand: " & mByHand & " row(s) of " & MonthWords(mMonth) & _
+        " have MF-12 Sent and no packet from this macro, so they're left alone."
+    If mOtherInbox > 0 Then small = small & "  INBOX: " & mOtherInbox & " file(s) for other months, left there."
     If mMoved > 0 Then small = small & "  Moved " & mMoved & " paid row(s) to Refunds Received."
     r = CheckTop(ws, bar, IIf(mNLook = 0, GREEN, RED), small)
 
@@ -2030,7 +2134,7 @@ Private Sub WriteHowTo()
     ws.Columns(4).ColumnWidth = 70
     ws.Rows(1).RowHeight = 30
 
-    ws.Range("B1").Value = "GA refunds: the running list, MF-12 packets, Outlook drafts, portal entry"
+    ws.Range("B1").Value = "GA refunds: MF-12 packets, Outlook drafts, portal entry, one month at a time"
     ws.Range("B1").Font.Bold = True
     ws.Range("B1").Font.Size = 18
     HowToButton ws, 3, "btnBuild", "1.  Build packets", "Refunds1_BuildPackets", _
@@ -2044,21 +2148,22 @@ Private Sub WriteHowTo()
         "Once ENTRY is keyed into the Georgia portal", _
         "Stamps today's date as Filed Date on every packet on ENTRY, so they drop off. It asks first."
     r = 6
-    r = HowToLine(ws, r, "Every click checks everything again, so CHECK is never out of date whichever button you click.", False)
+    r = HowToLine(ws, r, "It works one month at a time: every button asks which month, and touches only that month's rows. " & _
+        "Each click checks that month again, so CHECK is never out of date for the month it shows.", False)
     ws.Cells(r - 1, 2).Font.Italic = True
     r = r + 1
 
     r = HowToLine(ws, r, "Each month", True)
     r = HowToLine(ws, r, "1. New refunds: paste the refund report's rows at the bottom of Refunds Due, under the rows already there.", False)
     r = HowToLine(ws, r, "2. Invoices: save each load's invoices in INBOX as ""12345 VI"" and ""12345 CI"" (12345 is the BOL).", False)
-    r = HowToLine(ws, r, "3. Click Build packets. It files the invoices and fills the MF-12s; CHECK shows where each one stands.", False)
+    r = HowToLine(ws, r, "3. Click Build packets and pick the month. It files the invoices and fills the MF-12s; CHECK shows where each stands.", False)
     r = HowToLine(ws, r, "4. When CHECK says Ready, click Make drafts, look each draft over in Outlook, and send it yourself.", False)
     r = HowToLine(ws, r, "5. It comes back: save the notarized MF-12 in its packet folder with NOTARIZED in the name.", False)
     r = HowToLine(ws, r, "6. File it: key ENTRY into the Georgia portal, upload what its banner says, then click Mark filed.", False)
-    r = HowToLine(ws, r, "7. The state pays: type the Refund Receive Date; the next click moves those rows to Refunds Received.", False)
+    r = HowToLine(ws, r, "7. The state pays: type the Refund Receive Date; the next click on that month moves those rows to Refunds Received.", False)
     r = r + 1
     r = HowToLine(ws, r, "The tabs", True)
-    r = HowToLine(ws, r, "SETUP: the company's details, the packets folder, the template, the oldest period, the refund types and " & _
+    r = HowToLine(ws, r, "SETUP: the company's details, the packets folder, the template, the month to work, the refund types and " & _
         "the email words.", False)
     r = HowToLine(ws, r, "CHECK: where everything stands. The bar on top says if anything needs you; then each email and each packet.", False)
     r = HowToLine(ws, r, "ENTRY: the typing sheet for the Georgia portal, one filing per month and refund type. Your x's in Keyed stay.", False)
@@ -2070,6 +2175,7 @@ Private Sub WriteHowTo()
     r = HowToLine(ws, r, "It never sends an email, never deletes a file, and never writes over one.", False)
     r = HowToLine(ws, r, "A problem holds only its own packet or email. The rest still get built, and CHECK says what to fix.", False)
     r = HowToLine(ws, r, "A date you typed in a status column is never changed, and filed packets keep their names.", False)
+    r = HowToLine(ws, r, "Other months' rows, and rows sent by hand (MF-12 Sent filled in, no packet from this macro), are left alone.", False)
     r = r + 1
     r = HowToLine(ws, r, "First time only", True)
     r = HowToLine(ws, r, "1. This goes in the GA tracking workbook, the one with Refunds Due and Corp License Number. " & _
@@ -2080,7 +2186,7 @@ Private Sub WriteHowTo()
     r = HowToLine(ws, r, "3. Then File, Import File, once for each of the two files. Save the workbook as .xlsm.", False)
     r = HowToLine(ws, r, "4. Save " & TEMPLATE_NAME & " (it comes with this macro) in the same folder as the workbook.", False)
     r = HowToLine(ws, r, "5. You don't make any folders. The first click on Build packets asks for the company's name and " & _
-        "address for the MF-12, the folder the packets go in, and which period to start from, once each.", False)
+        "address for the MF-12 and the folder the packets go in, once each.", False)
     r = HowToLine(ws, r, "If the buttons ever go missing: Alt F8, run Refunds1_BuildPackets, and this tab redraws with them.", False)
 End Sub
 
@@ -2160,14 +2266,14 @@ Private Sub WriteEntry()
         Set ws = mBook.Worksheets.Add(After:=mBook.Worksheets(mBook.Worksheets.Count))
         ws.Name = ENTRY_SHEET
     End If
-    Set marks = KeyedMarks(ws)
+    Set marks = MonthMarks(ws)
     Set seen = CreateObject("Scripting.Dictionary")
     ws.Cells.UnMerge
     ws.Cells.Clear
     ws.Rows.RowHeight = ws.StandardHeight
     ws.Cells.Font.Size = 10
 
-    ws.Range("A1").Value = "Portal entry: every packet back notarized and not filed yet"
+    ws.Range("A1").Value = "Portal entry, " & MonthWords(mMonth) & ": every packet back notarized and not filed yet"
     ws.Range("A1").Font.Bold = True
     ws.Range("A1").Font.Size = 16
     ws.Range("A2").Font.Size = 11
@@ -2346,6 +2452,55 @@ Private Function KeyedMarks(ws As Worksheet) As Object
 Done:
 End Function
 
+' The x's to put back on ENTRY as it's drawn for the month to work. ENTRY's own x's when it
+' showed this month already; else they're kept on a hidden tab, Keyed marks, under the month
+' it showed, and that tab's x's for this month come back. So x's typed on August's ENTRY are
+' still there after a click on September and back on August.
+Private Function MonthMarks(ws As Worksheet) As Object
+    Dim onSheet As Object, out As Object, others As Object, ms As Worksheet, drawnFor As Long, r As Long, k As Variant
+
+    Set onSheet = KeyedMarks(ws)
+    Set out = CreateObject("Scripting.Dictionary")
+    Set others = CreateObject("Scripting.Dictionary")
+    Set MonthMarks = out
+    On Error GoTo NoTab
+    Set ms = SheetNamed(MARKS_SHEET)
+    If ms Is Nothing Then
+        Set ms = mBook.Worksheets.Add(After:=mBook.Worksheets(mBook.Worksheets.Count))
+        ms.Name = MARKS_SHEET
+        ms.Visible = xlSheetVeryHidden
+    End If
+    drawnFor = CLng(Val(CStr(ms.Range("B1").Value)))
+    If drawnFor = 0 Then drawnFor = mMonth            ' drawn before this tab was kept: take its x's as this month's
+    r = 3
+    Do While Len(CStr(ms.Cells(r, 1).Value)) > 0
+        If CLng(Val(CStr(ms.Cells(r, 3).Value))) = mMonth Then
+            out(CStr(ms.Cells(r, 1).Value)) = ms.Cells(r, 2).Value
+        Else
+            others(CStr(ms.Cells(r, 3).Value) & "#" & CStr(ms.Cells(r, 1).Value)) = ms.Cells(r, 2).Value
+        End If
+        r = r + 1
+    Loop
+    For Each k In onSheet.Keys
+        If drawnFor = mMonth Then out(k) = onSheet(k) Else others(drawnFor & "#" & k) = onSheet(k)
+    Next k
+    ms.Cells.Clear
+    ms.Columns(1).NumberFormat = "@"
+    ms.Range("A1").Value = "ENTRY shows"
+    ms.Range("B1").Value = mMonth
+    ms.Range("A2").Value = "x's typed on another month's ENTRY, put back when that month is picked again"
+    r = 3
+    For Each k In others.Keys
+        ms.Cells(r, 1).Value = Mid$(k, InStr(k, "#") + 1)
+        ms.Cells(r, 2).Value = others(k)
+        ms.Cells(r, 3).Value = Left$(k, InStr(k, "#") - 1)
+        r = r + 1
+    Next k
+    Exit Function
+NoTab:
+    Set MonthMarks = onSheet         ' a workbook that won't take the tab (protected, say): ENTRY's own x's
+End Function
+
 ' One load on ENTRY, the way the Keyed x's find it again: license, invoice number, date, gallons.
 Private Function LoadKey(ByVal lic As String, ByVal inv As String, ByVal d As Variant, ByVal gal As Variant) As String
     LoadKey = UCase$(lic) & "|" & inv & "|"
@@ -2425,7 +2580,7 @@ End Sub
 ' A question in a box, or the next answer handed in by a test run. Blank when cancelled.
 Private Function Ask(ByVal prompt As String, ByVal guess As String) As String
     If mQuiet Then
-        mNotes = mNotes & "asked: " & Replace(prompt, vbLf, " / ") & vbLf
+        mNotes = mNotes & "asked: " & Replace(prompt, vbLf, " / ") & IIf(Len(guess) > 0, " [" & guess & "]", "") & vbLf
         Ask = NextAnswer()
     Else
         Ask = Trim$(InputBox(prompt, "GA refunds", guess))
@@ -2609,6 +2764,9 @@ Private Function TagText(ByVal p As Long) As String
         "Refund type: " & mPkt(p).Word & vbCrLf & _
         "Period: " & PeriodLabel(mPkt(p).PerKey) & vbCrLf
     If Len(mPkt(p).Subject) > 0 Then TagText = TagText & "Subject: " & mPkt(p).Subject & vbCrLf
+    If Not mHandByKey Is Nothing Then
+        If mHandByKey.Exists(mPkt(p).Key) Then TagText = TagText & "Sent by hand: " & mHandByKey(mPkt(p).Key) & vbCrLf
+    End If
 End Function
 
 Private Function AnsiB(ByVal s As String) As String
