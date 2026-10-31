@@ -12,7 +12,8 @@ date stay blank for ink. The wording follows IRS Pub 510 (Rev. December
 The Form 843 explanation (Form 843 Explanation - TEMPLATE.docx, built and
 tested) is the written explanation mailed with a Form 843 claim. It has a
 cover page, seven short numbered sections and an exhibit cover sheet. The
-notice history and the math go in tables, so the writing stays short. A
+notices, the other steps and events, the payment and the math each get a
+table or a block, so the writing stays short. A
 gray hint under each heading says what goes there; delete it when the
 section is done. Type the company name, EIN, tax period and amount once
 and every other spot fills in, the header too. It has no links, since it
