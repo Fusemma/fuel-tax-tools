@@ -18,8 +18,8 @@ Additional Resources click Licensed Fuels Taxpayer Search, then the
 Download button. It saves permitted-fuels-taxpayers.csv. The state
 updates it nightly.
 
-At work: paste SupplierLicenseCheck.bas into a module in the workbook
-that holds the Texas file, click on that sheet, and run
+At work: bring SupplierLicenseCheck.bas into the workbook that holds
+the Texas file (Alt F11, File, Import File), click on that sheet, and run
 CheckSupplierLicenses. It asks you to click a cell in the column with
 the seller's Texas taxpayer number, then for the first row of data, D
 or G for the fuel, and the list you downloaded. It works on a copy of

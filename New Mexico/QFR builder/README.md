@@ -6,7 +6,8 @@ upload template (CTFP-ARCS, Liquids tab): an Upload sheet in the
 template's column order and a CHECK sheet showing every report row and
 what happened to it. Built and tested Oct 6, 2026 on a sample report.
 
-At work: paste NMQFR.bas into a new workbook, save as NM QFR Builder.xlsm,
+At work: bring NMQFR.bas into a new workbook (Alt F11, File, Import
+File), save as NM QFR Builder.xlsm,
 run BuildQFRRows once; the steps are at the top of the macro. Each quarter
 paste the report onto Report and run it, then paste Upload as values into
 the template downloaded from CTFP-ARCS.

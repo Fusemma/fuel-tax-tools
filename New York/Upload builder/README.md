@@ -12,8 +12,8 @@ upload.txt" next to the first file you picked and lists every line, and
 what changed in it, on a CHECK sheet. The files you pick are never
 changed.
 
-At work: open NYUpload.bas in Notepad and follow "Setting it up, once"
-at the top. That makes NY Upload Builder.xlsm. After that, each time:
+At work: download NYUpload.bas and follow "Setting it up, once" at the
+top: Alt F11, File, Import File in a new workbook. That makes NY Upload Builder.xlsm. After that, each time:
 Alt F8, BuildNYUpload, Run, pick the files.
 
 Defaults, each one line to change at the top of the macro: the dummy

@@ -6,11 +6,12 @@ Streamlined states, and one for no state under General. Each tool's
 folder has a README: what it does, how to set it up, what is open.
 
 To get a file: click its name below, then the download button at the
-top right of the file. A .bas file is a macro; open it, select all,
-copy, and paste it into a module (Alt F11, Insert, Module). The Georgia
-refunds mailer comes as two .bas files instead, GARefundsReader.bas and
-GARefundsWorker.bas: don't paste them. Its README says to remove the old
-pieces first, then bring each file in with File, Import File.
+top right of the file. A .bas file is a macro. To put it in, open the
+workbook, press Alt F11, then File, Import File, and pick the .bas you
+downloaded. To update one, first take out the old copy: under Modules,
+right-click it, click Remove, then No. Two copies stop it working. The
+Georgia refunds mailer comes as two .bas files, GARefundsReader.bas and
+GARefundsWorker.bas; bring in both.
 
 | State | Tool | What it does | Download |
 |---|---|---|---|

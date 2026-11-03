@@ -5,8 +5,8 @@
 ' takes only that state's files.
 '
 ' Setting up all four, once:
-'   1. Open a new blank workbook. Alt F11, then Insert > Module. If the new window already
-'      has a line in it, Ctrl A and Delete first. Paste all of this in, then close that window.
+'   1. Open a new blank workbook. Alt F11, then File > Import File, and pick this file.
+'      Close that window.
 '   2. File > Save As > Excel Macro-Enabled Workbook (.xlsm). Name it SST Rates Check OH.
 '   3. Before running anything, Save As three more times the same way: SST Rates Check WA,
 '      SST Rates Check NE, SST Rates Check OK. Each copy has the macro and no state yet.

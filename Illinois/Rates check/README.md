@@ -6,7 +6,8 @@ and ordmacha-current.txt) and shows which rates you watch changed since
 the last files loaded: place, county, old rate, new rate, start date.
 Tested on the state's real files, 302 checks.
 
-At work: paste ILRates.bas into a new workbook, save as .xlsm, follow the
+At work: bring ILRates.bas into a new workbook (Alt F11, File, Import
+File), save as .xlsm, follow the
 steps at the top of the macro; il_rates_notes.txt is the short card. Each
 time the state posts new files, download the top two links and click Check
 new rates file, picking both.

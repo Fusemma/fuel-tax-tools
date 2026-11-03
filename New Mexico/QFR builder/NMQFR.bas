@@ -2,9 +2,9 @@
 ' NMED's quarterly fuel report upload template (CTFP-ARCS, Liquids tab).
 '
 ' Setting it up, once:
-'   1. Copy all of this text (click Raw, then Ctrl A, Ctrl C).
-'   2. Open a new blank workbook in Excel. Alt F11, then Insert > Module. If the new window
-'      already has a line in it, Ctrl A and Delete first. Paste, then close that window.
+'   1. Download this file (the download button at the top right of its page).
+'   2. Open a new blank workbook in Excel. Alt F11, then File > Import File, and pick this
+'      file. Close that window.
 '   3. File > Save As > Excel Macro-Enabled Workbook (.xlsm). Name it NM QFR Builder.
 '   4. Alt F8, pick BuildQFRRows, Run. The first run only makes the Report sheet.
 '

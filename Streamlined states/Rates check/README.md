@@ -6,7 +6,8 @@ and each shows what changed in that state's sales tax rates since its last
 file. The place names inside the macro come from the Census and state
 lists.
 
-At work: paste SSTRates.bas into a new workbook, save it four times as
+At work: bring SSTRates.bas into a new workbook (Alt F11, File, Import
+File), save it four times as
 SST Rates Check OH, WA, NE and OK, and in each run CheckNewRatesFile. The
 rate files come from streamlinedsalestax.org, Rates and Boundary Files.
 

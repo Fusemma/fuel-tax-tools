@@ -13,8 +13,8 @@ rebills, or one rebill against several credits; then whatever is left
 if it nets to zero. Each matched group gets its own colour and moves
 below the upload lines, under a banner, for you to check and delete.
 
-At work: paste CreditRebillMatcher.bas into a module in the workbook
-that holds the Texas file, click on that sheet, and run
+At work: bring CreditRebillMatcher.bas into the workbook that holds the
+Texas file (Alt F11, File, Import File), click on that sheet, and run
 MatchCreditsAndRebills. It asks you to click a cell in the BOL column,
 then one in the gallons column, then for the first row of data. It
 works on a copy of the sheet named with MATCHED on the end, so the

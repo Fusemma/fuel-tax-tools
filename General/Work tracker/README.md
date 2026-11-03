@@ -9,15 +9,16 @@ calendar's repeats. A thing with a set time pops up then; the rest come in
 one list at 8:30 AM on workdays. How to use it is on the Today sheet, on the
 right. This copy replaces v2.
 
-At work, once: new blank workbook, paste Tracker.bas into a new module, run
-TrackerSetup (Alt F8), and save it as a macro workbook (.xlsm). Days off
+At work, once: new blank workbook, bring Tracker.bas in (Alt F11, File,
+Import File), run TrackerSetup (Alt F8), and save it as a macro workbook (.xlsm). Days off
 comes filled in with the usual 8 for this year and next; change it to match
 what the company gives. Then put it in Startup so it opens when you sign in:
 in File Explorer, right-click the saved file and pick Copy, press the Windows
 key and R, type shell:startup and press Enter, then right-click in that
 folder and pick Paste shortcut (on Windows 11 it's under Show more options).
-To update, paste a newer copy over the old one and run TrackerSetup again;
-every row stays. If popups from the Tracker folder never come up, run
+To update, remove the old module (under Modules, right-click it, Remove,
+No), Import File the newer copy, and run TrackerSetup again; every row
+stays. If popups from the Tracker folder never come up, run
 TrackerUseMainTasks (Alt F8) and they come from the main Tasks folder
 instead.
 

@@ -2,9 +2,9 @@
 ' tax rates each quarter, from the CDTFA's rates spreadsheet.
 '
 ' Setting it up, once:
-'   1. Copy all of this text (click Raw, then Ctrl A, Ctrl C).
-'   2. Open a new blank workbook in Excel. Alt F11, then Insert > Module. If the new window
-'      already has a line in it, Ctrl A and Delete first. Paste, then close that window.
+'   1. Download this file (the download button at the top right of its page).
+'   2. Open a new blank workbook in Excel. Alt F11, then File > Import File, and pick this
+'      file. Close that window.
 '   3. File > Save As > Excel Macro-Enabled Workbook (.xlsm). Name it CA Rates Check and keep
 '      it with your other work files.
 '   4. Alt F8, pick CheckCaliforniaRates, Run. It makes the sheets and the big button, then
@@ -707,8 +707,8 @@ Private Sub DrawHowTo()
         "quarter's first day, like 1/1/2027."
     HowToLine ws, r, "B", "If it says another file with the same name is open, close that one and click " & _
         "the button again."
-    HowToLine ws, r, "B", "For a newer version of the macro: Alt F11, click into the module, Ctrl A, paste " & _
-        "the new one over it, close that window and save. Saved rates and the Log stay."
+    HowToLine ws, r, "B", "For a newer version of the macro: Alt F11, right-click the old module under Modules, " & _
+        "Remove, No, then File, Import File the new one, close that window and save. Saved rates and the Log stay."
     HowToLine ws, r, "S", "This sheet is redrawn each time you click the button, so notes typed here won't stay."
 End Sub
 
