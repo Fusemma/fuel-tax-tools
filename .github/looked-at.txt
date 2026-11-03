@@ -4,8 +4,8 @@
 # needs a new look and a new line. The check prints the line to add.
 96367138dc44ce09bf2c8f0f8e49348a1478d2c5c0af69bbc2bbc38b63cdcead  Federal/Forms templates/Exemption Certificate - TEMPLATE.docx > docProps/thumbnail.jpeg
 96367138dc44ce09bf2c8f0f8e49348a1478d2c5c0af69bbc2bbc38b63cdcead  Federal/Forms templates/Notification Certificate - TEMPLATE.docx > docProps/thumbnail.jpeg
-8bb84f4d7e4e5f43849b7d9ecea3c8681311138a1aa245adf737523715f5db13  General/State info/preview/State page 1.png
-9168a998dbae5fa9ed4de36cfd413af28c989b7457c7055f4e82267cea7a22d1  General/State info/preview/State page 2.png
+7c0baeee65e438d38b1326f59b1e738a44e85abbf44b7b75d5142552562004bc  General/State info/preview/State page 1.png
+7b00c0e16d66b49e9e18ff5327f558fc5b3e1aed01f20a100cad10440b212ed2  General/State info/preview/State page 2.png
 7afca8db58715b28714dfa72ee5193e71bbc4e3f4d1d6195f751599bffc1b72b  General/Work tracker/pictures/Items.png
 51a05811ca38a85f018ba7a56b6b99b98000de23dbab64cc22d0c7df0f711945  General/Work tracker/pictures/Log.png
 7dfba5fb22e6720a170092f4877bd70c8dd331f57647237ff77e859109b0cbe0  General/Work tracker/pictures/Month.png
