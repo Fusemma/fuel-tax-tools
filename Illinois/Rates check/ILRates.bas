@@ -17,8 +17,8 @@
 ' nothing new. Saved rates holds the files' rates for next time. Read here says all this on a
 ' tab of its own.
 '
-' First time: paste this into a module in a new workbook, save it as a macro-enabled workbook
-' (.xlsm), then Alt F8 and run CheckIllinoisRates. It sets up the sheets and the button, then
+' First time: bring this file into a new workbook (Alt F11, File > Import File), save it as a
+' macro-enabled workbook (.xlsm), then Alt F8 and run CheckIllinoisRates. It sets up the sheets and the button, then
 ' asks for the files. With nothing loaded before, it shows what changed on the files' own start
 ' date, from the old rates the state lists beside each rate.
 '

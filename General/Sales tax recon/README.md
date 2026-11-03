@@ -6,7 +6,7 @@ their own tabs, run CompareReports, and it shows only what does not agree.
 Columns are found by header text, lines are totalled per order number
 before comparing.
 
-At work: paste SalesTaxRecon.bas into the workbook that holds the two
-reports and run CompareReports.
+At work: bring SalesTaxRecon.bas into the workbook that holds the two
+reports (Alt F11, File, Import File) and run CompareReports.
 
 Open: nothing.

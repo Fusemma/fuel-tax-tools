@@ -10,9 +10,9 @@
 ' join in name order (A before B), and the files you pick are never changed.
 '
 ' Setting it up, once:
-'   1. Open this file in Notepad. Ctrl A, Ctrl C.
-'   2. Open a new blank workbook in Excel. Alt F11, then Insert > Module. If the new window
-'      already has a line in it, Ctrl A and Delete first. Paste, then close that window.
+'   1. Download this file (the download button at the top right of its page).
+'   2. Open a new blank workbook in Excel. Alt F11, then File > Import File, and pick this
+'      file. Close that window.
 '   3. File > Save As > Excel Macro-Enabled Workbook (.xlsm). Name it NY Upload Builder.
 '
 ' Each time:

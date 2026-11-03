@@ -2,12 +2,13 @@ Illinois rates check: shows what changed in the state's sales tax
 rates since the last files you loaded, at the general merchandise
 rate, place by place.
 
-il_rates_check.bas is the macro. Click Raw, then Ctrl A, Ctrl C.
+ILRates.bas is the macro. Click the download button at the top right
+of its page.
 
 Once:
 1. Open a new blank workbook in Excel.
-2. Alt F11, then Insert > Module. If the new window already has a line
-   in it, Ctrl A and Delete first. Paste, then close that window.
+2. Alt F11, then File > Import File, and pick ILRates.bas. Close that
+   window.
 3. File > Save As > Excel Macro-Enabled Workbook (.xlsm). Name it
    IL Rates Check and keep it with your other work files.
 4. Alt F8, pick CheckIllinoisRates, Run. It makes the What changed,

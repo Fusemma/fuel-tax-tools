@@ -1,5 +1,5 @@
 ' Maps a shared drive: writes the folder tree to a text file on the desktop.
-' Use: blank workbook, Alt+F11, Insert > Module, paste this, press F5.
+' Use: blank workbook, Alt+F11, File > Import File, pick this file, press F5.
 ' Set the path below first. Reads names only, never opens a file.
 
 Sub ListShareFolders()

@@ -11,7 +11,7 @@
 '
 ' If the .xlsm won't download, set it up from this text once:
 '   1. Open GA Sales Tax Workbook - BLANK.xlsx.
-'   2. Alt F11, then Insert > Module. Paste all of this text, then close that window.
+'   2. Alt F11, then File > Import File, and pick this file. Close that window.
 '   3. File > Save As > Excel Macro-Enabled Workbook (.xlsm).
 '   4. Alt F8 runs GetRates and MakeStateFiles.
 
