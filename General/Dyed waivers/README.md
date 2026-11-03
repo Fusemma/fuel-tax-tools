@@ -24,4 +24,6 @@ press statement, with the Governor's own notice not found. Thirteen
 states and DC are on neither tab yet; the No order found tab names
 them. Unclear means the state's own papers don't settle it yet. Who is
 covered differs by order, so read the order before relying on a row. Each row is as of its Checked date, Oct 12 to 15,
-2026; a change after that is not on it.
+2026, or Nov 3 for Georgia and Texas; a change after that is not on it.
+Texas's order has no end date, so its Ends is 30 days from the Oct 28
+renewal, the most a state of disaster runs unless renewed.
