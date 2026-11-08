@@ -37,7 +37,6 @@ own module.
 | General | [Dyed waivers](General/Dyed%20waivers/) | Shows where every state stands on dyed diesel on the road as of Nov 3, 2026, and whether each order is in effect today. | [Dyed Waivers.xlsx](General/Dyed%20waivers/Dyed%20Waivers.xlsx) |
 | General | [File reorg](General/File%20reorg/) | Writes a shared drive's folder tree to a text file, names only. | [ListShareFolders.bas](General/File%20reorg/ListShareFolders.bas) |
 | General | [GL sort](General/GL%20sort/) | Sorts and totals the month-end AP and AR general ledger. | [GLSort.bas](General/GL%20sort/GLSort.bas) |
-| General | [Power Automate cards](General/Power%20Automate%20cards/) | Step-by-step cards for two cloud flows: tax mail filing and Pennsylvania's distributor list. | [notes.txt](General/Power%20Automate%20cards/notes.txt), [pa-license-list.txt](General/Power%20Automate%20cards/pa-license-list.txt) |
 | General | [Sales tax recon](General/Sales%20tax%20recon/) | Reconciles the TERSE report against the AR sales report and shows only what disagrees. | [SalesTaxRecon.bas](General/Sales%20tax%20recon/SalesTaxRecon.bas) |
 | General | [State info](General/State%20info/) | One workbook for every state's returns, licenses, rates and contacts, one state per page. | [State Info.xlsx](General/State%20info/State%20Info.xlsx) |
-| General | [Work tracker](General/Work%20tracker/) | One list of everything you track, each added as one plain line, with Outlook reminders. | [Tracker.bas](General/Work%20tracker/Tracker.bas) |
+| General | [Work tracker](General/Work%20tracker/) | One list of everything you track, each added as one plain line. | [Tracker.bas](General/Work%20tracker/Tracker.bas) |

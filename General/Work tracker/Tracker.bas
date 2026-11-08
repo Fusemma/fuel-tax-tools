@@ -1,4 +1,4 @@
-' Tracker: everything you're tracking in one list, with popups from Outlook.
+' Tracker: everything you're tracking in one list.
 ' To install, in a blank workbook: Alt F11, Insert, Module, then Ctrl A and Ctrl V to paste all of
 ' this in. Run TrackerSetup (Alt F8) and save it as a macro workbook (.xlsm). To update, open this
 ' module, press Ctrl A, and paste the newer copy over it, then run TrackerSetup again; every row stays.
@@ -11,18 +11,19 @@ Private Const LIST_SHEET As String = "List"
 Private Const LOG_SHEET As String = "Log"
 Private Const OFF_SHEET As String = "Days off"
 Private Const PASTE_SHEET As String = "Paste here"
-Private Const PULL_SHEET As String = "From Outlook"
-Private Const PULL_HEAD As Long = 3        ' From Outlook: the column headers; its rows start under them
 Private Const LIST_TABLE As String = "List"
 Private Const LOG_TABLE As String = "Log"
 Private Const OFF_TABLE As String = "DaysOff"
 
 ' Columns are found by name, so one you move is fine. The hidden ones are for the macro.
 Private Const LIST_COLS As String = "#|What|Due|Time|Repeats|Waiting on|Came from|Off the list|Date off|" & _
-    "Rule|Raw date|Email|Outlook task|Calendar"
-Private Const LIST_HIDDEN As String = "Rule|Raw date|Email|Outlook task|Calendar"
-Private Const LIST_FORMATS As String = "0|@|ddd m/d/yy|h:mm AM/PM|@|@|@|@|m/d/yy|@|m/d/yy|@|@|@"
-Private Const LIST_WIDTHS As String = "6|50|13|10|24|20|13|12|10|20|10|20|20|20"
+    "Rule|Raw date"
+Private Const LIST_HIDDEN As String = "Rule|Raw date"
+' What an older copy kept that this one doesn't use. Setup takes them off; every row stays.
+Private Const OLD_COLS As String = "Email|Outlook task|Calendar"
+Private Const OLD_SHEET As String = "From Outlook"
+Private Const LIST_FORMATS As String = "0|@|ddd m/d/yy|h:mm AM/PM|@|@|@|@|m/d/yy|@|m/d/yy"
+Private Const LIST_WIDTHS As String = "6|50|13|10|24|20|13|12|10|20|10"
 Private Const LOG_COLS As String = "When|#|What|What happened|Kind"
 Private Const LOG_FORMATS As String = "ddd m/d/yy h:mm AM/PM|0|@|@|@"
 Private Const LOG_WIDTHS As String = "22|6|44|80|10"
@@ -44,20 +45,7 @@ Private Const HEAD_ROW As Long = 5         ' Today: the column headers
 Private Const FIRST_ROW As Long = 6        ' Today: the sections start here
 Private Const CF_ROWS As Long = 20000      ' List rows that get crossed out when they're done
 
-Private Const MORNING_AT As Long = 510     ' 8:30 AM, when the morning list comes
-Private Const TICK_SECS As Long = 60       ' how often the tracker looks at Outlook while the file is open
-Private Const TASK_PREFIX As String = "Tracker: "
-Private Const TASK_MARK As String = "Tracker"                    ' in a popup's Mileage box, so the tracker knows its own
-Private Const MORNING_MARK As String = "Tracker morning list"
-Private Const TRACKER_FOLDER As String = "Tracker"               ' the popups' folder, under Tasks
-Private Const FOLDER_SETTING As String = "TrackerTasksFolder"    ' a hidden name in the workbook: main means the main Tasks folder
-Private Const GONE_MARK As String = "dismissed"                  ' a popup that was dismissed, so it isn't made again
-Private Const OLD_FLAGS As String = "urn:tracker:old-flags"     ' the workbook's note of the emails flagged before its first look
-' An email's internet message ID, which stays the same when it's filed, and its flag (2 flagged, 1 done)
-Private Const MSG_ID As String = "http://schemas.microsoft.com/mapi/proptag/0x1035001F"
-Private Const FLAG_STATUS As String = "http://schemas.microsoft.com/mapi/proptag/0x10900003"
-Private Const NO_UNDO_FLAG As String = "Nothing to undo here: an email's flag turned into a check in Outlook, and " & _
-    "Undo can't take that back. Drop it takes a row off."
+Private Const TICK_SECS As Long = 60       ' how often the tracker checks for a new day while the file is open
 Private Const NOW_CAP As Long = 5          ' things shown under Now before the rest fold away
 Private Const SOON_CAP As Long = 20        ' and under Coming up
 Private Const SOON_DAYS As Long = 10       ' how far ahead Coming up looks
@@ -94,8 +82,7 @@ Private mN As Long               ' how many rows mL holds
 Private mNCols As Long
 Private mNextId As Long
 Private cId As Long, cWhat As Long, cDue As Long, cTime As Long, cRep As Long, cWait As Long
-Private cFrom As Long, cOff As Long, cOffOn As Long, cRule As Long, cRaw As Long, cTask As Long
-Private cMail As Long, cCal As Long
+Private cFrom As Long, cOff As Long, cOffOn As Long, cRule As Long, cRaw As Long
 Private mPend As Collection      ' log lines waiting to be written, oldest first
 Private mOff As Object           ' days off: day number to name
 Private mRx As Object            ' the line reader's patterns, made once
@@ -110,17 +97,12 @@ Private mUndo As Collection
 Private mUndoLog As Collection   ' the Log lines that change wrote
 Private mUndoName As String      ' what it was: Done on "File the Ohio return"
 Private mUndoVerb As String      ' and for the Log: Done
-Private mUndoWhy As String       ' why there's nothing to undo, after a change in Outlook
 Private mKeep As Collection      ' the change being made now, the same way
 Private mKeepName As String
 Private mKeepVerb As String
 Private mUndoing As Boolean
 
-' Outlook. A row with a set time has one Outlook task with a reminder, its popup; the Outlook task
-' column holds "the task's ID|the day and minute it pops", or "dismissed|..." once it's been dismissed.
-Private mGone As Collection      ' popups of rows Undo took away, to delete
-Private mMornKey As String       ' the next morning list, as it was last put in Outlook
-Private mOlNote As String        ' what went wrong in Outlook, said with the next message
+' The timer, and what test runs use
 Private mDrawn As Long           ' the day Today was last drawn for
 Private mTickAt As Double        ' when the timer comes next, 0 when it's off
 Private mTicks As Long           ' how many times the timer has come
@@ -144,6 +126,7 @@ Public Sub TrackerSetup()
     DropBlankSheets
     Set mList = EnsureTable(wsL, LIST_TABLE, LIST_COLS, LIST_FORMATS, LIST_WIDTHS, _
         "Every row the tracker holds. Done rows stay here, crossed out. The buttons are on Today.")
+    DropOldCopy
     HideColumns mList, LIST_HIDDEN
     CrossOutDone wsL
     Set mLogT = EnsureTable(wsG, LOG_TABLE, LOG_COLS, LOG_FORMATS, LOG_WIDTHS, _
@@ -160,7 +143,6 @@ Public Sub TrackerSetup()
     wsT.Activate
     wsT.Range("A" & FIRST_ROW).Select
     Application.ScreenUpdating = True
-    RunTick
     StartTimer
     Say "Tracker is set up. Press Add, or Ctrl+Shift+A, and type one line, like call Huntsville back 11/17 9am. " & _
         "Save this file as a macro workbook (.xlsm)."
@@ -257,11 +239,7 @@ Public Sub MoveTomorrow()
     mL(cDue, k) = CDbl(nextDay)
     LogLine id, what, "Moved to " & FmtDay(nextDay) & ".", "moved"
     Finish
-    If tm <> NO_TIME Then
-        Say "Moved """ & what & """ to " & FmtDay(nextDay) & " at " & FmtTime(tm) & ". Its Outlook popup moves with it."
-    Else
-        Say "Moved """ & what & """ to " & FmtDay(nextDay) & ". It'll be in that morning's " & FmtTime(MORNING_AT) & " list."
-    End If
+    Say "Moved """ & what & """ to " & FmtDay(nextDay) & IIf(tm <> NO_TIME, " at " & FmtTime(tm), "") & "."
     Exit Sub
 Oops:
     Application.ScreenUpdating = True
@@ -303,7 +281,7 @@ Public Sub ChangeDate()
     mL(cDue, k) = CDbl(due)
     If tm <> NO_TIME Then mL(cTime, k) = tm / 1440
     LogLine id, what, "Moved to " & FmtDay(due) & IIf(tm <> NO_TIME, " " & FmtTime(tm), "") & ".", "moved"
-    msg = "Moved """ & what & """ to " & FmtDay(due) & IIf(tm <> NO_TIME, ", popup at " & FmtTime(tm), "") & "."
+    msg = "Moved """ & what & """ to " & FmtDay(due) & IIf(tm <> NO_TIME, " at " & FmtTime(tm), "") & "."
     If Trim$(CellText(mL(cRule, k))) <> "" Then msg = msg & " Only this one moved. The next repeat keeps its usual date."
     If notes <> "" Then msg = msg & " " & notes
     Finish
@@ -367,17 +345,12 @@ End Sub
 
 Public Sub UndoLast()
     ' Takes back the last change to the rows: they go back the way they were, and the Log lines
-    ' that change wrote go. One step only, and nothing in Outlook.
+    ' that change wrote go. One step only.
     Dim i As Long, j As Long, k As Long, e As Variant, id As Long, what As String, ln As Variant
     On Error GoTo Oops
     If Not Ready() Then Exit Sub
     If mUndo Is Nothing Then
-        If mUndoWhy <> "" Then
-            Say mUndoWhy
-        Else
-            Say "Nothing to undo. Undo goes back one change to the tracker's rows. Changes in Outlook, " & _
-                "like taking things off your calendar, stay as they are."
-        End If
+        Say "Nothing to undo. Undo goes back one change to the tracker's rows."
         Exit Sub
     End If
     For i = mUndo.Count To 1 Step -1
@@ -386,12 +359,11 @@ Public Sub UndoLast()
         If k > 0 Then                                   ' a row deleted by hand since stays deleted
             what = CStr(mL(cWhat, k))
             If IsArray(e(1)) Then
-                For j = 1 To mNCols                     ' all but the popup column; the next Outlook update sets the popup from the row
-                    If j <= UBound(e(1)) And j <> cTask Then mL(j, k) = e(1)(j)
+                For j = 1 To mNCols
+                    If j <= UBound(e(1)) Then mL(j, k) = e(1)(j)
                 Next
                 LogLine e(0), what, "Undid " & mUndoVerb & ".", "undo"
             Else
-                If CellText(mL(cTask, k)) <> "" Then mGone.Add CellText(mL(cTask, k))
                 DropRowAt k
                 LogLine 0, what, "Undid adding it.", "undo"
             End If
@@ -406,7 +378,7 @@ Public Sub UndoLast()
     mUndoing = True
     Finish
     mUndoing = False
-    Say "Undid " & mUndoName & ". Anything already done in Outlook stays done."
+    Say "Undid " & mUndoName & "."
     Set mUndo = Nothing
     Set mUndoLog = Nothing
     Exit Sub
@@ -490,15 +462,14 @@ Oops:
 End Sub
 
 Public Sub Auto_Open()
-    ' Excel runs this when the workbook opens: a fresh Today, the shortcut key, every popup
-    ' checked and the next morning list made, then the one-minute timer
+    ' Excel runs this when the workbook opens: a fresh Today, the shortcut key, then the
+    ' one-minute timer
     If FindTable(LIST_TABLE) Is Nothing Then Exit Sub          ' TrackerSetup hasn't run yet
     If Not HasColumns(FindTable(LIST_TABLE), LIST_COLS) Then Exit Sub
     Application.OnKey "^+a", "'" & Replace(ThisWorkbook.Name, "'", "''") & "'!AddThing"
     If Not Ready() Then Exit Sub
     DrawToday
     ThisWorkbook.Worksheets(TODAY_SHEET).Activate
-    RunTick
     StartTimer
 End Sub
 
@@ -509,193 +480,11 @@ Public Sub Auto_Close()
 End Sub
 
 Public Sub TrackerTick()
-    ' The one-minute timer: looks at Outlook, then sets itself for the next minute
+    ' The one-minute timer: draws Today again once the day turns, then sets itself for the next minute
     mTickAt = 0
     mTicks = mTicks + 1
     RunTick
     StartTimer
-End Sub
-
-Public Sub TrackerUseMainTasks()
-    ' If popups from the Tracker folder don't come up, this puts them in the main Tasks folder
-    SwitchTasks True
-End Sub
-
-Public Sub TrackerUseTrackerFolder()
-    ' Back to the Tracker folder under Tasks, where they start
-    SwitchTasks False
-End Sub
-
-Public Sub OpenEmail()
-    ' Opens the clicked row's email in Outlook, wherever it's been filed since
-    Dim k As Long, link As String, what As String, ns As Object, m As Object
-    On Error GoTo Oops
-    If Not Ready() Then Exit Sub
-    k = RowOf(PickedId())
-    If k > 0 Then link = CellText(mL(cMail, k))
-    If link = "" Then
-        Say "Click a row that came from an email first."
-        Exit Sub
-    End If
-    what = CellText(mL(cWhat, k))
-    If Not OutlookOpen("Open email", ns) Then Exit Sub
-    Set m = FindEmail(ns, link)
-    If m Is Nothing Then
-        Say "Couldn't find the email for """ & what & """ in Outlook. It may have been deleted."
-        Exit Sub
-    End If
-    If Not mTesting Then m.Display
-    Say "Opened the email for """ & what & """. It's in your " & m.Parent.Name & " folder."
-    Exit Sub
-Oops:
-    Say "Open email stopped: " & Err.Description
-End Sub
-
-Public Sub PullFromOutlook()
-    ' Lists the calendar's repeats and what's still to come on it, and the emails flagged before the
-    ' tracker first looked, on a From Outlook sheet with a Yes or No for each
-    Dim ns As Object, found As Collection, ws As Worksheet, v As Variant, i As Long, j As Long
-    Dim nCal As Long, nMail As Long, nYes As Long, msg As String, last As Long
-    On Error GoTo Oops
-    If Not Ready() Then Exit Sub
-    If Not OutlookOpen("Pull from Outlook", ns) Then Exit Sub
-    Set found = New Collection
-    ListCalendar ns, found, nCal
-    ListOldFlags ns, found, nMail
-    DropPullSheet
-    If found.Count = 0 Then
-        Say "Nothing new in Outlook to pull."
-        Exit Sub
-    End If
-    Application.ScreenUpdating = False
-    Set ws = ThisWorkbook.Worksheets.Add(After:=ThisWorkbook.Worksheets(ThisWorkbook.Worksheets.Count))
-    ws.Name = PULL_SHEET
-    ActiveWindow.DisplayGridlines = False
-    ws.Columns(1).ColumnWidth = 8
-    ws.Columns(2).ColumnWidth = 50
-    ws.Columns(3).ColumnWidth = 44
-    ws.Columns(4).ColumnWidth = 60
-    ws.Columns("B:E").NumberFormat = "@"
-    ws.Rows(1).RowHeight = 30
-    AddButton ws, "trkTakeYes", "Take the Yes ones", "TakeYes", 0, 0, 110
-    AddButton ws, "trkCancelPull", "Cancel", "CancelPull", 0, 114, 60
-    ws.Range("A" & PULL_HEAD & ":D" & PULL_HEAD).Value = Array("Take?", "What", "In Outlook", "Why")
-    ws.Range("A" & PULL_HEAD & ":D" & PULL_HEAD).Font.Bold = True
-    ReDim v(1 To found.Count, 1 To 5)
-    For i = 1 To found.Count
-        For j = 0 To 4
-            v(i, j + 1) = found(i)(j)
-        Next
-        If found(i)(0) = "Yes" Then nYes = nYes + 1
-    Next
-    last = PULL_HEAD + found.Count
-    ws.Range(ws.Cells(PULL_HEAD + 1, 1), ws.Cells(last, 5)).Value = v
-    With ws.Range(ws.Cells(PULL_HEAD + 1, 1), ws.Cells(last, 1)).Validation
-        .Delete
-        .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="Yes,No"
-    End With
-    ws.Columns(5).Hidden = True                          ' where each one is in Outlook, for Take the Yes ones
-    msg = "Found " & nCal & IIf(nCal = 1, " thing", " things") & " on your calendar and " & nMail & _
-        IIf(nMail = 1, " email", " emails") & " you'd already flagged. " & nYes & " say Yes: the ones that repeat " & _
-        "or take all day. Meetings, set-time appointments and old flags say No. Change any Yes or No, then press " & _
-        "Take the Yes ones."
-    ws.Range("A2").Value = msg
-    ws.Range("A2").Font.Color = RGB(89, 89, 89)
-    ws.Range("A" & PULL_HEAD + 1).Select
-    Application.ScreenUpdating = True
-    Say msg
-    Exit Sub
-Oops:
-    Application.ScreenUpdating = True
-    Say "Pull from Outlook stopped: " & Err.Description
-End Sub
-
-Public Sub TakeYes()
-    ' Every row on From Outlook that says Yes comes in: a calendar series keeps its schedule, a
-    ' one-time thing its day, and an email's flag turns into a check
-    Dim ws As Worksheet, ns As Object, r As Long, last As Long, link As String
-    Dim nCal As Long, nMail As Long, ended As Long, cant As Long, msg As String, notes As String
-    On Error GoTo Oops
-    If Not Ready() Then Exit Sub
-    If Not SheetExists(PULL_SHEET) Then
-        Say "Press Pull from Outlook first."
-        Exit Sub
-    End If
-    If Not OutlookOpen("Take the Yes ones", ns) Then Exit Sub
-    Set ws = ThisWorkbook.Worksheets(PULL_SHEET)
-    last = ws.Cells(ws.Rows.Count, 2).End(xlUp).Row
-    For r = PULL_HEAD + 1 To last
-        If LCase$(Trim$(CellText(ws.Cells(r, 1).Value))) = "yes" Then
-            link = CellText(ws.Cells(r, 5).Value)
-            If Left$(link, 4) = "cal|" Then
-                Select Case TakeCalendar(ns, Mid$(link, 5), notes)
-                    Case "took": nCal = nCal + 1
-                    Case "ended": ended = ended + 1
-                    Case "cant": cant = cant + 1
-                End Select
-            ElseIf Left$(link, 5) = "mail|" Then
-                If TakeOldFlag(ns, Mid$(link, 6), notes) Then nMail = nMail + 1
-            End If
-        End If
-    Next
-    DropPullSheet
-    ThisWorkbook.Worksheets(TODAY_SHEET).Activate
-    Keep 0, "Take the Yes ones (" & (nCal + nMail) & IIf(nCal + nMail = 1, " row)", " rows)"), "adding it"
-    Finish
-    If nMail > 0 Then ForgetUndo NO_UNDO_FLAG
-    msg = "Took " & (nCal + nMail) & " from Outlook."
-    If notes <> "" Then msg = msg & " " & notes
-    If ended > 0 Then msg = msg & " " & ended & " had already ended, so they stayed out."
-    If cant > 0 Then msg = msg & " " & cant & " repeat in a way the tracker can't follow, so they stayed out."
-    If nCal > 0 Then msg = msg & " The calendar ones are still on your calendar too, until you press Take them off my calendar."
-    Say msg
-    Exit Sub
-Oops:
-    Application.ScreenUpdating = True
-    Say "Take the Yes ones stopped: " & Err.Description
-End Sub
-
-Public Sub CancelPull()
-    On Error GoTo Oops
-    DropPullSheet
-    If SheetExists(TODAY_SHEET) Then ThisWorkbook.Worksheets(TODAY_SHEET).Activate
-    Say "Nothing taken from Outlook."
-    Exit Sub
-Oops:
-    Say "Cancel stopped: " & Err.Description
-End Sub
-
-Public Sub TakeOffCalendar()
-    ' Everything taken in from the calendar, one-time things too, goes to Deleted Items, so the
-    ' calendar is down to meetings
-    Dim ns As Object, calId As String, k As Long, c As Object, n As Long, linked As Boolean
-    On Error GoTo Oops
-    If Not Ready() Then Exit Sub
-    If Not OutlookOpen("Take them off my calendar", ns) Then Exit Sub
-    calId = ns.GetDefaultFolder(9).EntryID
-    For k = 1 To mN
-        If CellText(mL(cCal, k)) <> "" Then
-            Set c = ItemById(ns, CellText(mL(cCal, k)))
-            If Not c Is Nothing Then
-                If c.Parent.EntryID = calId Then c.Delete: n = n + 1
-            End If
-            Set c = Nothing
-            mL(cCal, k) = Empty
-            linked = True
-        End If
-    Next
-    If linked Then SaveList
-    If n = 0 Then
-        Say "Nothing to take off. Pull from Outlook first."
-        Exit Sub
-    End If
-    ForgetUndo "Nothing to undo here: taking things off your calendar happened in Outlook, and Undo can't take " & _
-        "that back. Drag any you want back from Deleted Items."
-    Say "Moved the " & n & IIf(n = 1, " thing", " things") & " you took from your calendar into Deleted Items. " & _
-        "They stay there until Deleted Items gets emptied, so drag back any you want before then."
-    Exit Sub
-Oops:
-    Say "Take them off my calendar stopped: " & Err.Description
 End Sub
 
 
@@ -736,18 +525,14 @@ End Function
 
 Private Function Describe(ByVal due As Long, ByVal tm As Long, ByVal who As String, ByVal rule As String, _
                           ByVal raw As Long) As String
-    ' What a row's date means, in words: due when, how it'll come up, and how it repeats
+    ' What a row's date means, in words: due when, at what time, and how it repeats
     Dim d As String, t As String
     If due = mToday Then d = "today" Else d = FmtDay(due)
     If who <> "" Then t = "waiting on " & who & ", check back " & d Else t = "due " & d
     If tm <> NO_TIME Then
-        t = t & ", popup at " & FmtTime(tm)
-    ElseIf due = mToday And mMin >= MORNING_AT Then
-        t = t & ", on Today now"
+        t = t & " at " & FmtTime(tm)
     ElseIf due = mToday Then
-        t = t & ", in the " & FmtTime(MORNING_AT) & " list"
-    Else
-        t = t & ", in the " & FmtTime(MORNING_AT) & " list that morning"
+        t = t & ", on Today now"
     End If
     If rule <> "" Then t = t & ", repeats " & RuleLabel(rule)
     t = t & "."
@@ -1068,7 +853,7 @@ Private Function ReadLine(ByVal text As String, ByRef what As String, ByRef due 
             due = NextWorkday(mToday)
             AddNote notes, FmtTime(tm) & " has already passed today, so it's " & FmtDay(due) & "."
         Else
-            AddNote notes, FmtTime(tm) & " has already passed, so there's no popup today."
+            AddNote notes, FmtTime(tm) & " has already passed."
         End If
     End If
 End Function
@@ -1619,8 +1404,7 @@ Private Function Ready() As Boolean
     cId = ColOf(mList, "#"): cWhat = ColOf(mList, "What"): cDue = ColOf(mList, "Due")
     cTime = ColOf(mList, "Time"): cRep = ColOf(mList, "Repeats"): cWait = ColOf(mList, "Waiting on")
     cFrom = ColOf(mList, "Came from"): cOff = ColOf(mList, "Off the list"): cOffOn = ColOf(mList, "Date off")
-    cRule = ColOf(mList, "Rule"): cRaw = ColOf(mList, "Raw date"): cTask = ColOf(mList, "Outlook task")
-    cMail = ColOf(mList, "Email"): cCal = ColOf(mList, "Calendar")
+    cRule = ColOf(mList, "Rule"): cRaw = ColOf(mList, "Raw date")
     mNCols = mList.ListColumns.Count
     n = mList.ListRows.Count
     ReDim mL(1 To mNCols, 1 To n + 16)
@@ -1649,7 +1433,6 @@ Private Function Ready() As Boolean
     LoadDaysOff
     Set mPend = New Collection
     Set mKeep = New Collection
-    Set mGone = New Collection
     mKeepName = "": mKeepVerb = ""
     Ready = True
     Exit Function
@@ -1789,14 +1572,6 @@ Private Sub RemoveLogLines(ByVal lines As Collection)
     Loop
 End Sub
 
-Private Sub ForgetUndo(ByVal why As String)
-    ' A change made in Outlook can't be taken back here, so Undo lets go of the last change
-    ' and says why instead
-    Set mUndo = Nothing
-    Set mUndoLog = Nothing
-    mUndoWhy = why
-End Sub
-
 Private Sub LogLine(ByVal id As Long, ByVal what As String, ByVal text As String, ByVal kind As String)
     mPend.Add Array(NowT(), id, what, text, kind)
 End Sub
@@ -1812,10 +1587,8 @@ Private Sub Finish()
         Next
         mUndoName = mKeepName
         mUndoVerb = mKeepVerb
-        mUndoWhy = ""
     End If
     Application.ScreenUpdating = False
-    PushOutlook False
     SaveList
     SaveLog
     DrawToday
@@ -1924,667 +1697,16 @@ Private Function TimeOf(ByVal v As Variant) As Long
 End Function
 
 
-' ---- Outlook ----------------------------------------------------------------------------
-' Popups are Outlook tasks with a reminder, in a Tracker folder under Tasks, each subject
-' starting "Tracker: ". The tracker reads only a task's ID, subject, dates, reminder, whether it's
-' complete, and two plain boxes it fills in itself (Mileage, so it knows its own, and Billing
-' information on the morning list). Of an email it reads the subject, the flag and its date, its
-' folder and its IDs; of a calendar item the subject, times, all day or not, how it
-' repeats and whether it's a meeting. It never reads who an item is from or to, who's invited, or
-' what it says. It only uses an Outlook that's already open, and never starts one.
-
-Private Function OutlookNow() As Object
-    On Error Resume Next
-    Set OutlookNow = GetObject(, "Outlook.Application")
-    Err.Clear
-End Function
-
-Private Function OutlookOpen(ByVal verb As String, ByRef ns As Object) As Boolean
-    ' Outlook's folders in ns, when Outlook is open. When it isn't, says to open it and press verb again.
-    Dim ol As Object
-    Set ol = OutlookNow()
-    If ol Is Nothing Then
-        If verb = "" Then
-            Say "Open Outlook first, then run this again."
-        Else
-            Say "Open Outlook first, then press " & verb & " again."
-        End If
-        Exit Function
-    End If
-    Set ns = ol.GetNamespace("MAPI")
-    OutlookOpen = True
-End Function
-
-Private Function UseMainTasks() As Boolean
-    Dim v As String
-    On Error Resume Next
-    v = ThisWorkbook.Names(FOLDER_SETTING).RefersTo
-    UseMainTasks = InStr(1, v, "main", vbTextCompare) > 0
-End Function
-
-Private Function TaskFolder(ByVal ns As Object) As Object
-    ' The Tracker folder under Tasks, made the first time; or Tasks itself, after TrackerUseMainTasks
-    Dim f As Object, sf As Object
-    Set f = ns.GetDefaultFolder(13)                     ' Tasks
-    If UseMainTasks() Then
-        Set TaskFolder = f
-        Exit Function
-    End If
-    On Error Resume Next
-    Set sf = f.Folders(TRACKER_FOLDER)
-    On Error GoTo 0
-    If sf Is Nothing Then Set sf = f.Folders.Add(TRACKER_FOLDER, 13)
-    Set TaskFolder = sf
-End Function
-
-Private Function ItemById(ByVal ns As Object, ByVal id As String) As Object
-    On Error Resume Next
-    Set ItemById = ns.GetItemFromID(id)
-End Function
-
-Private Function LinkId(ByVal link As String) As String
-    If InStr(link, "|") > 0 Then LinkId = Left$(link, InStr(link, "|") - 1) Else LinkId = link
-End Function
-
-Private Function LinkKey(ByVal link As String) As Long
-    If InStr(link, "|") > 0 Then LinkKey = CLng(Val(Mid$(link, InStr(link, "|") + 1)))
-End Function
-
-Private Function LinkItem(ByVal link As String) As String
-    ' An email link is "message ID|item ID"; this is the item ID
-    If InStr(link, "|") > 0 Then LinkItem = Mid$(link, InStr(link, "|") + 1)
-End Function
-
-' ---- Outlook: the calendar and flagged emails
-
-Private Function CalTime(ByVal c As Object) As Long
-    ' A calendar item's start time as minutes, NO_TIME when it takes all day
-    Dim s As Double
-    If c.AllDayEvent Then CalTime = NO_TIME: Exit Function
-    s = CDbl(c.Start)
-    CalTime = CLng(Int((s - Int(s)) * 1440 + 0.5)) Mod 1440
-End Function
-
-Private Function CalRule(ByVal c As Object, ByRef rule As String) As Boolean
-    ' A calendar series' repeat as the tracker's rule, from its pattern and its first date, so it
-    ' lands on the same days the calendar has. False when it repeats in a way the tracker can't follow.
-    Dim p As Object, ev As Long, mask As Long, dows As String, w As Long, first As Long, sp As String
-    rule = ""
-    Set p = c.GetRecurrencePattern
-    first = CLng(Int(CDbl(c.Start)))
-    ev = p.Interval
-    If ev < 1 Then ev = 1
-    mask = p.DayOfWeekMask
-    For w = 0 To 6
-        If (mask And 2 ^ w) <> 0 Then dows = dows & IIf(dows = "", "", ",") & w
-    Next
-    Select Case p.RecurrenceType
-        Case 0                                          ' daily, or every weekday
-            If ev = 1 Or mask = 62 Then rule = "workday" Else rule = "day every=" & ev & " anchor=" & first
-        Case 1                                          ' weekly
-            If dows = "" Then dows = CStr(Dow(first))
-            If ev = 1 And mask = 62 Then
-                rule = "workday"
-            ElseIf ev = 1 Then
-                rule = "week every=1 dows=" & dows
-            ElseIf InStr(dows, ",") = 0 Then
-                rule = "week every=" & ev & " dows=" & dows & " anchor=" & first
-            Else
-                Exit Function                           ' every other week on two days
-            End If
-        Case 2                                          ' monthly, on a day of the month
-            rule = "month every=" & ev & " days=" & p.DayOfMonth
-            If ev > 1 Then rule = rule & " phase=" & Month(first)
-        Case 3                                          ' monthly, like the first Monday
-            sp = NthSpec(p.Instance, mask)
-            If sp = "" Then Exit Function
-            rule = "month every=" & ev & " days=" & sp
-            If ev > 1 Then rule = rule & " phase=" & Month(first)
-        Case 5                                          ' yearly on a date; Outlook counts a year as 12
-            If ev <> 1 And ev <> 12 Then Exit Function
-            rule = "year month=" & p.MonthOfYear & " dom=" & p.DayOfMonth
-        Case 6                                          ' yearly, like the first Monday of November
-            If ev <> 1 And ev <> 12 Then Exit Function
-            sp = NthSpec(p.Instance, mask)
-            If sp = "" Then Exit Function
-            rule = "month every=12 days=" & sp & " phase=" & p.MonthOfYear
-        Case Else
-            Exit Function
-    End Select
-    If Not p.NoEndDate Then rule = rule & " until=" & CLng(Int(CDbl(p.PatternEndDate)))
-    CalRule = True
-End Function
-
-Private Function NthSpec(ByVal inst As Long, ByVal mask As Long) As String
-    ' Outlook's first to fourth (5 is last) of a day as a day of the month: 1:1 is the first Monday,
-    ' lastwork the last weekday, last the last day. "" when the tracker has no such day.
-    Dim w As Long, n As Long
-    If inst < 1 Or inst > 5 Then Exit Function
-    If inst = 5 Then n = -1 Else n = inst
-    Select Case mask
-        Case 127: If n = -1 Then NthSpec = "last" Else NthSpec = CStr(n)
-        Case 62: If n = -1 Then NthSpec = "lastwork"
-        Case Else
-            For w = 0 To 6
-                If mask = 2 ^ w Then NthSpec = n & ":" & w
-            Next
-    End Select
-End Function
-
-Private Sub ListCalendar(ByVal ns As Object, ByVal found As Collection, ByRef n As Long)
-    ' The calendar's series that haven't ended, then its one-time things from today on, leaving out
-    ' what's already come in. Each is Array(Yes or No, what, when in Outlook, why, where it is).
-    Dim cal As Object, its As Object, c As Object, have As Object, k As Long, rule As String, ok As Boolean
-    Dim tm As Long, take As String, why As String, where As String, p As Object
-    Set have = CreateObject("Scripting.Dictionary")
-    For k = 1 To mN
-        If CellText(mL(cCal, k)) <> "" Then have(CellText(mL(cCal, k))) = True
-    Next
-    Set cal = ns.GetDefaultFolder(9)
-    Set its = cal.Items.Restrict("[IsRecurring] = True")
-    For Each c In its
-        If Not have.Exists(c.EntryID) Then
-            Set p = c.GetRecurrencePattern
-            If p.NoEndDate Or Int(CDbl(p.PatternEndDate)) >= mToday Then
-                ok = CalRule(c, rule)
-                tm = CalTime(c)
-                If ok Then where = RuleLabel(rule) Else where = "repeats"
-                where = where & ", " & IIf(tm = NO_TIME, "all day", FmtTime(tm))
-                If c.MeetingStatus <> 0 Then
-                    take = "No": why = "Meeting, stays on the calendar"
-                ElseIf Not ok Then
-                    take = "No": why = "Repeats in a way the tracker can't follow, so it stays on the calendar"
-                Else
-                    take = "Yes": why = "Repeats"
-                End If
-                found.Add Array(take, CStr(c.Subject), where, why, "cal|" & c.EntryID)
-                n = n + 1
-            End If
-            Set p = Nothing
-        End If
-    Next
-    Set its = cal.Items.Restrict("[IsRecurring] = False And [Start] >= '" & Format$(CDate(mToday), "ddddd h:nn AMPM") & "'")
-    For Each c In its
-        If Not have.Exists(c.EntryID) Then
-            tm = CalTime(c)
-            where = FmtDay(CLng(Int(CDbl(c.Start)))) & ", " & IIf(tm = NO_TIME, "all day", FmtTime(tm))
-            If c.MeetingStatus <> 0 Then
-                take = "No": why = "Meeting, stays on the calendar"
-            ElseIf tm <> NO_TIME Then
-                take = "No": why = "Set time, stays on the calendar"
-            Else
-                take = "Yes": why = "All day"
-            End If
-            found.Add Array(take, CStr(c.Subject), where, why, "cal|" & c.EntryID)
-            n = n + 1
-        End If
-    Next
-End Sub
-
-Private Function TakeCalendar(ByVal ns As Object, ByVal id As String, ByRef notes As String) As String
-    ' One calendar item comes in as a row: a series on its next date, a one-time thing on its day, or
-    ' the workday before when that's a weekend or day off, which notes then says.
-    ' Says took, ended, cant (a repeat the tracker can't follow) or gone.
-    Dim c As Object, rule As String, tm As Long, first As Long, raw As Long, due As Long, k As Long, what As String
-    Dim why As String
-    Set c = ItemById(ns, id)
-    If c Is Nothing Then TakeCalendar = "gone": Exit Function
-    tm = CalTime(c)
-    first = CLng(Int(CDbl(c.Start)))
-    If c.IsRecurring Then
-        If Not CalRule(c, rule) Then TakeCalendar = "cant": Exit Function
-        If first < mToday Then first = mToday
-        raw = FirstRaw(rule, first, tm)
-        If raw = 0 Then TakeCalendar = "ended": Exit Function
-        due = WorkdayOnOrBefore(raw)
-    Else
-        due = WorkdayOnOrBefore(first)
-        If due <> first Then why = FmtShort(first) & " is " & OffName(first) & ", so it shows " & FmtDay(due) & "."
-    End If
-    what = Trim$(CStr(c.Subject))
-    If what = "" Then what = "(no subject)"
-    If why <> "" Then AddNote notes, "For """ & what & """, " & why
-    k = NewRow()
-    mKeep.Add Array(CLng(mL(cId, k)), Empty)
-    mL(cWhat, k) = what
-    mL(cDue, k) = CDbl(due)
-    If tm <> NO_TIME Then mL(cTime, k) = tm / 1440
-    mL(cFrom, k) = "calendar"
-    mL(cCal, k) = CStr(c.EntryID)
-    If rule <> "" Then
-        mL(cRule, k) = rule
-        mL(cRaw, k) = CDbl(raw)
-        mL(cRep, k) = RuleLabel(rule)
-    End If
-    LogLine CLng(mL(cId, k)), what, "Came in from your calendar." & IIf(why <> "", " " & why, ""), "added"
-    TakeCalendar = "took"
-End Function
-
-Private Function FlagRows(ByVal ns As Object) As Collection
-    ' The flagged emails in Inbox and Sent Items, each Array(item ID, message ID, 6 for Inbox or 5 for Sent)
-    Dim f As Variant, tb As Object, r As Object, c As New Collection
-    For Each f In Array(6, 5)
-        Set tb = ns.GetDefaultFolder(f).GetTable("@SQL=""" & FLAG_STATUS & """ > 1")
-        tb.Columns.Add MSG_ID
-        Do While Not tb.EndOfTable
-            Set r = tb.GetNextRow
-            c.Add Array(CStr(r("EntryID")), r(MSG_ID) & "", f)
-        Loop
-    Next
-    Set FlagRows = c
-End Function
-
-Private Function OldFlags() As Object
-    ' The emails that were flagged when the tracker first looked, by message ID and item ID, so a
-    ' change to one later doesn't make it new. Nothing before that first look.
-    Dim parts As Object, d As Object, w As Variant
-    Set parts = ThisWorkbook.CustomXMLParts.SelectByNamespace(OLD_FLAGS)
-    If parts.Count = 0 Then Exit Function
-    Set d = CreateObject("Scripting.Dictionary")
-    For Each w In Split(parts(1).DocumentElement.Text, " ")
-        If w <> "" Then d(CStr(w)) = True
-    Next
-    Set OldFlags = d
-End Function
-
-Private Sub KeepOldFlags(ByVal rows As Collection)
-    ' The first look: every email flagged now is an old one, kept in the workbook
-    Dim t As String, r As Variant
-    For Each r In rows
-        t = t & " " & r(0) & " " & Replace(Replace(Replace(r(1), "&", "&amp;"), "<", "&lt;"), ">", "&gt;")
-    Next
-    ThisWorkbook.CustomXMLParts.Add "<oldFlags xmlns=""" & OLD_FLAGS & """>" & t & "</oldFlags>"
-End Sub
-
-Private Function IsOldFlag(ByVal old As Object, ByVal r As Variant) As Boolean
-    If old Is Nothing Then IsOldFlag = True: Exit Function       ' before the first look, every flag is old
-    If old.Exists(CStr(r(0))) Then IsOldFlag = True: Exit Function
-    If r(1) <> "" Then IsOldFlag = old.Exists(CStr(r(1)))
-End Function
-
-Private Function FlagDay(ByVal m As Object) As Long
-    ' The day an email's flag is for, 0 when it has none
-    If Year(m.TaskDueDate) < 4000 Then FlagDay = CLng(Int(CDbl(m.TaskDueDate)))
-End Function
-
-Private Function MailRow(ByVal link As String) As Long
-    ' A row still on the list that came from this email: the same message ID, or the same item ID
-    Dim k As Long, have As String
-    For k = 1 To mN
-        If Trim$(CellText(mL(cOff, k))) = "" Then
-            have = CellText(mL(cMail, k))
-            If have <> "" Then
-                If LinkId(have) <> "" And LinkId(have) = LinkId(link) Then MailRow = k: Exit Function
-                If LinkItem(have) <> "" And LinkItem(have) = LinkItem(link) Then MailRow = k: Exit Function
-            End If
-        End If
-    Next
-End Function
-
-Private Function AddMailRow(ByVal subj As String, ByVal link As String, ByVal flagOn As Long, ByVal isSent As Boolean, _
-                            ByVal how As String, ByRef why As String) As Long
-    ' A row for a flagged email: due the workday on or after the flag's day (today when it has none
-    ' or it's gone by); a sent one waits on a reply, checked back that day. why says so when a
-    ' weekend or day off moved it.
-    Dim k As Long, due As Long, what As String
-    due = flagOn
-    If due < mToday Then due = mToday
-    due = WorkdayOnOrAfter(due)
-    why = ""
-    If flagOn >= mToday And due <> flagOn Then why = FmtShort(flagOn) & " is " & OffName(flagOn) & ", so it shows the next workday."
-    If why <> "" Then how = how & " " & why
-    what = Trim$(Rx("^\s*(?:(?:re|fw|fwd)\s*:\s*)+").Replace(subj, ""))
-    If what = "" Then what = "(no subject)"
-    what = UCase$(Left$(what, 1)) & Mid$(what, 2)
-    k = NewRow()
-    mKeep.Add Array(CLng(mL(cId, k)), Empty)
-    mL(cWhat, k) = what
-    mL(cDue, k) = CDbl(due)
-    If isSent Then mL(cWait, k) = "a reply"
-    mL(cFrom, k) = "flagged email"
-    mL(cMail, k) = link
-    LogLine CLng(mL(cId, k)), what, how, "added"
-    AddMailRow = k
-End Function
-
-Private Sub ListOldFlags(ByVal ns As Object, ByVal found As Collection, ByRef n As Long)
-    ' Emails in Inbox and Sent Items flagged before the tracker first looked and not in it yet
-    Dim r As Variant, old As Object, m As Object, link As String, d As Long
-    Set old = OldFlags()
-    For Each r In FlagRows(ns)
-        If IsOldFlag(old, r) Then
-            link = r(1) & "|" & r(0)
-            If MailRow(link) = 0 Then
-                Set m = ItemById(ns, CStr(r(0)))
-                If Not m Is Nothing Then
-                    d = FlagDay(m)
-                    found.Add Array("No", CStr(m.Subject), m.Parent.Name & ", flagged " & _
-                        IIf(d = 0, "with no date", "for " & FmtDay(d)), _
-                        "Flagged before the tracker started. Pick Yes to bring it in.", "mail|" & link)
-                    n = n + 1
-                End If
-                Set m = Nothing
-            End If
-        End If
-    Next
-End Sub
-
-Private Function TakeOldFlag(ByVal ns As Object, ByVal link As String, ByRef notes As String) As Boolean
-    ' An email flagged before the tracker, said Yes to on From Outlook: a row, and its flag a check
-    Dim m As Object, why As String, k As Long
-    If MailRow(link) > 0 Then Exit Function
-    Set m = FindEmail(ns, link)
-    If m Is Nothing Then Exit Function
-    k = AddMailRow(CStr(m.Subject), link, FlagDay(m), m.Parent.EntryID = ns.GetDefaultFolder(5).EntryID, _
-        "Came in from an email you had flagged.", why)
-    If why <> "" Then AddNote notes, "For """ & CellText(mL(cWhat, k)) & """, " & why
-    m.FlagStatus = 1                                    ' the flag turns into a check
-    m.Save
-    TakeOldFlag = True
-End Function
-
-Private Function TakeFlags(ByVal ns As Object, ByRef said As String) As Long
-    ' Emails flagged since the tracker first looked come in by themselves: an Inbox flag is due on
-    ' the flag's day, a Sent Items flag waits on a reply. Each flag then turns into a check.
-    Dim old As Object, rows As Collection, r As Variant, link As String, m As Object, k As Long, subj As String
-    Dim due As Long, why As String
-    On Error GoTo Trouble                               ' rows already made stay; their flags get checked next time
-    Set rows = FlagRows(ns)
-    Set old = OldFlags()
-    If old Is Nothing Then                              ' the first look: every flag set so far is an old one
-        KeepOldFlags rows
-        Exit Function
-    End If
-    For Each r In rows
-        If Not IsOldFlag(old, r) Then
-            Set m = ItemById(ns, CStr(r(0)))
-            If Not m Is Nothing Then
-                link = r(1) & "|" & r(0)
-                If MailRow(link) = 0 Then
-                    subj = CStr(m.Subject)
-                    k = AddMailRow(subj, link, FlagDay(m), r(2) = 5, "Came in from a flagged email.", why)
-                    due = CLng(mL(cDue, k))
-                    If why <> "" Then why = " " & why
-                    If r(2) = 5 Then
-                        said = said & IIf(said = "", "", " ") & "You flagged your sent """ & subj & _
-                            """, so it's under Waiting on them, check back " & FmtDay(due) & "." & why
-                    Else
-                        said = said & IIf(said = "", "", " ") & "You flagged """ & subj & """, so it's due " & _
-                            IIf(due = mToday, "today", FmtDay(due)) & "." & why & " The flag turns into a check. " & _
-                            "Open email takes you back to it."
-                    End If
-                    TakeFlags = TakeFlags + 1
-                End If
-                m.FlagStatus = 1                        ' the flag turns into a check
-                m.Save
-            End If
-            Set m = Nothing
-        End If
-    Next
-    Exit Function
-Trouble:
-    mOlNote = "(Couldn't get the flagged emails from Outlook: " & Err.Description & ")"
-End Function
-
-Private Function FindEmail(ByVal ns As Object, ByVal link As String) As Object
-    ' An email from its link: by its message ID, which stays the same when it's filed, in Inbox,
-    ' Sent Items, then every other mail folder; by its item ID when that finds nothing
-    Dim msgId As String, flt As String
-    msgId = LinkId(link)
-    If msgId <> "" Then
-        flt = "@SQL=""" & MSG_ID & """ = '" & Replace(msgId, "'", "''") & "'"
-        Set FindEmail = FindIn(ns.GetDefaultFolder(6), flt, False)
-        If FindEmail Is Nothing Then Set FindEmail = FindIn(ns.GetDefaultFolder(5), flt, False)
-        If FindEmail Is Nothing Then Set FindEmail = FindIn(ns.GetDefaultFolder(6).Parent, flt, True)
-    End If
-    If FindEmail Is Nothing And LinkItem(link) <> "" Then Set FindEmail = ItemById(ns, LinkItem(link))
-End Function
-
-Private Function FindIn(ByVal fld As Object, ByVal flt As String, ByVal deep As Boolean) As Object
-    ' The first email in a folder (and the folders under it, when deep) that the filter finds
-    Dim its As Object, sf As Object, hit As Object
-    On Error Resume Next
-    If fld.DefaultItemType = 0 Then                     ' a mail folder
-        Set its = fld.Items.Restrict(flt)
-        If Err.Number = 0 Then
-            If its.Count > 0 Then Set FindIn = its(1)
-        End If
-        Err.Clear
-    End If
-    On Error GoTo 0
-    If Not FindIn Is Nothing Or Not deep Then Exit Function
-    For Each sf In fld.Folders
-        Set hit = FindIn(sf, flt, True)
-        If Not hit Is Nothing Then
-            Set FindIn = hit
-            Exit Function
-        End If
-    Next
-End Function
-
-Private Sub DropPullSheet()
-    If Not SheetExists(PULL_SHEET) Then Exit Sub
-    Application.DisplayAlerts = False
-    ThisWorkbook.Worksheets(PULL_SHEET).Delete
-    Application.DisplayAlerts = True
-End Sub
-
-Private Function WantKey(ByVal k As Long) As Long
-    ' The day and minute row k should pop up, as minutes; 0 when it shouldn't
-    Dim tm As Long, due As Long
-    If Trim$(CellText(mL(cOff, k))) <> "" Or Trim$(CellText(mL(cWhat, k))) = "" Then Exit Function
-    tm = TimeOf(mL(cTime, k))
-    If tm = NO_TIME Then Exit Function
-    due = CLng(Int(NumOf(mL(cDue, k))))
-    If due > 0 Then WantKey = due * 1440 + tm
-End Function
-
-Private Function MakeTask(ByVal fld As Object, ByVal what As String, ByVal want As Long) As String
-    ' A popup for one thing; returns its ID
-    Dim t As Object
-    Set t = fld.Items.Add
-    t.Subject = TASK_PREFIX & what
-    t.DueDate = CDate(want \ 1440)
-    t.ReminderSet = True
-    t.ReminderTime = CDate(want / 1440#)
-    t.Mileage = TASK_MARK
-    t.Save
-    MakeTask = t.EntryID
-End Function
-
-Private Sub DropTask(ByVal ns As Object, ByVal id As String)
-    ' Deletes one of the tracker's popups, if it's still there and still the tracker's
-    Dim t As Object
-    If id = "" Or id = GONE_MARK Then Exit Sub
-    Set t = ItemById(ns, id)
-    If t Is Nothing Then Exit Sub
-    If t.Mileage <> TASK_MARK Then Exit Sub
-    If t.Parent.EntryID = ns.GetDefaultFolder(3).EntryID Then Exit Sub      ' already in Deleted Items
-    t.Delete
-End Sub
-
-Private Function PushOutlook(ByVal force As Boolean) As Boolean
-    ' Makes the popups match the rows: one for each open row with a set time still to come, made
-    ' again when its day or time changes and deleted when it comes off the list, plus the next
-    ' morning list. Returns True when a row's Outlook task changed.
-    Dim ol As Object, ns As Object, fld As Object, k As Long, link As String, want As Long
-    Dim nowKey As Long, nl As String, g As Variant
-    Set ol = OutlookNow()
-    If ol Is Nothing Then Exit Function
-    On Error GoTo Trouble
-    Set ns = ol.GetNamespace("MAPI")
-    Set fld = TaskFolder(ns)
-    nowKey = CLng(Int(NowT() * 1440 + 0.000001))
-    If Not mGone Is Nothing Then
-        For Each g In mGone
-            DropTask ns, LinkId(CStr(g))
-        Next
-        Set mGone = New Collection
-    End If
-    For k = 1 To mN
-        link = CellText(mL(cTask, k))
-        want = WantKey(k)
-        If link = "" And want <= nowKey Then
-            ' nothing to pop, or its time has gone
-        ElseIf link <> "" And LinkKey(link) = want Then
-            ' as it should be
-        Else
-            DropTask ns, LinkId(link)
-            nl = ""
-            If want > nowKey Then nl = MakeTask(fld, CellText(mL(cWhat, k)), want) & "|" & want
-            If nl = "" Then mL(cTask, k) = Empty Else mL(cTask, k) = nl
-            PushOutlook = True
-        End If
-    Next
-    PushMorning fld, force
-    Exit Function
-Trouble:
-    mOlNote = "(Couldn't save the popup in Outlook: " & Err.Description & ")"
-    PushOutlook = True
-End Function
-
-Private Function MorningDay() As Long
-    ' The workday the next morning list is for: today until 8:30, then the next workday
-    If Not IsOff(mToday) And mMin < MORNING_AT Then MorningDay = mToday Else MorningDay = NextWorkday(mToday)
-End Function
-
-Private Function MorningList(ByVal d As Long, ByRef txt As String) As String
-    ' The morning list for day d: its subject, "Tracker: 4 for today, 1 late", and in txt the
-    ' names, late ones first. "" when there's nothing for it.
-    Dim i As Long, nL As Long, nT As Long, nX As Long, lateRows As Variant, todayRows As Variant, timedRows As Variant
-    Dim t As String
-    txt = ""
-    SortDay d, True, lateRows, nL, todayRows, nT, timedRows, nX      ' timed ones pop up on their own
-    If nL + nT = 0 Then Exit Function
-    For i = 1 To nL
-        txt = txt & IIf(txt = "", "", vbCrLf) & CellText(mL(cWhat, lateRows(i))) & " (late)"
-    Next
-    For i = 1 To nT
-        txt = txt & IIf(txt = "", "", vbCrLf) & CellText(mL(cWhat, todayRows(i)))
-    Next
-    If nT > 0 Then t = nT & " for today"
-    If nL > 0 Then t = t & IIf(t = "", "", ", ") & nL & " late"
-    MorningList = TASK_PREFIX & t
-End Function
-
-Private Sub PushMorning(ByVal fld As Object, ByVal force As Boolean)
-    ' Keeps one morning list at 8:30 AM on the next workday. Today's, once it has come up, stays
-    ' until it's dismissed; older ones go.
-    Dim d As Long, subj As String, txt As String, key As String, its As Object, t As Object
-    Dim i As Long, td As Long, found As Boolean
-    d = MorningDay()
-    subj = MorningList(d, txt)
-    key = d & "|" & Hash(subj & vbLf & txt)
-    If Not force And key = mMornKey Then Exit Sub
-    Set its = fld.Items.Restrict("[Mileage] = '" & MORNING_MARK & "'")
-    For i = its.Count To 1 Step -1
-        Set t = its(i)
-        td = CLng(Int(CDbl(t.DueDate)))
-        If t.Complete Or Not t.ReminderSet Or td < mToday Or (td <> d And td <> mToday) Or (td = d And (found Or subj = "")) Then
-            t.Delete
-        ElseIf td = d Then
-            found = True
-            If t.BillingInformation <> key Then FillMorning t, d, subj, txt, key
-        End If
-    Next
-    If Not found And subj <> "" Then FillMorning fld.Items.Add, d, subj, txt, key
-    mMornKey = key
-End Sub
-
-Private Sub FillMorning(ByVal t As Object, ByVal d As Long, ByVal subj As String, ByVal txt As String, ByVal key As String)
-    t.Subject = subj
-    t.Body = txt
-    t.DueDate = CDate(d)
-    t.ReminderSet = True
-    t.ReminderTime = CDate(d + MORNING_AT / 1440#)
-    t.Mileage = MORNING_MARK
-    t.BillingInformation = key
-    t.Save
-End Sub
-
-Private Function Hash(ByVal s As String) As String
-    ' A short stand-in for the morning list's words, to tell when they change
-    Dim h As Double, i As Long
-    For i = 1 To Len(s)
-        h = h * 31 + AscW(Mid$(s, i, 1))
-        h = h - Int(h / 2147483647#) * 2147483647#
-    Next
-    Hash = Len(s) & "." & CStr(h)
-End Function
-
-Private Function ReadPopupsBack(ByVal ns As Object, ByVal fld As Object, ByRef said As String, ByRef lastDone As String) As Boolean
-    ' Reads back the tracker's popups. One marked complete in Outlook is Done here (a repeat moves
-    ' on); one dismissed, or deleted in Outlook, goes and isn't made again until its date or time
-    ' changes. Returns True when a row changed.
-    Dim k As Long, link As String, id As String, t As Object, fid As String
-    fid = fld.EntryID
-    For k = 1 To mN
-        link = CellText(mL(cTask, k))
-        id = LinkId(link)
-        If id <> "" And id <> GONE_MARK And Trim$(CellText(mL(cOff, k))) = "" Then
-            Set t = ItemById(ns, id)
-            If t Is Nothing Then
-                mL(cTask, k) = GONE_MARK & "|" & LinkKey(link)
-                ReadPopupsBack = True
-            ElseIf t.Complete Then
-                lastDone = CellText(mL(cWhat, k))
-                said = said & IIf(said = "", "", " ") & "Marked complete in Outlook. " & DoneRow(k)
-                If t.Parent.EntryID = fid Then t.Delete
-                mL(cTask, k) = Empty
-                ReadPopupsBack = True
-            ElseIf Not t.ReminderSet Or t.Parent.EntryID <> fid Then
-                If t.Parent.EntryID = fid Then t.Delete
-                mL(cTask, k) = GONE_MARK & "|" & LinkKey(link)
-                ReadPopupsBack = True
-            End If
-        End If
-    Next
-End Function
-
-Private Sub SweepTasks(ByVal fld As Object)
-    ' A popup no row points to any more (a row deleted by hand, or a file closed without saving) goes
-    Dim linked As Object, k As Long, its As Object, i As Long, id As String
-    Set linked = CreateObject("Scripting.Dictionary")
-    For k = 1 To mN
-        id = LinkId(CellText(mL(cTask, k)))
-        If id <> "" Then linked(id) = True
-    Next
-    Set its = fld.Items.Restrict("[Mileage] = '" & TASK_MARK & "'")
-    For i = its.Count To 1 Step -1
-        If Not linked.Exists(its(i).EntryID) Then its(i).Delete
-    Next
-End Sub
+' ---- the timer ----------------------------------------------------------------------------
 
 Private Sub RunTick()
-    ' What the timer does each minute, and opening the file does at once: takes what was marked
-    ' complete or dismissed in Outlook, puts the popups right, and sets up the next morning list
-    Dim ol As Object, ns As Object, fld As Object, said As String, lastDone As String, changed As Boolean
-    Dim linksMoved As Boolean, flagged As Long
+    ' What the timer does each minute: once the day has turned since Today was drawn, Today is
+    ' drawn again for the new day
     On Error GoTo Oops
     If FindTable(LIST_TABLE) Is Nothing Then Exit Sub
     If Not HasColumns(FindTable(LIST_TABLE), LIST_COLS) Then Exit Sub
     If Not Ready() Then Exit Sub
-    Set ol = OutlookNow()
-    If Not ol Is Nothing Then
-        Set ns = ol.GetNamespace("MAPI")
-        Set fld = TaskFolder(ns)
-        changed = ReadPopupsBack(ns, fld, said, lastDone)
-        flagged = TakeFlags(ns, said)
-        If flagged > 0 Then changed = True
-    End If
-    linksMoved = PushOutlook(True)
-    If changed Or mDrawn <> mToday Then
-        Finish
-    ElseIf linksMoved Then
-        SaveList
-    End If
-    If Not fld Is Nothing Then SweepTasks fld
-    If lastDone <> "" Then
-        ForgetUndo "Nothing to undo here: """ & lastDone & """ was marked complete in Outlook, and Undo can't take " & _
-            "back what's done in Outlook."
-    End If
-    If flagged > 0 Then ForgetUndo NO_UNDO_FLAG
-    If lastDone <> "" Or flagged > 0 Then Say said
+    If mDrawn <> mToday Then Finish
     Exit Sub
 Oops:
     Application.ScreenUpdating = True
@@ -2606,43 +1728,13 @@ Private Sub StopTimer()
     mTickAt = 0
 End Sub
 
-Private Sub SwitchTasks(ByVal toMain As Boolean)
-    ' Moves every popup to the other folder: deleted from the one it's in, made again in the new one
-    Dim ns As Object, fld As Object, k As Long, its As Object, i As Long
-    On Error GoTo Oops
-    If Not Ready() Then Exit Sub
-    If Not OutlookOpen("", ns) Then Exit Sub
-    Set fld = TaskFolder(ns)
-    For k = 1 To mN
-        DropTask ns, LinkId(CellText(mL(cTask, k)))
-        mL(cTask, k) = Empty
-    Next
-    SweepTasks fld
-    Set its = fld.Items.Restrict("[Mileage] = '" & MORNING_MARK & "'")
-    For i = its.Count To 1 Step -1
-        its(i).Delete
-    Next
-    ThisWorkbook.Names.Add Name:=FOLDER_SETTING, RefersTo:="=""" & IIf(toMain, "main", TRACKER_FOLDER) & """", Visible:=False
-    mMornKey = ""
-    Finish
-    If toMain Then
-        Say "Popups now come from the main Tasks folder in Outlook. TrackerUseTrackerFolder puts them back in the Tracker folder."
-    Else
-        Say "Popups now come from the Tracker folder under Tasks in Outlook."
-    End If
-    Exit Sub
-Oops:
-    Application.ScreenUpdating = True
-    Say "Moving the popups stopped: " & Err.Description
-End Sub
-
 
 ' ---- Today ------------------------------------------------------------------------------
 
 Private Sub DrawToday()
     ' Late first and never folded, then today's untimed things with repeats on top, then today's
-    ' timed ones, which pop up on their own. 5 at most under Now and 20 under Coming up; the rest
-    ' fold away in a row group.
+    ' timed ones by time. 5 at most under Now and 20 under Coming up; the rest fold away in a row
+    ' group.
     Dim ws As Worksheet, i As Long, last As Long, due As Long, tm As Long
     Dim late As Variant, nLate As Long, untimed As Variant, nUn As Long, timed As Variant, nTi As Long
     Dim soon As Variant, nSoon As Long, waits As Variant, nWait As Long, nLater As Long
@@ -2652,7 +1744,7 @@ Private Sub DrawToday()
     Dim nowShown As Long, soonShown As Long, band As Long
     Set ws = ThisWorkbook.Worksheets(TODAY_SHEET)
     mDrawn = mToday
-    SortDay mToday, False, late, nLate, untimed, nUn, timed, nTi     ' the same counts the morning list has
+    SortDay mToday, late, nLate, untimed, nUn, timed, nTi
     ReDim soon(1 To mN + 1): ReDim waits(1 To mN + 1)
     ReDim sk(1 To mN + 1): ReDim wk(1 To mN + 1)
     For i = 1 To mN
@@ -2745,11 +1837,10 @@ Private Sub DrawToday()
     If folds.Count > 0 Then ws.Outline.ShowLevels RowLevels:=1
 End Sub
 
-Private Sub SortDay(ByVal d As Long, ByVal asAdded As Boolean, ByRef late As Variant, ByRef nLate As Long, _
+Private Sub SortDay(ByVal d As Long, ByRef late As Variant, ByRef nLate As Long, _
                     ByRef untimed As Variant, ByRef nUn As Long, ByRef timed As Variant, ByRef nTi As Long)
-    ' The open rows for day d, the way Today and the morning list count them: late (due before d),
-    ' due d with no time, and due d with a time. Sorted the way Today shows them (late by date,
-    ' repeats first, timed by time), or with asAdded in the order they were added.
+    ' The open rows for day d, the way Today counts them: late (due before d), due d with no time,
+    ' and due d with a time. Sorted the way Today shows them: late by date, repeats first, timed by time.
     Dim i As Long, due As Long, tm As Long, lk As Variant, uk As Variant, tk As Variant
     ReDim late(1 To mN + 1): ReDim untimed(1 To mN + 1): ReDim timed(1 To mN + 1)
     ReDim lk(1 To mN + 1): ReDim uk(1 To mN + 1): ReDim tk(1 To mN + 1)
@@ -2759,11 +1850,10 @@ Private Sub SortDay(ByVal d As Long, ByVal asAdded As Boolean, ByRef late As Var
             due = CLng(Int(NumOf(mL(cDue, i))))
             tm = TimeOf(mL(cTime, i))
             If due < d Then
-                nLate = nLate + 1: late(nLate) = i
-                If asAdded Then lk(nLate) = NumOf(mL(cId, i)) Else lk(nLate) = WhenKey(i, due, tm)
+                nLate = nLate + 1: late(nLate) = i: lk(nLate) = WhenKey(i, due, tm)
             ElseIf due = d And tm = NO_TIME Then
                 nUn = nUn + 1: untimed(nUn) = i
-                uk(nUn) = IIf(asAdded Or Trim$(CellText(mL(cRule, i))) = "", 1, 0) * 1000000# + NumOf(mL(cId, i))
+                uk(nUn) = IIf(Trim$(CellText(mL(cRule, i))) = "", 1, 0) * 1000000# + NumOf(mL(cId, i))
             ElseIf due = d Then
                 nTi = nTi + 1: timed(nTi) = i: tk(nTi) = tm * 1000000# + NumOf(mL(cId, i))
             End If
@@ -2851,7 +1941,7 @@ End Function
 Private Sub DropBlankSheets()
     ' A new workbook's empty Sheet1 goes, so the tracker's sheets are all there is
     Dim ws As Worksheet, ours As String
-    ours = "|" & TODAY_SHEET & "|" & LIST_SHEET & "|" & LOG_SHEET & "|" & OFF_SHEET & "|" & PASTE_SHEET & "|" & PULL_SHEET & "|"
+    ours = "|" & TODAY_SHEET & "|" & LIST_SHEET & "|" & LOG_SHEET & "|" & OFF_SHEET & "|" & PASTE_SHEET & "|"
     For Each ws In ThisWorkbook.Worksheets
         If InStr(ours, "|" & ws.Name & "|") = 0 Then
             If Application.WorksheetFunction.CountA(ws.Cells) = 0 And ws.Shapes.Count = 0 Then
@@ -2901,6 +1991,24 @@ Private Sub HideColumns(ByVal lo As ListObject, ByVal cols As String)
     For Each c In Split(cols, "|")
         lo.ListColumns(CStr(c)).Range.EntireColumn.Hidden = True
     Next
+End Sub
+
+Private Sub DropOldCopy()
+    ' An older copy's own List columns go, by name, and so does its sheet if one was left. Every
+    ' row stays, and so does any column you added yourself.
+    Dim c As Variant, k As Long
+    For Each c In Split(OLD_COLS, "|")
+        k = ColOf(mList, CStr(c))
+        If k > 0 Then
+            mList.ListColumns(k).Range.EntireColumn.Delete
+            Set mUndo = Nothing                 ' Undo kept the row with that column in it
+        End If
+    Next
+    If SheetExists(OLD_SHEET) Then
+        Application.DisplayAlerts = False
+        ThisWorkbook.Worksheets(OLD_SHEET).Delete
+        Application.DisplayAlerts = True
+    End If
 End Sub
 
 Private Sub CrossOutDone(ByVal ws As Worksheet)
@@ -2970,15 +2078,9 @@ Private Sub DressToday(ByVal ws As Worksheet)
             "Repeats: every monday, monthly on the 5th, quarterly, renew bond 1/15 yearly, until 12/31." & vbLf & _
             "Click a row, then: Done takes it off Today (a repeat moves to its next date). Move to tomorrow puts it " & _
             "on the next workday. Change date takes one line, like fri 2pm or 11/20. Note adds a dated line to the Log. " & _
-            "Drop it takes it off the list, or stops a repeat. Open email opens the email it came from. " & _
+            "Drop it takes it off the list, or stops a repeat. " & _
             "List keeps them all, crossed out." & vbLf & _
             "Undo takes back your last change." & vbLf & _
-            "Popups come from Outlook: a thing with a time pops up then, everything else is in the 8:30 AM list. " & _
-            "Mark Complete on a popup marks it done here." & vbLf & _
-            "Flag an email in Outlook and it lands here within a minute, due on the flag's day. A flagged sent " & _
-            "email lands under Waiting on them." & vbLf & _
-            "Pull from Outlook lists your calendar and the emails you'd flagged before, Yes or No each. Change any, " & _
-            "then press Take the Yes ones. Take them off my calendar then moves those to Deleted Items." & vbLf & _
             "Paste a list: paste one thing per line, then press Take these." & vbLf & _
             "A line like ""8 more for today"" folds the rest away. Press the + at the far left to open it."
         .TextRange.Font.Size = 11
@@ -2995,11 +2097,8 @@ Private Sub DressToday(ByVal ws As Worksheet)
     AddButton ws, "trkChange", "Change date", "ChangeDate", 0, 318, 116, True
     AddButton ws, "trkNote", "Note", "NoteThing", 1, 0, 50
     AddButton ws, "trkDrop", "Drop it", "DropIt", 1, 54, 60
-    AddButton ws, "trkOpen", "Open email", "OpenEmail", 1, 118, 80
-    AddButton ws, "trkUndo", "Undo", "UndoLast", 1, 202, 50
-    AddButton ws, "trkPaste", "Paste a list", "PasteList", 1, 272, 80
-    AddButton ws, "trkPull", "Pull from Outlook", "PullFromOutlook", 1, 356, 110
-    AddButton ws, "trkOffCal", "Take them off my calendar", "TakeOffCalendar", 1, 470, 150
+    AddButton ws, "trkUndo", "Undo", "UndoLast", 1, 118, 50
+    AddButton ws, "trkPaste", "Paste a list", "PasteList", 1, 188, 80
     ws.Activate
     With ActiveWindow
         .FreezePanes = False
@@ -3086,11 +2185,7 @@ Private Function Ask(ByVal prompt As String, ByVal title As String) As Variant
 End Function
 
 Private Sub Say(ByVal msg As String)
-    ' What a button says shows at the top of Today, with any Outlook error
-    If mOlNote <> "" Then
-        msg = msg & " " & mOlNote
-        mOlNote = ""
-    End If
+    ' What a button says shows at the top of Today
     If Not mFeed Is Nothing Then mSaid = mSaid & msg & vbLf
     If SheetExists(TODAY_SHEET) Then
         ThisWorkbook.Worksheets(TODAY_SHEET).Cells(SAID_ROW, 1).Value = msg
@@ -3127,9 +2222,6 @@ Public Function TrackerTest(ByVal macroName As String, ByVal answers As String) 
         Case "NoteThing": NoteThing
         Case "DropIt": DropIt
         Case "UndoLast": UndoLast
-        Case "ForgetUndo"                                ' as a change in Outlook does
-            ForgetUndo answers
-            Set mFeed = New Collection
         Case "PasteList": PasteList
         Case "TakeThese": TakeThese
         Case "CancelPaste": CancelPaste
@@ -3147,13 +2239,6 @@ Public Function TrackerTest(ByVal macroName As String, ByVal answers As String) 
                 mSaid = "off ticks=" & mTicks
             End If
             Set mFeed = New Collection
-        Case "OpenEmail": OpenEmail
-        Case "PullFromOutlook": PullFromOutlook
-        Case "TakeYes": TakeYes
-        Case "CancelPull": CancelPull
-        Case "TakeOffCalendar": TakeOffCalendar
-        Case "TrackerUseMainTasks": TrackerUseMainTasks
-        Case "TrackerUseTrackerFolder": TrackerUseTrackerFolder
         Case "Clock"
             mClock = CDbl(answers)
             Set mFeed = New Collection

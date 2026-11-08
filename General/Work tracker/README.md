@@ -1,12 +1,10 @@
 # Work tracker
 
 What it does: an Excel macro (Tracker.bas) that keeps everything you're
-tracking in one list, with popups from classic Outlook. You add
-a thing with one line of plain words, like "call Huntsville back 11/17 9am"
-or "GA refund mailer monthly on the 5th", and it lands on the right day. A
-flagged email comes in by itself, and Pull from Outlook brings in your
-calendar's repeats. A thing with a set time pops up then; the rest come in
-one list at 8:30 AM on workdays. How to use it is on the Today sheet, on the
+tracking in one list. You add a thing with one line of plain words, like
+"call Huntsville back 11/17 9am" or "GA refund mailer monthly on the 5th",
+and it lands on the right day. The Today sheet shows what's late, what's due
+today and what's coming up. How to use it is on the Today sheet, on the
 right.
 
 Setup: new blank workbook, paste all of Tracker.bas into a new module
@@ -17,8 +15,6 @@ in File Explorer, right-click the saved file and pick Copy, press the Windows
 key and R, type shell:startup and press Enter, then right-click in that
 folder and pick Paste shortcut (on Windows 11 it's under Show more options).
 To update, paste the new copy over the old one the same way, and run
-TrackerSetup again; every row stays. If popups from the Tracker folder never come up, run
-TrackerUseMainTasks (Alt F8) and they come from the main Tasks folder
-instead.
+TrackerSetup again; every row stays.
 
 Open: if IT has VBScript turned off, Add won't work.
