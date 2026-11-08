@@ -4,7 +4,7 @@
 ' file, updated monthly, with the whole history in it. The What changed sheet shows the
 ' rates you watch (set just below these notes) that changed going into this month and
 ' going into next month: in September, August to September and September to October.
-' Opening the workbook moves it on when the month turns.
+' Opening the workbook in a new month updates it to that month.
 '
 ' Each month:
 '   1. Download taxrates.csv from the DOR's Local Cities and Counties Tax Rates Text File
@@ -91,7 +91,7 @@ Tidy:
 End Sub
 
 Public Sub Auto_Open()
-    ' Opening the workbook moves What changed on to this month and next. That redraw isn't
+    ' Opening the workbook redraws What changed for this month and next. That redraw isn't
     ' anything to save, so the workbook is marked unchanged and closing won't ask.
     On Error Resume Next
     If SheetByName(SH_MAIN) Is Nothing Then Exit Sub
@@ -636,7 +636,7 @@ End Function
 Private Sub NotShown(ByVal all As Object, ByVal thisMonth As Object, ByVal nextMonth As Object, _
                      ByVal out As Object)
     ' The changes in all that the month lists don't already show: the same rate, the same
-    ' before and the same after. A rate that changed this month and was also quietly renamed
+    ' before and the same after. A rate that changed this month and was also renamed
     ' still counts, because its before isn't the same.
     Dim shown As Collection, ch As Variant
     Set shown = New Collection
@@ -870,7 +870,7 @@ End Sub
 
 Private Sub Band(ByVal ws As Worksheet, ByVal r As Long, ByVal words As String, _
                  ByVal fillColor As Long, ByVal textColor As Long, ByVal pts As Long)
-    ' A colored line across the list, for the things that need to be seen
+    ' A colored line across the sheet, for the month headings and warnings
     With ws.Range(ws.Cells(r, 1), ws.Cells(r, 7))
         .Merge
         .Value = words
@@ -943,7 +943,7 @@ End Sub
 Private Sub DrawSince(ByVal since As Object, ByVal compared As Boolean, ByVal fname As String, _
                       ByVal loadedOn As Date, ByVal savedFile As String, ByVal savedWhen As Variant, _
                       ByVal dups As Long)
-    ' Since last file: the safety net, what the two files differ on that the months miss
+    ' Since last file: what the two files differ on that the month lists don't show
     Dim ws As Worksheet, n As Long, r As Long, s As String
     Set ws = SheetByName(SH_SINCE)
     n = since.Count
@@ -1177,7 +1177,7 @@ Private Sub SaveCopy(ByRef recs As Variant, ByVal n As Long, ByVal fname As Stri
             out(i, c) = CellValue(CStr(recs(i, c)), c)
         Next
     Next
-    ' Words stay words, whatever they look like
+    ' Text columns stay text, even when they look like numbers
     For Each col In Array(C_NAME, C_TAX, C_RTYPE, C_ADMIN, C_IND, C_PJ)
         ws.Range(ws.Cells(SAVED_ROW + 1, col), ws.Cells(SAVED_ROW + n, col)).NumberFormat = "@"
     Next
@@ -1256,7 +1256,7 @@ Private Sub FreezeAt(ByVal ws As Worksheet, ByVal rowsAbove As Long)
 End Sub
 
 
-' ---- small helpers -----------------------------------------------------------------------
+' ---- small functions ---------------------------------------------------------------------
 
 Private Function SheetByName(ByVal nm As String) As Worksheet
     Dim ws As Worksheet
@@ -1462,7 +1462,7 @@ End Function
 ' ---- the boxes -------------------------------------------------------------------------
 
 Private Function PickFile() As Variant
-    ' The file picked, or False if the box was cancelled. Starts in Downloads when there is one.
+    ' The file picked, or False if the box was canceled. Starts in Downloads when there is one.
     Dim dl As String
     If Not mFeed Is Nothing Then
         If mFeed.Count = 0 Then

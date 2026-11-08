@@ -5,8 +5,7 @@
 '   1. Download this file (the download button at the top right of its page).
 '   2. Open a new blank workbook in Excel. Alt F11, then File > Import File, and pick this
 '      file. Close that window.
-'   3. File > Save As > Excel Macro-Enabled Workbook (.xlsm). Name it CA Rates Check and keep
-'      it with your other work files.
+'   3. File > Save As > Excel Macro-Enabled Workbook (.xlsm). Name it CA Rates Check.
 '   4. Alt F8, pick CheckCaliforniaRates, Run. It makes the sheets and the big button, then
 '      asks for the rates file.
 ' The How to use sheet it makes has the steps for each quarter.
@@ -666,8 +665,7 @@ Private Sub DrawWelcome(ByVal ws As Worksheet)
 End Sub
 
 Private Sub DrawHowTo()
-    ' How to use: the steps, kept in the macro so they travel with it. Redrawn on every click,
-    ' so a newer version of the macro brings its own steps.
+    ' How to use: the steps. Redrawn on every click.
     Dim ws As Worksheet, r As Long
     Set ws = SheetByName(SH_HOWTO)
     If ws Is Nothing Then Exit Sub
@@ -707,7 +705,7 @@ Private Sub DrawHowTo()
         "quarter's first day, like 1/1/2027."
     HowToLine ws, r, "B", "If it says another file with the same name is open, close that one and click " & _
         "the button again."
-    HowToLine ws, r, "B", "For a newer version of the macro: Alt F11, right-click the old module under Modules, " & _
+    HowToLine ws, r, "B", "To put in a new copy of the macro: Alt F11, right-click the old module under Modules, " & _
         "Remove, No, then File, Import File the new one, close that window and save. Saved rates and the Log stay."
     HowToLine ws, r, "S", "This sheet is redrawn each time you click the button, so notes typed here won't stay."
 End Sub
@@ -866,7 +864,7 @@ End Sub
 
 Private Sub Band(ByVal ws As Worksheet, ByVal r As Long, ByVal words As String, _
                  ByVal fillColor As Long, ByVal textColor As Long, ByVal pts As Long)
-    ' A colored line across the list, for the things that need to be seen
+    ' A colored line across the sheet, for the count and the get-the-new-file line
     With ws.Range(ws.Cells(r, 1), ws.Cells(r, LIST_COLS))
         .Merge
         .Value = words
@@ -1091,7 +1089,7 @@ Private Sub SaveCopy(ByRef recs As Variant, ByVal n As Long, ByVal fname As Stri
             If c <> C_RATE And CStr(out(i, c)) = "" Then out(i, c) = Empty
         Next
     Next
-    ' Words stay words, whatever they look like
+    ' Text columns stay text, even when they look like numbers
     ws.Range(ws.Cells(SAVED_ROW + 1, C_PLACE), ws.Cells(SAVED_ROW + n, C_PLACE)).NumberFormat = "@"
     ws.Range(ws.Cells(SAVED_ROW + 1, C_COUNTY), ws.Cells(SAVED_ROW + n, C_NOTES)).NumberFormat = "@"
     ws.Range(ws.Cells(SAVED_ROW + 1, C_RATE), ws.Cells(SAVED_ROW + n, C_RATE)).NumberFormat = RATE_LOOK
@@ -1183,7 +1181,7 @@ Private Sub FreezeAt(ByVal ws As Worksheet, ByVal rowsAbove As Long)
 End Sub
 
 
-' ---- small helpers -----------------------------------------------------------------------
+' ---- small functions ---------------------------------------------------------------------
 
 Private Function SheetByName(ByVal nm As String) As Worksheet
     Dim ws As Worksheet
@@ -1305,7 +1303,7 @@ End Function
 ' ---- the boxes -------------------------------------------------------------------------
 
 Private Function PickFile() As Variant
-    ' The file picked, or False if the box was cancelled. Starts in Downloads when there is one.
+    ' The file picked, or False if the box was canceled. Starts in Downloads when there is one.
     Dim dl As String
     If Not mFeed Is Nothing Then
         If mFeed.Count = 0 Then
@@ -1329,7 +1327,7 @@ Private Function PickFile() As Variant
 End Function
 
 Private Function AskDate(ByVal guess As Date) As Date
-    ' The day the rates start, when the file's name doesn't say. 0 when the box is cancelled.
+    ' The day the rates start, when the file's name doesn't say. 0 when the box is canceled.
     Dim a As String, q As String
     q = "What day do these rates start? The file's name doesn't say." & vbLf & vbLf & _
         "The state's lists start on the 1st of January, April, July or October. Type it like " & _

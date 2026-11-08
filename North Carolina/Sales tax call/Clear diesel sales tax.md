@@ -12,7 +12,7 @@ The exemption. "Motor fuel, as taxed in Article 36C of this Chapter, except moto
 
 The refund. "A person who purchases and uses motor fuel for a purpose other than to operate a licensed highway vehicle may receive a quarterly refund for the excise tax paid during the preceding calendar quarter." and "The amount of refund allowed is the tax rate in effect under G.S. 105-449.80 for the time period less the amount of sales and use tax due on the fuel under this Chapter." [N.C. Gen. Stat. § 105-449.106(d)].
 
-The sales tax cut. "Article 5 of Subchapter I of this Chapter determines the amount of State sales and use tax to be deducted from a motor fuel excise tax refund" [N.C. Gen. Stat. § 105-449.107A]. The Department: "G.S. 105-449.107A requires the off-highway refund to be reduced by the amount of sales tax due on the fuel." [N.C. Dep't of Revenue, GAS-1201Q instructions, Web 3-23].
+The sales tax taken out of the refund. "Article 5 of Subchapter I of this Chapter determines the amount of State sales and use tax to be deducted from a motor fuel excise tax refund" [N.C. Gen. Stat. § 105-449.107A]. The Department: "G.S. 105-449.107A requires the off-highway refund to be reduced by the amount of sales tax due on the fuel." [N.C. Dep't of Revenue, GAS-1201Q instructions, Web 3-23].
 
 The 2026 form. The refund line reads "(Multiply Line 4 by $0.410)". Line 9 is "Total gallons of motor fuel used in nonhighway equipment for which sales tax is due", and Line 10 is "Sales tax due (Multiply Line 9 by $0.232)". Line 11 is "Total gallons of motor fuel used in commercial fishing, commercial logging, railroads, farming, ocean-going vessels, and manufacturing for which no sales tax is due" [N.C. Dep't of Revenue, Form GAS-1201Q, 2026].
 

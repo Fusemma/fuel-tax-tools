@@ -1,4 +1,4 @@
-MO Rates Check - setup
+MO Rates Check setup
 
 WHAT IT DOES
 Each quarter the Missouri DOR posts a boundary file (every address range in

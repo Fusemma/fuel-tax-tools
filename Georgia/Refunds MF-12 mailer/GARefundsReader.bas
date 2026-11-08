@@ -22,7 +22,7 @@ Private Const MONTH_NOTE As String = "Only this month's rows are worked. Every b
     "Build packets fills in the newest month with open rows, Make drafts and Mark filed fill in this one."
 Private Const TYPE_WORD_HEAD As String = "Name in folders and files"
 Private Const OLD_PREFIX_HEAD As String = "Old folder prefix"
-Private Const TYPE_NOTE As String = "A refund type the list doesn't have lands on CHECK. Add it on a yellow line: the words " & _
+Private Const TYPE_NOTE As String = "A refund type the list doesn't have shows up on CHECK. Add it on a yellow line: the words " & _
     "exactly as the report has them, its name for the folders and files (like Diversion), and the words for the email (like diversions)."
 Private Const FILL_NOTE As String = "These get filled in per supplier: >MONTH< >YEAR< >SUPPLIER< >US< >CONTACT< >GREETING< >COUNTS< >TYPES<"
 Private Const OLD_FILL_NOTE As String = "These get filled in per supplier: >MONTH< >YEAR< >SUPPLIER< >US< >TYPES< >CONTACT<"
@@ -125,7 +125,7 @@ Public Type RPkt
     PName As String          ' Acme Licensed
     Word As String           ' Licensed, the refund type's name in folders and files
     TypeNo As Long           ' the first line of SETUP's refund type list with that name
-    Prefix As String         ' LIC, what the last version put in front of its folder names
+    Prefix As String         ' LIC, the prefix on old folder names
     PerKey As Long
     Sup As Long
     Mail As Long
@@ -249,7 +249,7 @@ Private Sub MakeSetupSheet()
     SetupLine ws, 11, "Packets folder", ""
     ws.Range("C11").Value = PACKETS_HINT
     SetupLine ws, 12, "MF-12 template file", ""
-    ws.Range("C12").Value = "Full path to " & TEMPLATE_NAME & ". Found by itself when it's beside this workbook."
+    ws.Range("C12").Value = "Full path to " & TEMPLATE_NAME & ". Filled in for you when the file is in the same folder as this workbook."
     SetupLine ws, 13, "Month to work", ""
     ws.Range("C13").Value = MONTH_NOTE
     SetupLine ws, 15, "Email subject", ">MONTH< >YEAR< GA MF-12 Waiver - >US< / >SUPPLIER<"
@@ -276,10 +276,9 @@ Private Sub MakeSetupSheet()
     ws.Rows(16).AutoFit
 End Sub
 
-' A SETUP sheet from before the running list: its Month folder line becomes Packets folder,
-' and a Month to work line goes in under the template line. The last version's Oldest period
-' line becomes Month to work, blank, so the click asks. One from before the new names gets
-' them in its refund type list.
+' An older SETUP sheet: its Month folder line becomes Packets folder, and a Month to work line
+' goes in under the template line. An Oldest period line becomes Month to work, blank, so the
+' click asks. An old refund type list gets names for folders and files.
 Private Sub UpgradeSetupSheet(ws As Worksheet)
     Dim r As Long, v As String
     If SetupRow(ws, "packets folder") = 0 Then
@@ -321,7 +320,7 @@ Private Sub UpgradeSetupSheet(ws As Worksheet)
     End If
 End Sub
 
-' A refund type list from before the new names: its Folder prefix column becomes the name in
+' An old refund type list: its Folder prefix column becomes the name in
 ' folders and files. LIC is Licensed and GOV is Government; any other prefix moves to an Old
 ' folder prefix column, so its old folders are still found, and its name is left for you to
 ' type (CHECK says so until it's there).
@@ -352,7 +351,7 @@ Private Sub UpgradeTypeList(ws As Worksheet)
     If r > 0 Then ws.Cells(r, 1).Value = TYPE_NOTE
 End Sub
 
-' A SETUP still holding the last version's letter gets the new one; a letter you changed stays
+' A SETUP still holding the old letter gets the new one; a letter you changed stays
 ' as you wrote it. The notes beside them name the new fill-ins unless you wrote your own.
 Private Sub UpgradeLetter(ws As Worksheet)
     Dim r As Long, v As String
@@ -373,7 +372,7 @@ Private Sub UpgradeLetter(ws As Worksheet)
     End If
 End Sub
 
-' The letter the last version put on SETUP, word for word.
+' The old letter on SETUP, word for word.
 Private Function OldLetter() As String
     OldLetter = "Attached is our Georgia MF-12 waiver covering >TYPES< for >MONTH< >YEAR<, " & _
         "along with copies of the supporting invoices." & vbLf & _
@@ -445,7 +444,7 @@ Public Function ReadSetup() As String
     If Len(mBody) = 0 Then miss = miss & "  Email text" & vbLf
 
     ' the refund type list: the report's words, the name in folders and files, the email's words,
-    ' and on an upgraded SETUP the prefix the last version put on its folders
+    ' and on an upgraded SETUP the prefix on its old folders
     r = SetupRow(ws, "refund type")
     If r > 0 Then
         hasOld = (Squash(CStr(ws.Cells(r, 4).Value)) = LCase$(OLD_PREFIX_HEAD))
@@ -620,8 +619,8 @@ Private Sub LoadContacts()
         End With
     Next i
 
-    ' two licenses can't share a short name, or their folders would collide. Windows doesn't
-    ' tell Echo from ECHO, so neither does this.
+    ' two licenses can't share a short name, or their folders would collide. Windows sees Echo
+    ' and ECHO as the same name, so case doesn't count.
     For i = 1 To mNSup
         For j = i + 1 To mNSup
             If Len(mSup(i).ShortName) > 0 And UCase$(mSup(i).ShortName) = UCase$(mSup(j).ShortName) Then
@@ -1014,7 +1013,7 @@ Public Function MoveReceived() As Long
             rd.Rows(hr).Copy rr.Rows(rhr)
         End If
     End If
-    ' a column Refunds Received doesn't have (FUEL, say) isn't carried over; its layout stays yours
+    ' a column Refunds Received doesn't have (FUEL, say) isn't copied over; no column is added
     rLast = LastHeaderCol(rr, rhr)
     ReDim map(1 To lastCol)
     For c = 1 To lastCol
@@ -1209,8 +1208,7 @@ Public Function FormValues(ByVal p As Long, ByVal formNo As Long) As Object
 End Function
 
 ' A short fingerprint of everything that goes on one form, so a later run can tell if it changed.
-' The seller counts in capitals, the way forms made before kept it, so a form only goes stale
-' when what's on it changes, not its capitals.
+' The seller counts in capitals, so a change in capitals alone doesn't make a form stale.
 Public Function FormFingerprint(ByVal p As Long, ByVal formNo As Long) As String
     Dim v As Object, k As Variant, h As Double, t As String, i As Long, n As Long
     Set v = FormValues(p, formNo)

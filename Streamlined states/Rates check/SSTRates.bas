@@ -157,7 +157,7 @@ Private Sub LoadFile()
     Application.StatusBar = "Comparing..."
     Set first = New Collection
     If nOldAll > 0 Then
-        ' The must: this file's rates against the last file's
+        ' This file's rates against the last file's
         compared = True
         Compare oldCur, nOld, oldIdx, newCur, nNew, newIdx, recs, n, fileDay, savedDay, False, first, food1, zip1, zero1
         label1 = "Since last file"
@@ -177,7 +177,7 @@ Private Sub LoadFile()
     label2 = "Posted for " & LongDate(nextDay)
 
     Application.ScreenUpdating = False
-    Application.StatusBar = "Drawing..."
+    Application.StatusBar = "Filling in the tabs..."
     DrawFront fname, fileDay, today, compared, savedFile, savedDay, savedWhen, first, ahead, nextDay, _
         food1 + food2, zip1 + zip2, zero1 + zero2, dups, OutDiffers(newCur, nNew)
     AddToLog first, ahead, fname, today, label1, label2
@@ -709,8 +709,7 @@ End Function
 ' ---- the sheets ------------------------------------------------------------------------
 
 Private Sub EnsureSheets()
-    ' First run: makes the four sheets. Later runs put back the button and write Read here
-    ' fresh, so it always matches this macro.
+    ' First run: makes the four sheets. Later runs put back the button and redraw Read here.
     Dim wb As Workbook, ws As Worksheet, main As Worksheet, i As Long
     Set wb = ThisWorkbook
     Set main = SheetByName(SH_MAIN)
@@ -788,7 +787,7 @@ Private Sub DrawInstructions()
     If ws Is Nothing Then Exit Sub
     st = SavedState()
     Set w = New Collection
-    w.Add "T|Read here: how to work it"
+    w.Add "T|How this works"
     If st = "" Then
         w.Add "P|One workbook for each state, all with the same macro. This one takes its state from the " & _
             "first file you load, and after that it only takes that state's files."
@@ -1045,7 +1044,7 @@ End Function
 
 Private Sub Band(ByVal ws As Worksheet, ByVal r As Long, ByVal words As String, _
                  ByVal fillColor As Long, ByVal textColor As Long, ByVal pts As Long)
-    ' A colored line across the list, for the things that need to be seen
+    ' A colored line across the list
     With ws.Range(ws.Cells(r, 1), ws.Cells(r, 7))
         .Merge
         .Value = words
@@ -1119,7 +1118,7 @@ Private Sub DrawList(ByVal ws As Worksheet, ByRef r As Long, ByVal changes As Ob
 End Sub
 
 Private Sub NoTextMark(ByVal cell As Range)
-    ' Codes are text on purpose, so Excel's green corner mark for numbers kept as text goes
+    ' Hides Excel's green corner mark on a code kept as text
     On Error Resume Next
     cell.Errors(xlNumberAsText).Ignore = True
     On Error GoTo 0
@@ -1492,7 +1491,7 @@ Private Function PlaceName(ByVal jtype As String, ByVal code As String) As Strin
 End Function
 
 
-' ---- small helpers -----------------------------------------------------------------------
+' ---- small functions ---------------------------------------------------------------------
 
 Private Function SheetByName(ByVal nm As String) As Worksheet
     Dim ws As Worksheet
@@ -1682,7 +1681,7 @@ Public Function RatesTest(ByVal answers As String, ByVal todayText As String) As
 End Function
 
 
-' ---- place names (made by build_names.py from the Census and state lists) ----
+' ---- place names (from the Census and state lists) ----
 
 Private Function NamesOH1() As String
     Dim s As String

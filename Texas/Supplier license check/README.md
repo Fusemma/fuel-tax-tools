@@ -7,10 +7,9 @@ seller holds no supplier license for that fuel, diesel or gasoline,
 below the lines to keep, under a banner, for you to check and delete.
 Red: licensed, but not as a supplier of that fuel; a distributor or a
 permissive supplier lands here. Orange: the number isn't on the state's
-list. Grey: no number, or the supplier license is suspended. Each line
+list. Gray: no number, or the supplier license is suspended. Each line
 it moves gets the licenses the seller does hold, in the column just
-past the data. Tested in Excel on the state's list of Oct 18, 2026
-(6,531 licenses).
+past the data.
 
 The state's list: on comptroller.texas.gov go to Taxes, Motor Fuels
 IFTA and Interstate Truckers, then Diesel Fuel or Gasoline. Under
@@ -18,7 +17,7 @@ Additional Resources click Licensed Fuels Taxpayer Search, then the
 Download button. It saves permitted-fuels-taxpayers.csv. The state
 updates it nightly.
 
-At work: bring SupplierLicenseCheck.bas into the workbook that holds
+Setup: bring SupplierLicenseCheck.bas into the workbook that holds
 the Texas file (Alt F11, File, Import File), click on that sheet, and run
 CheckSupplierLicenses. It asks you to click a cell in the column with
 the seller's Texas taxpayer number, then for the first row of data, D
@@ -27,7 +26,7 @@ the sheet named with SUPPLIERS on the end, so the original is not
 touched. On a file that also goes through the credit rebill matcher,
 run this one first and delete what it moves down.
 
-To look up a list by hand instead, no macro: in Excel, Data, From Web.
+To look up numbers without the macro: in Excel, Data, From Web.
 For the link, right-click the Download button on the search page and
 pick Copy link. Load it, then name the table Fuels (Table Design, Table
 Name box). Put your taxpayer numbers in column A of another sheet, and
@@ -37,7 +36,7 @@ in B2, filled down:
 
 Each row shows every Texas license that number holds. To refresh by
 itself: Data, Queries & Connections, right-click the query, Properties,
-tick Refresh data when opening the file.
+check Refresh data when opening the file.
 
 Open: it matches on the 11-digit Texas taxpayer number only, so a
 column of federal IDs finds nothing; when not one number matches, the

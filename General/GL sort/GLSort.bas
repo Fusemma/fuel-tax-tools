@@ -13,7 +13,7 @@
 ' so cutting rows out of the block can't stretch them.
 '
 ' Both work on whatever sheet is active.
-' Paste into an empty module and run one of them with Alt F8.
+' Bring it in with Alt F11, File, Import File, and run one of them with Alt F8.
 
 Private Const MAKE_BACKUP As Boolean = True    ' copy the sheet first, since a macro can't be undone
 Private Const SHOW_SUMMARY As Boolean = True   ' popup with the counts at the end
@@ -22,7 +22,7 @@ Private Const GROUP_GAP_ROWS As Long = 0       ' blank rows between each moved g
 Private Const ADD_TOTALS As Boolean = True     ' after sorting, total the block left on top, AP style
 Private Const HEADER_ROW As Long = 0           ' row with the column names, 0 to search the top 20 rows
 
-' Column names the amount work looks for. Spellings separated by |
+' Column names the sums and the pairing look for. Spellings separated by |
 Private Const DEBIT_HEADER As String = "debit amount|debit"
 Private Const CREDIT_HEADER As String = "credit amount|credit"
 Private Const VENDOR_HEADER As String = "vendor|vendor name"
@@ -42,7 +42,7 @@ Private Const VENDOR_HEADER As String = "vendor|vendor name"
 Private Const PAIR_ORD As Boolean = True       ' False turns all of this off
 Private Const PAIR_GROUP As String = "ORD"     ' the group name from GetRules that gets paired
 Private Const VENDOR_LETTERS As Long = 4       ' letters of the vendor name that have to match, since names vary by state, 0 for amount alone
-Private Const MATCH_BOL As Boolean = True      ' False ignores the bill of lading, the way it used to
+Private Const MATCH_BOL As Boolean = True      ' False ignores the bill of lading
 Private Const BOL_HEADER As String = "document description|description"
 Private Const BOL_DIGITS As Long = 0           ' digits after BL that have to match, 0 for the whole number
 Private Const COLOR_ROWS As Boolean = True     ' shade the exceptions and the ORDs they clear
@@ -53,7 +53,7 @@ Private Const SURE_RANK As Double = 0.4
 Private Const EXCEPTION_RANK As Double = 0.5
 Private Const MAYBE_RANK As Double = 0.6
 
-' Pastels, written back to front the way Excel wants them (blue, green, red)
+' Pastels, in Excel's hex order (blue, green, red)
 Private Const SURE_COLOR As Long = &HCEEFC6        ' soft green: bill of lading matches too
 Private Const EXCEPTION_COLOR As Long = &HCCF2FF   ' soft yellow: an exception, no bill of lading to check it by
 Private Const MAYBE_COLOR As Long = &HD6E4FC       ' soft orange: your call
@@ -275,7 +275,7 @@ End Sub
 ' Looks for the payment that cleared an ORD: same amount, other side, vendor name starting the same.
 ' If both rows have a bill of lading, it has to match too, and it picks between look-alike ORDs.
 ' A payment that pairs sits at the bottom of the top block, and its ORD goes blue.
-' Anything it can't settle goes orange for a human, and its ORD stays open.
+' Anything it can't settle goes orange for you to check, and its ORD stays open.
 ' Hands back how many paired, plus how many of those were green and how many went orange.
 Private Function PairOrdRows(allData As Variant, rankArr As Variant, pairArr As Variant, ByVal nRows As Long, _
                              ByVal ordRank As Long, ByVal debCol As Long, ByVal credCol As Long, ByVal vendCol As Long, _
@@ -344,7 +344,7 @@ Private Function PairOrdRows(allData As Variant, rankArr As Variant, pairArr As 
                         pairArr(pick, 1) = pairArr(i, 1)
                         PairOrdRows = PairOrdRows + 1
 
-                        ' That ORD is spoken for
+                        ' Take that ORD off the list
                         rest = ""
                         For n = 0 To UBound(cands)
                             If CLng(cands(n)) <> pick Then rest = rest & "|" & cands(n)
@@ -430,7 +430,7 @@ Public Sub ARGLTotals()
     If SHOW_SUMMARY And Len(summary) > 0 Then MsgBox summary, vbInformation
 End Sub
 
-' Does the work and hands back what it did, so SortGL can put it in its own popup
+' Adds the sums and returns the summary, so SortGL can show it in its own popup
 Private Function DoTotals(ws As Worksheet, ByVal isAP As Boolean) As String
     Dim headerRow As Long, dataRow As Long, lastRow As Long, lastCol As Long
     Dim debCol As Long, credCol As Long, blockEnd As Long, sumEnd As Long, sumRow As Long, diffRow As Long
@@ -547,7 +547,7 @@ Private Function BlockEndRow(ws As Worksheet, ByVal dataRow As Long, ByVal lastR
     If cleanEnd < dataRow Then cleanEnd = BlockEndRow
 End Function
 
-' Column number to letter, so the formulas read like ones typed by hand
+' Column number to letter
 Private Function ColLetter(ByVal colNum As Long) As String
     ColLetter = Split(Cells(1, colNum).Address(True, False), "$")(0)
 End Function

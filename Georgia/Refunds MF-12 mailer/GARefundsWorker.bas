@@ -23,11 +23,11 @@ Private Const ST_BACK As Long = 6        ' back notarized: key it from ENTRY, th
 
 Private mMoved As Long           ' paid rows moved to Refunds Received this click
 Private mOtherInbox As Long      ' INBOX files for other months' rows, left there this click
-Private mMonthDirs As Variant    ' the folders in the packets folder, to find a month's whatever its capitals
+Private mMonthDirs As Variant    ' the folders in the packets folder, to find a month's folder in any capitals
 Private mTemplate As String      ' the template's bytes
-Private mQuiet As Boolean        ' test runs: no popups
-Private mFeed As Collection      ' test runs: the answers to the questions, in order
-Private mTestDraftDir As String  ' test runs: drafts go to text files here instead of Outlook
+Private mQuiet As Boolean        ' RefundsTest: no popups
+Private mFeed As Collection      ' RefundsTest: the answers to the questions, in order
+Private mTestDraftDir As String  ' RefundsTest: drafts go to text files here instead of Outlook
 Private mNotes As String
 Private mRenamed As Collection   ' every rename this click, "old path|new name", for CHECK
 Private mLastSaid As String      ' what the last box said, for CHECK when a click stops early
@@ -85,7 +85,7 @@ Private Sub RunStep(ByVal stepNo As Long)
     ClearLists True
     Set mBook = Book()
     If mBook Is Nothing Then
-        Say "Can't find the Refunds Due sheet. This macro goes in the GA tracking workbook (the one with " & _
+        Say "Can't find the Refunds Due sheet. Put this macro in the GA tracking workbook (the one with " & _
             "Refunds Due and Corp License Number) and click the button there.", vbExclamation
         Exit Sub
     End If
@@ -170,7 +170,7 @@ Failed:
     errText = Err.Description
     Resume Stopped
 Stopped:
-    ' something no one packet could hold: say so on CHECK too, once there's a CHECK to draw
+    ' an error outside any one packet: CHECK says so too, once there's a CHECK to draw
     On Error Resume Next
     msg = "Stopped with an error while " & mStage & ":" & vbLf & errText
     If drawIt Then
@@ -238,8 +238,8 @@ Private Sub PlaceFolders()
 End Sub
 
 ' One packet's folder, inside its period's folder: the one whose packet.txt names it; else the
-' one with the name it should have (its packet.txt gets written); else a folder the last version
-' made (LIC-ACME, or one under an older Short Name that holds its files), to be renamed. Two
+' one with the name it should have (its packet.txt gets written); else an old folder
+' (LIC-ACME, or one under an older Short Name that holds its files), to be renamed. Two
 ' folders whose packet.txt names the same packet, or two old folders that both hold its files,
 ' hold that packet, and so does a supplier that needs a fix first, so nothing of theirs is
 ' touched. taken: the old folders other packets claimed this click.
@@ -274,7 +274,7 @@ Private Sub PlacePacket(ByVal p As Long, ByRef taken As String)
                     ElseIf FolderExists(want) Then
                         .Folder = want
                     Else
-                        .Folder = want        ' new, unless a folder the last version made holds it
+                        .Folder = want        ' new, unless an old folder holds it
                         If Len(.Prefix) > 0 Then claims = OldClaims(p, taken) Else claims = ""
                         If Len(claims) > 0 Then
                             olds = Split(Mid$(claims, 2), "|")
@@ -339,7 +339,7 @@ Private Function FindHandRows() As Boolean
 End Function
 
 ' Which packet.txt names the packet. -1 when none does but a folder of this macro's holds it
-' (one with the name it gives the packet, or one the last version made); -2 when it has none.
+' (one with the name it gives the packet, or an old one); -2 when it has none.
 ' A folder it can't look in counts as this macro's, so nothing is dropped on a guess.
 Private Function PacketTag(ByVal p As Long) As Long
     Dim t As Long
@@ -363,9 +363,9 @@ Private Function StoppedOn(ByVal p As Long) As Boolean
     StoppedOn = (Left$(mPkt(p).Problem, 14) = "stopped while ")
 End Function
 
-' A period's folder in the capitals the last version gave it (2026-08 AUGUST) gets this
-' version's (2026-08 August), unless it holds a packet that's filed: what's filed stays where
-' it was filed. Windows finds it either way, so one that isn't renamed goes on as it is.
+' A period's folder in other capitals (2026-08 AUGUST) is renamed 2026-08 August, unless it
+' holds a packet that's filed: what's filed stays where it was filed. Windows finds it either
+' way, so one that isn't renamed goes on as it is.
 Private Sub FixMonthFolders()
     Dim p As Long, i As Long, dirs As Variant, want As String, done As String, why As String, errNo As Long
     dirs = ListFolders(mBase)
@@ -378,8 +378,8 @@ Private Sub FixMonthFolders()
                 If UCase$(dirs(i)) = UCase$(want) And dirs(i) <> want Then
                     If Not HoldsClosedPacket(mBase & "\" & dirs(i)) Then
                         errNo = RenameOne(mBase & "\" & dirs(i), mBase & "\" & want, why)
-                        If errNo <> 0 Then AddLookItem "Couldn't rename this month folder, so it works as it is meanwhile:", _
-                            "Couldn't rename these month folders, so they work as they are meanwhile:", _
+                        If errNo <> 0 Then AddLookItem "Couldn't rename this month folder; it still works under its old name:", _
+                            "Couldn't rename these month folders; they still work under their old names:", _
                             dirs(i) & " to " & want, why, FixFor(errNo, "Build packets")
                     End If
                 End If
@@ -479,9 +479,9 @@ Unreadable:
     Close
 End Function
 
-' The folders the last version made (LIC-ACME) that claim a packet with no packet.txt yet,
-' each after a |. A Short Name changed before this version leaves the old folder full and a new
-' one beside it nearly empty, so a folder claims the packet when it holds an invoice for one of
+' Old folders (LIC-ACME) that claim a packet with no packet.txt yet, each after a |. Under the
+' old names, a Short Name change left the old folder full and a new one beside it nearly
+' empty, so a folder claims the packet when it holds an invoice for one of
 ' its BOLs or an MF-12 with its fingerprint. The one named for today's Short Name claims it too,
 ' unless it holds no files and another folder claims it; then it's left where it is.
 ' taken: the folders other packets claimed this click.
@@ -793,7 +793,7 @@ End Function
 ' ======================================================================================
 
 ' The first click's questions, each asked only while its SETUP cell is blank: the template
-' (found by itself if it can be), the company on the MF-12 and the packets folder. Then, every
+' (filled in if the file can be found), the company on the MF-12 and the packets folder. Then, every
 ' click, the month to work: Build packets fills in the newest month with open rows, the other
 ' buttons the month picked last. False if a question was cancelled or the template can't be found.
 Private Function AskSetup(ByVal stepNo As Long) As Boolean
@@ -936,9 +936,8 @@ Private Function FiledName(ByVal p As Long, ByVal bolNo As String, ByVal kind As
     If Len(shown) > 0 Then FiledName = InvoiceName(p, shown, invs, kind, sq)
 End Function
 
-' The BOL and kind of copy in a filed invoice's name, the way this version names it (Acme BOL
-' 123456 Invoice 7890 VI 2) or the last one did (LIC-ACME 123456 INV7890 VI 2). False if
-' it's neither.
+' The BOL and kind of copy in a filed invoice's name, named the new way (Acme BOL 123456
+' Invoice 7890 VI 2) or the old way (LIC-ACME 123456 INV7890 VI 2). False if it's neither.
 Private Function ParseFiledName(ByVal stem As String, ByRef bolNo As String, ByRef kind As String, ByRef sq As String) As Boolean
     Dim t As Variant, i As Long, k As Long
     bolNo = "": kind = "": sq = ""
@@ -1153,7 +1152,7 @@ Private Sub CheckPacket(ByVal p As Long)
 
     ' the MF-12s, each found by the fingerprint inside it, whatever it's called. One with the
     ' name a form should have but not its fingerprint is out of date; any other is in the way.
-    ' Each one found has its printed tax added up and held against its rows.
+    ' Each one found has its printed tax added up and checked against its rows.
     onDisk = 0: bad = "": stray = "": off = False
     ReDim have(1 To mPkt(p).NForms)
     If Not IsEmpty(files) Then
@@ -1225,8 +1224,8 @@ Private Function FormFileName(ByVal p As Long, ByVal formNo As Long) As String
     FormFileName = FormStem(p, formNo, mPkt(p).PName, False) & ".pdf"
 End Function
 
-' An MF-12's name without .pdf, for a packet folder called lbl. lastWay gives the name the last
-' version used, the month in capitals after the folder's name: LIC-ACME AUGUST 2026 MF-12 (1 of 2).
+' An MF-12's name without .pdf, for a packet folder called lbl. lastWay gives the old name, with
+' the month in capitals after the folder's name: LIC-ACME AUGUST 2026 MF-12 (1 of 2).
 Private Function FormStem(ByVal p As Long, ByVal formNo As Long, ByVal lbl As String, ByVal lastWay As Boolean) As String
     Dim mo As String, ofN As String
     mo = MonthName(mPkt(p).PerKey Mod 100) & " " & (mPkt(p).PerKey \ 100)
@@ -1447,7 +1446,7 @@ End Sub
 ' Items. Outlook is opened for Make drafts; any other click only looks if it's already open.
 ' A draft already waiting in Drafts is noted too, so Make drafts never makes a second one.
 ' The subjects looked for are the ones its packet.txt files say its draft went under, then
-' today's, then today's with the Short Name in capitals the way the last version made it, so a
+' today's, then today's with the Short Name in capitals the way old drafts had it, so a
 ' Short Name change after the email went doesn't lose it.
 Private Sub CheckSent(ByVal openIt As Boolean)
     Dim ol As Object, ns As Object, sentBox As Object, draftBox As Object, m As Long, subj As Variant, found As Object
@@ -1572,7 +1571,7 @@ Private Sub SetStages()
 End Sub
 
 ' Everything in the email's packet folders except the CI copies, notarized copies, packet.txt and the Upload folder.
-' MF-12s first. A file it can't size up holds only this email.
+' MF-12s first. A file it can't get the size of holds only this email.
 Private Sub ListAttachments(ByVal m As Long)
     Dim p As Long, files As Variant, i As Long, pass As Long, f As String, stem As String, ext As String, isForm As Boolean
     Dim doing As String, bolNo As String, kind As String, sq As String, bols As String
@@ -1714,8 +1713,8 @@ Private Function TestDraftPath(ByVal m As Long) As String
         Format$(mMail(m).PerKey Mod 100, "00") & " draft.txt"
 End Function
 
-' A test run's draft, as a text file. Outlook reads each file as it's attached, so this reads
-' them too: a file Outlook couldn't take stops a test draft the same way.
+' The draft as a text file, for RefundsTest. It opens each attachment the way Outlook does, so
+' a file Outlook couldn't take stops it too.
 Private Sub TestDraft(ByVal m As Long, ByVal subj As String, ByVal body As String, ByRef doing As String)
     Dim f As Integer, toAddr As String, ccAddr As String, a As Variant
     For Each a In Split(mMail(m).Files, vbLf)
@@ -1751,7 +1750,7 @@ Private Function BodyHtml(ByVal t As String) As String
 End Function
 
 Private Function OutlookApp() As Object
-    If Len(mTestDraftDir) > 0 Then Exit Function    ' test runs never touch Outlook
+    If Len(mTestDraftDir) > 0 Then Exit Function    ' RefundsTest never touches Outlook
     On Error Resume Next
     Set OutlookApp = GetObject(, "Outlook.Application")
     If OutlookApp Is Nothing Then Set OutlookApp = CreateObject("Outlook.Application")
@@ -1806,10 +1805,9 @@ End Function
 '  The CHECK sheet
 ' ======================================================================================
 
-' CHECK, to be read in one glance: a bar on top, red with the count when anything needs you and
-' green when nothing does; a small line saying when it was built; then Needs you, each problem
-' with its fix beside it; then one line per email and one line per packet. No money: that's on
-' the report and on ENTRY. Nothing is folded away.
+' CHECK: a bar on top, red with the count when anything needs you and green when nothing does;
+' a small line saying when it was built; then Needs you, each problem with its fix beside it;
+' then one line per email and one line per packet. No money: that's on the report and on ENTRY.
 Private Sub WriteCheck(ByVal stepNo As Long)
     Dim ws As Worksheet, r As Long, i As Long, m As Long, p As Long, ix As Variant, clr As Long, v As Variant
     Dim toAddr As String, ccAddr As String, x As Variant, small As String, bar As String
@@ -1882,7 +1880,7 @@ Private Sub WriteCheck(ByVal stepNo As Long)
     Next i
     If mNPkt = 0 Then ws.Cells(r, 1).Value = "Nothing open.": r = r + 1
 
-    ' every folder and file renamed this click, to a new Short Name or from the last version's names
+    ' every folder and file renamed this click, to a new Short Name or from the old names
     If Not mRenamed Is Nothing Then
         If mRenamed.Count > 0 Then
             r = r + 1
@@ -1900,7 +1898,7 @@ Private Sub WriteCheckStopped(ByVal stepNo As Long, ByVal msg As String)
     Dim ws As Worksheet, r As Long
     On Error GoTo Done
     Set ws = CheckSheet()
-    r = CheckTop(ws, "Stopped before anything was checked.", RED, "Drawn " & Format$(Now, "m/d/yyyy h:nn AM/PM") & _
+    r = CheckTop(ws, "Stopped before anything was checked.", RED, "Built " & Format$(Now, "m/d/yyyy h:nn AM/PM") & _
         " by " & Choose(stepNo, "Build packets", "Make drafts", "Mark filed") & ".")
     r = CheckPair(ws, r, "Needs you", "Fix", True)
     r = CheckPair(ws, r, "The click stopped before it could check the packets.", msg, False)
@@ -2112,9 +2110,9 @@ End Function
 '  The HOW TO tab: three buttons and the steps, at the front of the workbook
 ' ======================================================================================
 
-' The steps live inside the workbook, with buttons so nothing needs Alt F8: each button with,
-' beside it, when to click it and what it does. Redrawn every run; the buttons are made once and
-' only moved back into place, so a button you dragged still works.
+' The steps, with a button for each macro and, beside it, when to click it and what it does.
+' Redrawn every run; the buttons are made once and only moved back into place, so a button you
+' dragged still works.
 Private Sub WriteHowTo()
     Dim ws As Worksheet, r As Long
 
@@ -2149,7 +2147,7 @@ Private Sub WriteHowTo()
         "Stamps today's date as Filed Date on every packet on ENTRY, so they drop off. It asks first."
     r = 6
     r = HowToLine(ws, r, "It works one month at a time: every button asks which month, and touches only that month's rows. " & _
-        "Each click checks that month again, so CHECK is never out of date for the month it shows.", False)
+        "Each click checks that month again.", False)
     ws.Cells(r - 1, 2).Font.Italic = True
     r = r + 1
 
@@ -2171,7 +2169,7 @@ Private Sub WriteHowTo()
         "open folders.", False)
     r = HowToLine(ws, r, "Refunds Due: every refund still out. Refunds Received: the ones the state has paid.", False)
     r = r + 1
-    r = HowToLine(ws, r, "Rules it keeps", True)
+    r = HowToLine(ws, r, "Good to know", True)
     r = HowToLine(ws, r, "It never sends an email, never deletes a file, and never writes over one.", False)
     r = HowToLine(ws, r, "A problem holds only its own packet or email. The rest still get built, and CHECK says what to fix.", False)
     r = HowToLine(ws, r, "A date you typed in a status column is never changed, and filed packets keep their names.", False)
@@ -2180,7 +2178,7 @@ Private Sub WriteHowTo()
     r = HowToLine(ws, r, "First time only", True)
     r = HowToLine(ws, r, "1. This goes in the GA tracking workbook, the one with Refunds Due and Corp License Number. " & _
         "It comes as two files, GARefundsReader.bas and GARefundsWorker.bas. Alt F11 opens the macro editor.", False)
-    r = HowToLine(ws, r, "2. First take out the old piece(s), so there's only ever one copy: under Modules, right-click each " & _
+    r = HowToLine(ws, r, "2. First take out the old copy, so there's only one: under Modules, right-click each " & _
         "one that holds this macro (GARefunds, GARefundsReader, GARefundsWorker, or a Module1 it was pasted into), " & _
         "click Remove, and No when it asks to export it.", False)
     r = HowToLine(ws, r, "3. Then File, Import File, once for each of the two files. Save the workbook as .xlsm.", False)
@@ -2282,7 +2280,7 @@ Private Sub WriteEntry()
         "Tax Paid to Seller is the gross refund on every row, even for a NET supplier; NET is only on its MF-12. " & _
         "The running total starts over at each filing, so if the portal's total is off you can find the row. " & _
         "Held packets aren't here; CHECK says why. When it's all keyed, click Mark filed on the HOW TO tab. " & _
-        "Drawn " & Format$(Now, "m/d/yyyy h:nn AM/PM") & "."
+        "Built " & Format$(Now, "m/d/yyyy h:nn AM/PM") & "."
     With ws.Range("A2:J2")
         .Merge
         .WrapText = True
@@ -2390,9 +2388,8 @@ Private Sub WriteEntry()
         r = r + 1
     End If
 
-    ' Tight for reading at a desk: the invoice rows close together and the numbers close to each
-    ' other, with a clear gap between Date and Invoice Number. The banners, block heads and MFD-33
-    ' totals keep their own heights.
+    ' The invoice rows close together and the numbers close to each other, with a gap between
+    ' Date and Invoice Number. The banners, block heads and MFD-33 totals keep their own heights.
     ws.Range("A4:J" & r).VerticalAlignment = xlCenter
     For k = 4 To r
         If ws.Cells(k, 2).Value = Split(ENTRY_HEADS, "|")(1) Then
@@ -2577,7 +2574,7 @@ Private Sub Say(ByVal msg As String, ByVal icon As VbMsgBoxStyle)
     End If
 End Sub
 
-' A question in a box, or the next answer handed in by a test run. Blank when cancelled.
+' A question in a box, or the next answer handed in by RefundsTest. Blank when cancelled.
 Private Function Ask(ByVal prompt As String, ByVal guess As String) As String
     If mQuiet Then
         mNotes = mNotes & "asked: " & Replace(prompt, vbLf, " / ") & IIf(Len(guess) > 0, " [" & guess & "]", "") & vbLf

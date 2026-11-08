@@ -4,7 +4,6 @@
 # needs a new look and a new line. The check prints the line to add.
 96367138dc44ce09bf2c8f0f8e49348a1478d2c5c0af69bbc2bbc38b63cdcead  Federal/Forms templates/Exemption Certificate - TEMPLATE.docx > docProps/thumbnail.jpeg
 96367138dc44ce09bf2c8f0f8e49348a1478d2c5c0af69bbc2bbc38b63cdcead  Federal/Forms templates/Notification Certificate - TEMPLATE.docx > docProps/thumbnail.jpeg
-7c0baeee65e438d38b1326f59b1e738a44e85abbf44b7b75d5142552562004bc  General/State info/preview/State page 1.png
 7b00c0e16d66b49e9e18ff5327f558fc5b3e1aed01f20a100cad10440b212ed2  General/State info/preview/State page 2.png
 7afca8db58715b28714dfa72ee5193e71bbc4e3f4d1d6195f751599bffc1b72b  General/Work tracker/pictures/Items.png
 51a05811ca38a85f018ba7a56b6b99b98000de23dbab64cc22d0c7df0f711945  General/Work tracker/pictures/Log.png
@@ -12,3 +11,4 @@
 ba457de8511253184fc636396772b0d38104f9b2ba7ba31b2dd1895bbf069d54  General/Work tracker/pictures/Today.png
 451f12097dc9016f30e3f273a990fbcc5391d917836139eb8ef3bff1e81c79f3  Georgia/Refunds MF-12 mailer/mf12_template.pdf > picture, object 439
 7f68143580d7b54ef3477a8a1148d1ac6176ca757704b4e64b68060fd3c54919  Georgia/Refunds MF-12 mailer/mf12_template.pdf > picture, object 440
+a834d6f92b8671a535b9623f82229e5ae99f64fcbd2c56066caa2fe306d8d99a  General/State info/preview/State page 1.png

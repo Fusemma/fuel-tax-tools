@@ -15,7 +15,7 @@ Do this the first time and each time the macro is updated.
 4. File, Import File, GARefundsWorker.bas.
 5. Save the workbook as .xlsm. Save mf12_template.pdf in the same folder.
 
-## The first one to run
+## The first run
 
 Press Alt F8 and run Refunds1_BuildPackets. It asks for the company's
 name and address and the packets folder, once each, then which month to

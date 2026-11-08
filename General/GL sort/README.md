@@ -1,13 +1,10 @@
 # GL sort
 
 What it does: two Excel macros in GLSort.bas for the month-end general
-ledger. SortGL pulls the AP rows whose reference says ORD, or whose AP
-reference says BANK or MISC, below a gap in keyword groups, and sums the
-block on top. ARGLTotals sums the AR GL. Safe to run twice.
+ledger. SortGL pulls the AP rows whose document number says ORD, or whose
+description says BANK or MISC, below a gap, one group per keyword, and
+sums the block on top. ARGLTotals sums the AR GL. Safe to run twice.
 
-At work: bring GLSort.bas into the workbook (Alt F11, File, Import
+Setup: bring GLSort.bas into the workbook (Alt F11, File, Import
 File; remove the old copy first) and run SortGL on the AP sheet,
-ARGLTotals on the AR sheet. Live at work since September.
-
-Open: a real-data run of the newest version. By design, the AP sheet's
-totals only sum the top block.
+ARGLTotals on the AR sheet.

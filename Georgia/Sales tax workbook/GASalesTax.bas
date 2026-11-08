@@ -373,7 +373,7 @@ Private Function FreeName(ByVal stem As String, ByVal ext As String) As String
     Loop
 End Function
 
-' Opens a workbook with its macros off, the way the state's template works fine.
+' Opens a workbook with its macros off. The state's template works fine that way.
 Private Function OpenQuiet(ByVal path As String, ByVal readOnly As Boolean) As Workbook
     Dim was As Long, num As Long, desc As String
     was = Application.AutomationSecurity

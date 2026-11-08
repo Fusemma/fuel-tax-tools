@@ -17,12 +17,11 @@ Once, before the flow:
    the year, 2026.
 2. Still in OneDrive, make a new Excel workbook called Tax mail log.
    Type these headers across row 1: Date, From, Subject, Attachments,
-   File, Link, Done. Click in them, Insert > Table, tick "my table has
+   File, Link, Done. Click in them, Insert > Table, check "my table has
    headers". Then on the Table Design tab, change the table name on the
    far left to MailLog. Close it.
-   (The log is its own small table because the flow can only write to
-   a file on OneDrive, and it locks the file while it writes. Your
-   Tracker stays on the PC; copying a line over is still a hand step.)
+   (The flow can only write to a file on OneDrive, so it can't log to
+   your Tracker. Copy a line over by hand.)
 
 The flow, in the designer (make.powerautomate.com, work account):
 3. Create > Automated cloud flow. Name it Tax mail filing. Trigger:
@@ -70,19 +69,19 @@ Test it:
     marked, and the error text names what it didn't like.
 
 If something looks off:
-- A connector greyed out or "blocked by policy" is IT's doing, not a
+- A connector grayed out or "blocked by policy" is IT's doing, not a
   wrong click. Ask them whether Power Automate is allowed with the
   work license; the standard connectors here come with it.
 - "Table not found": the workbook has a range, not a table. Reopen it,
   select the headers, Insert > Table, name it MailLog.
-- The file lands but the row doesn't, or the other way round: each
+- The file lands but the row doesn't, or the other way around: each
   action runs on its own, so the mail is still in the Inbox with
   nothing lost. Fix the one step and press Resubmit on the run.
 - Too many catches: tighten the subject words. Too few: the sender
   address isn't what you expected; open one of their mails and copy
   the real @ part.
 
-Shortcut: in the designer, the AI box at the top takes one sentence, "when
+Shortcut: in the designer, the box at the top takes one sentence, "when
 an email arrives from X with attachments, save them to OneDrive and add
 a row to an Excel table", and drafts most of this. Then fix the folder,
 the expressions and the flag by the steps above.

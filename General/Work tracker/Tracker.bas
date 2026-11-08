@@ -1,4 +1,4 @@
-' Tracker: everything that lands on you at work, in one list, with Outlook doing the popups.
+' Tracker: everything you're tracking in one list, with popups from Outlook.
 ' To install, bring this file into a blank workbook (Alt F11, File > Import File), run TrackerSetup
 ' (Alt F8) and save it as a macro workbook (.xlsm). To update, remove this module (right-click it,
 ' Remove, No), Import File the newer copy and run TrackerSetup again; every row stays.
@@ -32,8 +32,8 @@ Private Const OFF_WIDTHS As String = "14|32"
 Private Const TODAY_COLS As String = "#|When|What|Repeats|Latest note"
 Private Const TODAY_FORMATS As String = "0|@|@|@|@"
 Private Const TODAY_WIDTHS As String = "7|26|62|24|50"
-Private Const TODAY_PT As Long = 12         ' Today's words, a size up from Excel's 11
-Private Const TODAY_ROW_PT As Double = 21   ' and its rows, with room around them
+Private Const TODAY_PT As Long = 12         ' Today's font size, one up from Excel's 11
+Private Const TODAY_ROW_PT As Double = 21   ' and its row height, with room around the text
 Private Const TODAY_STRIPE As Long = &HF2F2F2   ' light gray, on every other thing under a heading
 Private Const HOWTO_WIDTH As Double = 84    ' Today: the how-to's column, right of the list
 
@@ -151,7 +151,7 @@ Public Sub TrackerSetup()
     HideColumns mLogT, "Kind"
     Set mOffT = EnsureTable(wsD, OFF_TABLE, OFF_COLS, OFF_FORMATS, OFF_WIDTHS, _
         "Your days off. Anything that lands on one shows the workday before, and tomorrow skips them, like weekends. " & _
-        "Change them to match what the company gives.")
+        "Change them if yours are different.")
     If mOffT.ListRows.Count = 0 Then FillDaysOff Year(Int(NowT()))
     DressToday wsT
     Application.OnKey "^+a", "'" & Replace(ThisWorkbook.Name, "'", "''") & "'!AddThing"
@@ -173,7 +173,7 @@ Oops:
 End Sub
 
 Public Sub AddThing()
-    ' One line in a box, and it's a row
+    ' Adds one typed line as a row
     Dim a As Variant, msg As String
     On Error GoTo Oops
     If Not Ready() Then Exit Sub
@@ -386,7 +386,7 @@ Public Sub UndoLast()
         If k > 0 Then                                   ' a row deleted by hand since stays deleted
             what = CStr(mL(cWhat, k))
             If IsArray(e(1)) Then
-                For j = 1 To mNCols                     ' its popup stays as Outlook has it; the row decides it next
+                For j = 1 To mNCols                     ' all but the popup column; the next Outlook update sets the popup from the row
                     If j <= UBound(e(1)) And j <> cTask Then mL(j, k) = e(1)(j)
                 Next
                 LogLine e(0), what, "Undid " & mUndoVerb & ".", "undo"
@@ -456,7 +456,7 @@ Public Sub TakeThese()
     End If
     Set lines = PastedLines(ThisWorkbook.Worksheets(PASTE_SHEET))
     If lines.Count = 0 Then
-        Say "The paste box is empty."
+        Say "The Paste here sheet is empty."
         Exit Sub
     End If
     For Each l In lines
@@ -483,7 +483,7 @@ Public Sub CancelPaste()
     On Error GoTo Oops
     DropPasteSheet
     If SheetExists(TODAY_SHEET) Then ThisWorkbook.Worksheets(TODAY_SHEET).Activate
-    Say "Nothing was taken from the paste."
+    Say "Nothing was added."
     Exit Sub
 Oops:
     Say "Cancel stopped: " & Err.Description
@@ -517,7 +517,7 @@ Public Sub TrackerTick()
 End Sub
 
 Public Sub TrackerUseMainTasks()
-    ' For a work PC where popups from the Tracker folder don't come up: they go in the main Tasks folder
+    ' If popups from the Tracker folder don't come up, this puts them in the main Tasks folder
     SwitchTasks True
 End Sub
 
@@ -643,7 +643,7 @@ Public Sub TakeYes()
     Keep 0, "Take the Yes ones (" & (nCal + nMail) & IIf(nCal + nMail = 1, " row)", " rows)"), "adding it"
     Finish
     If nMail > 0 Then ForgetUndo NO_UNDO_FLAG
-    msg = "Took " & (nCal + nMail) & " from Outlook and typed none of them."
+    msg = "Took " & (nCal + nMail) & " from Outlook."
     If notes <> "" Then msg = msg & " " & notes
     If ended > 0 Then msg = msg & " " & ended & " had already ended, so they stayed out."
     If cant > 0 Then msg = msg & " " & cant & " repeat in a way the tracker can't follow, so they stayed out."
@@ -2260,7 +2260,7 @@ Private Sub ListOldFlags(ByVal ns As Object, ByVal found As Collection, ByRef n 
                     d = FlagDay(m)
                     found.Add Array("No", CStr(m.Subject), m.Parent.Name & ", flagged " & _
                         IIf(d = 0, "with no date", "for " & FmtDay(d)), _
-                        "Flagged before the tracker. Say Yes to bring it in.", "mail|" & link)
+                        "Flagged before the tracker started. Pick Yes to bring it in.", "mail|" & link)
                     n = n + 1
                 End If
                 Set m = Nothing
@@ -2310,8 +2310,8 @@ Private Function TakeFlags(ByVal ns As Object, ByRef said As String) As Long
                             """, so it's under Waiting on them, check back " & FmtDay(due) & "." & why
                     Else
                         said = said & IIf(said = "", "", " ") & "You flagged """ & subj & """, so it's due " & _
-                            IIf(due = mToday, "today", FmtDay(due)) & "." & why & " The flag turns into a check so it " & _
-                            "doesn't nag twice. Open email takes you back to it."
+                            IIf(due = mToday, "today", FmtDay(due)) & "." & why & " The flag turns into a check. " & _
+                            "Open email takes you back to it."
                     End If
                     TakeFlags = TakeFlags + 1
                 End If
@@ -2323,7 +2323,7 @@ Private Function TakeFlags(ByVal ns As Object, ByRef said As String) As Long
     Next
     Exit Function
 Trouble:
-    mOlNote = "(Outlook didn't give the flagged emails: " & Err.Description & ")"
+    mOlNote = "(Couldn't get the flagged emails from Outlook: " & Err.Description & ")"
 End Function
 
 Private Function FindEmail(ByVal ns As Object, ByVal link As String) As Object
@@ -2439,7 +2439,7 @@ Private Function PushOutlook(ByVal force As Boolean) As Boolean
     PushMorning fld, force
     Exit Function
 Trouble:
-    mOlNote = "(Outlook didn't take the popup: " & Err.Description & ")"
+    mOlNote = "(Couldn't save the popup in Outlook: " & Err.Description & ")"
     PushOutlook = True
 End Function
 
@@ -2528,7 +2528,7 @@ Private Function ReadPopupsBack(ByVal ns As Object, ByVal fld As Object, ByRef s
                 ReadPopupsBack = True
             ElseIf t.Complete Then
                 lastDone = CellText(mL(cWhat, k))
-                said = said & IIf(said = "", "", " ") & "Marked complete in Outlook, and the tracker took it from there. " & DoneRow(k)
+                said = said & IIf(said = "", "", " ") & "Marked complete in Outlook. " & DoneRow(k)
                 If t.Parent.EntryID = fid Then t.Delete
                 mL(cTask, k) = Empty
                 ReadPopupsBack = True
@@ -2557,7 +2557,7 @@ End Sub
 
 Private Sub RunTick()
     ' What the timer does each minute, and opening the file does at once: takes what was marked
-    ' complete or dismissed in Outlook, puts the popups right, and keeps the next morning list armed
+    ' complete or dismissed in Outlook, puts the popups right, and sets up the next morning list
     Dim ol As Object, ns As Object, fld As Object, said As String, lastDone As String, changed As Boolean
     Dim linksMoved As Boolean, flagged As Long
     On Error GoTo Oops
@@ -2709,7 +2709,7 @@ Private Sub DrawToday()
         PutText out, n, (nSoon - soonShown) & " more coming up"
     End If
     PutHead out, n, heads, "Waiting on them: " & nWait
-    If nWait = 0 Then PutText out, n, "Nobody owes you anything right now."
+    If nWait = 0 Then PutText out, n, "Nothing you're waiting on."
     For i = 1 To nWait: PutItem out, n, waits(i), notes: Next
     PutHead out, n, heads, "Later: " & nLater & " more, all on the List sheet"
 
@@ -2942,7 +2942,7 @@ Private Sub DressToday(ByVal ws As Worksheet)
         .Font.Size = TODAY_PT + 1
         .VerticalAlignment = xlCenter
     End With
-    ' an earlier copy kept the how-to at the top right; what a button says now runs the width of the list
+    ' clear the top right; what a button says runs the width of the list
     ws.Range(ws.Cells(1, 1), ws.Cells(SAID_ROW, 6)).UnMerge
     ws.Range(ws.Cells(1, 5), ws.Cells(SAID_ROW, 6)).Clear
     ws.Range(ws.Cells(SAID_ROW, 1), ws.Cells(SAID_ROW, 5)).Merge
@@ -2966,7 +2966,7 @@ Private Sub DressToday(ByVal ws As Worksheet)
         .WordWrap = msoTrue
         .AutoSize = msoAutoSizeShapeToFitText
         .TextRange.Text = "Add: press Add, or Ctrl+Shift+A, and type one line, like call Huntsville back 11/17 9am. " & _
-            "No date means today. What it understood shows above the list." & vbLf & _
+            "No date means today. How it read the line shows above the list." & vbLf & _
             "Repeats: every monday, monthly on the 5th, quarterly, renew bond 1/15 yearly, until 12/31." & vbLf & _
             "Click a row, then: Done takes it off Today (a repeat moves to its next date). Move to tomorrow puts it " & _
             "on the next workday. Change date takes one line, like fri 2pm or 11/20. Note adds a dated line to the Log. " & _
@@ -2988,7 +2988,7 @@ Private Sub DressToday(ByVal ws As Worksheet)
     For Each b In ws.Buttons
         If Left$(b.Name, 3) = "trk" Then b.Delete
     Next
-    ' the top row is what you press all day, big; the rest go under it
+    ' the buttons used most go big in the top row; the rest go under it
     AddButton ws, "trkAdd", "Add", "AddThing", 0, 0, 80, True
     AddButton ws, "trkDone", "Done", "DoneThing", 0, 86, 80, True
     AddButton ws, "trkMove", "Move to tomorrow", "MoveTomorrow", 0, 172, 140, True
@@ -3086,7 +3086,7 @@ Private Function Ask(ByVal prompt As String, ByVal title As String) As Variant
 End Function
 
 Private Sub Say(ByVal msg As String)
-    ' What a button says shows at the top of Today, with anything Outlook turned away
+    ' What a button says shows at the top of Today, with any Outlook error
     If mOlNote <> "" Then
         msg = msg & " " & mOlNote
         mOlNote = ""

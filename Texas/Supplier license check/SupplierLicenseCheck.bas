@@ -57,15 +57,15 @@ Public Sub CheckSupplierLicenses()
     '--- prompts --------------------------------------------------
     On Error Resume Next
     Set rng = Application.InputBox( _
-        Prompt:="Click ANY cell inside the column with the seller's Texas taxpayer number:", _
-        Title:="Select taxpayer number column", Type:=8)
+        Prompt:="Click any cell in the column with the seller's Texas taxpayer number:", _
+        Title:="Taxpayer number column", Type:=8)
     On Error GoTo 0
     If rng Is Nothing Then Exit Sub
     idCol = rng.Column
 
     v = Application.InputBox( _
-        Prompt:="Enter the first row number containing actual data:", _
-        Title:="Select start row", Default:=2, Type:=1)
+        Prompt:="Type the number of the first row of data:", _
+        Title:="First row of data", Default:=2, Type:=1)
     If VarType(v) = vbBoolean Then Exit Sub      ' Cancel
     startRow = CLng(v)
     If startRow < 1 Then Exit Sub
@@ -74,7 +74,7 @@ Public Sub CheckSupplierLicenses()
         v = Application.InputBox( _
             Prompt:="Is this the diesel file or the gasoline file?" & vbCrLf & vbCrLf & _
                     "Type D for diesel or G for gasoline:", _
-            Title:="Select fuel", Type:=2)
+            Title:="Diesel or gasoline", Type:=2)
         If VarType(v) = vbBoolean Then Exit Sub  ' Cancel
         fuel = UCase$(Left$(Trim$(CStr(v)), 1))
     Loop Until fuel = "D" Or fuel = "G"
@@ -122,7 +122,7 @@ Public Function RunCheck(ByVal src As Worksheet, ByVal idCol As Long, ByVal star
         fuelWord = "gasoline"
     End If
 
-    '--- save Excel state, then arm the handler -------------------
+    '--- save Excel's settings, then turn on error handling -------
     priorCalc = Application.Calculation
     On Error GoTo CleanFail
     Application.ScreenUpdating = False
@@ -182,7 +182,7 @@ Public Function RunCheck(ByVal src As Worksheet, ByVal idCol As Long, ByVal star
     raw = Empty
     If listRows = 0 Then GoTo NotTheList
 
-    '--- work on a copy so the original survives ------------------
+    '--- work on a copy so the original isn't changed -------------
     If WORK_ON_A_COPY Then
         src.Copy After:=src
         Set ws = src.Parent.Sheets(src.Index + 1)
@@ -278,11 +278,11 @@ Public Function RunCheck(ByVal src As Worksheet, ByVal idCol As Long, ByVal star
 
         ws.Range(ws.Cells(1, h1), ws.Cells(1, h2)).EntireColumn.Delete
 
-        '--- colour each section --------------------------------
+        '--- color each section ---------------------------------
         r = startRow + cnt(0)
         For sec = 1 To 3
             If cnt(sec) > 0 Then
-                ws.Range(ws.Cells(r, 1), ws.Cells(r + cnt(sec) - 1, noteCol)).Interior.Color = SectionColour(sec)
+                ws.Range(ws.Cells(r, 1), ws.Cells(r + cnt(sec) - 1, noteCol)).Interior.Color = SectionColor(sec)
                 r = r + cnt(sec)
             End If
         Next sec
@@ -293,13 +293,13 @@ Public Function RunCheck(ByVal src As Worksheet, ByVal idCol As Long, ByVal star
         rowSec3 = rowSec2 + cnt(2)
 
         If cnt(3) > 0 Then
-            InsertBanner ws, rowSec3, "--- NO TAXPAYER NUMBER, OR THE SUPPLIER LICENSE IS SUSPENDED - CHECK THESE BY HAND ---"
+            InsertBanner ws, rowSec3, "--- NO TAXPAYER NUMBER, OR THE SUPPLIER LICENSE IS SUSPENDED. CHECK THESE BY HAND ---"
         End If
         If cnt(2) > 0 Then
-            InsertBanner ws, rowSec2, "--- NOT ON THE STATE'S LIST - CHECK THE NUMBER, THEN DELETE ---"
+            InsertBanner ws, rowSec2, "--- NOT ON THE STATE'S LIST. CHECK THE NUMBER, THEN DELETE ---"
         End If
         If cnt(1) > 0 Then
-            InsertBanner ws, rowSec1, "--- NOT LICENSED AS A " & UCase$(fuelWord) & " SUPPLIER - DELETE THESE ---"
+            InsertBanner ws, rowSec1, "--- NOT LICENSED AS A " & UCase$(fuelWord) & " SUPPLIER. DELETE THESE ---"
         End If
     End If
 
@@ -307,10 +307,10 @@ Public Function RunCheck(ByVal src As Worksheet, ByVal idCol As Long, ByVal star
     msg = n & " lines checked against the state's list (" & Format$(listRows, "#,##0") & _
           " licenses, saved " & Format$(saved, "mmm d, yyyy") & ")." & vbCrLf & vbCrLf & _
           cnt(0) & " lines kept at the top: licensed as a " & fuelWord & " supplier" & vbCrLf & _
-          cnt(1) & " lines - RED: licensed, but not as a " & fuelWord & " supplier. Delete these." & vbCrLf & _
-          cnt(2) & " lines - ORANGE: number not on the state's list. Check it, then delete."
+          cnt(1) & " lines in red: licensed, but not as a " & fuelWord & " supplier. Delete these." & vbCrLf & _
+          cnt(2) & " lines in orange: number not on the state's list. Check it, then delete."
     If cnt(3) > 0 Then
-        msg = msg & vbCrLf & cnt(3) & " lines - GREY: no taxpayer number, or the supplier license is suspended. Check by hand."
+        msg = msg & vbCrLf & cnt(3) & " lines in gray: no taxpayer number, or the supplier license is suspended. Check by hand."
     End If
     If cnt(0) < n Then
         msg = msg & vbCrLf & vbCrLf & "Why each line moved is in column " & noteLetter & "."
@@ -366,7 +366,7 @@ AfterFail:
     If WORK_ON_A_COPY Then
         msg = msg & "Your original sheet was not touched."
     Else
-        msg = msg & "The sheet was being edited in place - check it before continuing."
+        msg = msg & "The sheet was being edited in place. Check it before continuing."
     End If
     RunCheck = msg
 End Function
@@ -451,11 +451,11 @@ Private Function IsInList(ByVal s As String, ByVal list As Variant) As Boolean
 End Function
 
 
-Private Function SectionColour(ByVal sec As Long) As Long
+Private Function SectionColor(ByVal sec As Long) As Long
     Select Case sec
-        Case 1: SectionColour = RGB(255, 199, 206)    ' licensed, not supplier -- red
-        Case 2: SectionColour = RGB(252, 229, 205)    ' not on the list -- orange
-        Case Else: SectionColour = RGB(217, 217, 217) ' check by hand -- grey
+        Case 1: SectionColor = RGB(255, 199, 206)    ' licensed, not supplier: red
+        Case 2: SectionColor = RGB(252, 229, 205)    ' not on the list: orange
+        Case Else: SectionColor = RGB(217, 217, 217) ' check by hand: gray
     End Select
 End Function
 
