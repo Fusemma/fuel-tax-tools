@@ -1,4 +1,3 @@
-Attribute VB_Name = "SalesTaxRecon"
 Option Explicit
 
 '==================================================================
@@ -11,7 +10,7 @@ Option Explicit
 '  it keeps working if the export gains or loses a column or moves
 '  one. The header row is found too, so title lines above it are ok.
 '
-'  Lines are totalled per Order Number before comparing, because one
+'  Lines are totaled per Order Number before comparing, because one
 '  order is several lines on TERSE (one per order item) and can be
 '  several lines on AR SALES (one per tax class).
 '
@@ -25,7 +24,7 @@ Option Explicit
 '==================================================================
 
 '==================================================================
-'  CONFIGURATION -- everything you would ever change is right here
+'  SETTINGS. Everything you would change is here.
 '==================================================================
 
 ' The two tabs.
@@ -135,9 +134,9 @@ Public Sub CompareReports()
     For p = 1 To nPairs
         halves = Split(pairSpec(p - 1), ":")
         If UBound(halves) < 1 Then
-            MsgBox "AMOUNT_PAIRS is malformed near: " & pairSpec(p - 1) & vbCrLf & vbCrLf & _
+            MsgBox "AMOUNT_PAIRS has a mistake near: " & pairSpec(p - 1) & vbCrLf & vbCrLf & _
                    "Each pair needs a colon, like ""Total Product : Taxable Sales"".", _
-                   vbExclamation, "Check the configuration"
+                   vbExclamation, "Check the settings"
             Exit Sub
         End If
         headsA(p) = Trim$(halves(0))
@@ -345,10 +344,10 @@ Public Sub CompareReports()
             '--- 2. the full rows, straight off each report --------
             rowOut = rowOut + 2
             written = DumpRows(outWs, rowOut, wsA, hdrRowA, lastColA, keyColA, rowsA, excKeys, _
-                               SHEET_A & " - THE FULL ROWS BEHIND THOSE ORDERS")
+                               SHEET_A & ": THE FULL ROWS BEHIND THOSE ORDERS")
             rowOut = rowOut + written + 2
             written = DumpRows(outWs, rowOut, wsB, hdrRowB, lastColB, keyColB, rowsB, excKeys, _
-                               SHEET_B & " - THE FULL ROWS BEHIND THOSE ORDERS")
+                               SHEET_B & ": THE FULL ROWS BEHIND THOSE ORDERS")
         End If
 
         .Columns("A:A").ColumnWidth = 18
@@ -389,7 +388,7 @@ CleanFail:
     Application.EnableEvents = True
     Application.ScreenUpdating = True
     MsgBox "Stopped on error " & errNum & ": " & eDesc & vbCrLf & vbCrLf & _
-           "Your report tabs were not changed - this macro only reads them.", _
+           "Your report tabs were not changed. This macro only reads them.", _
            vbCritical, "Report comparison"
 End Sub
 
@@ -670,7 +669,7 @@ End Function
 
 
 ' A key stored as text on one report and as a number on the other
-' has to tie out, so both go through the same grinder.
+' has to tie out, so both get cleaned up the same way.
 Private Function NormalizeKey(ByVal v As Variant) As String
     Dim s As String
     Dim j As Long
@@ -721,9 +720,8 @@ Private Function SquashSpaces(ByVal s As String) As String
 End Function
 
 
-' Blank cells and blank-looking strings are zero; anything else that
-' is not a number is zero too, and the row still gets counted so the
-' line counts stay honest.
+' Blanks and anything else that is not a number count as zero.
+' The row still counts as a line.
 Private Function SafeCur(ByVal v As Variant) As Currency
     If IsError(v) Then Exit Function
     If IsEmpty(v) Then Exit Function

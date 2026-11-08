@@ -8,8 +8,8 @@ Option Explicit
 ' code's rates). This database keeps the last two quarters and shows where the
 ' use tax rate changed between them.
 '
-' Setup, once: in a new blank Access database press Alt+F11, then File >
-' Import File, and pick this file. Press Ctrl+S and name it MORatesCode.
+' Setup, once: in a new blank Access database press Alt F11, Insert, Module,
+' then Ctrl A and Ctrl V to paste all of this in. Press Ctrl+S and name it MORatesCode.
 ' Then click anywhere inside "Sub SetUp" just below
 ' and press F5. After that, everything runs from the MO Rates Check form.
 '
@@ -18,7 +18,7 @@ Option Explicit
 ' quarter is a new file and the oldest one is deleted, so this database
 ' stays small and never needs compacting.
 
-Public gQuiet As Boolean       ' True while a test runs: no message boxes
+Public gQuiet As Boolean       ' True: no message boxes
 Public gLastMessage As String  ' the last message, shown or not
 
 Private Declare PtrSafe Function OpenClipboard Lib "user32" (ByVal hwnd As LongPtr) As Long
@@ -152,8 +152,7 @@ Fail:
     Say "Set up stopped: " & Err.Description & " (error " & Err.Number & ")", vbExclamation
 End Sub
 
-' An earlier version kept the state's data in this file; it lives in the data
-' folder now. True if there was any to drop.
+' Drops the state's tables if they're still in this file. True if there were any.
 Private Function DropOldTables(db As DAO.Database) As Boolean
     Dim t As Variant
     For Each t In Array("Boundary", "BoundaryLast", "BoundaryNew", "Rates", "RateChanges", "Moves", "MoveGroups")
@@ -256,7 +255,7 @@ End Sub
 
 ' The main form: a few lines on what's loaded, the ship-to counts in big
 ' numbers, what to click next, the buttons, each with a line on what it
-' does, and the whole how-to at the right, so the notes never come along.
+' does, and the whole how-to at the right.
 Private Sub MakeMainForm()
     Dim frm As Form, nm As String, c As Control, i As Long, kinds As Variant, colors As Variant
     DeleteObject acForm, FORM_MAIN
@@ -312,9 +311,9 @@ Private Sub MakeMainForm()
 
     Heading nm, "Ship-tos", 7000
     AddButton nm, "Load ship-to list", "=LoadShipToList()", 360, 7400, _
-        "Pick the ship-to list (.xlsx or .csv). Every ship-to gets checked by itself."
+        "Pick the ship-to list (.xlsx or .csv). Every ship-to on it gets checked."
     AddButton nm, "Ship-tos to fix", "=ShowShipTos()", 4720, 7400, _
-        "The ship-tos whose rate in the system isn't the state's. One scrolling list."
+        "The ship-tos whose rate in the system isn't the state's, all in one list."
     AddButton nm, "Look up on the map", "=ShowMapList()", 9080, 7400, _
         "The ship-tos it couldn't place. Type the code from the state's map."
 
@@ -437,10 +436,10 @@ Private Sub MakeChangesReport()
     ' part heading and column heads
     rpt.Section(9).Height = 1000
     Set c = Box(nm, 9, "=IIf([Part]=1,""Places with a new use rate (every address in them)""," & _
-        """Streets where houses moved to a different use rate"")", 0, 120, 14400, 440, 16, True)
+        """Streets where some houses have a new use rate"")", 0, 120, 14400, 440, 16, True)
     c.FontItalic = True
     HeadLabel nm, "Where", 0, 4180, 1
-    HeadLabel nm, "City on the mail", 4220, 2300, 1
+    HeadLabel nm, "Mailing city", 4220, 2300, 1
     HeadLabel nm, "House numbers", 6560, 2900, 1
     HeadLabel nm, "Old rate", 9480, 1160, 3
     HeadLabel nm, "New rate", 10660, 1240, 3
@@ -503,7 +502,7 @@ Private Sub HeadLabel(ByVal rptName As String, ByVal caption As String, ByVal x 
     c.TextAlign = align
 End Sub
 
-'------------------------------------------------- step two's report and form
+'------------------------------------------------- the ship-to lists
 
 Private Sub MakeShipTosQuery(db As DAO.Database)
     Dim sql As String
@@ -688,7 +687,7 @@ Private Function MapBox(ByVal frmName As String, ByVal source As String, ByVal x
     Set MapBox = c
 End Function
 
-'------------------------------------------------- step two's buttons
+'------------------------------------------------- the ship-to buttons
 
 Public Function LoadShipToList()
     Dim p As String, msg As String
@@ -841,7 +840,7 @@ Public Function ChangesLine() As String
     On Error Resume Next
     If ReadChanges(nowQ, lastQ, places, unused, streets, zips) Then
         ChangesLine = "Use tax changes: " & Plural(places, "place", "places") & " with a new rate, " & _
-            Plural(streets, "street", "streets") & " where houses moved to a new rate."
+            Plural(streets, "street", "streets") & " where some houses have a new rate."
     End If
 End Function
 
@@ -1097,7 +1096,7 @@ Public Function LoadQuarterFiles(ByVal bPath As String, ByVal rPath As String) A
     ReadChanges nowQ, lastQ, places, unused, streets, zips
     Say "Done. Use tax, " & QLabel(lastQ) & " to " & QLabel(nowQ) & ": " & _
         Plural(places, "place has", "places have") & " a new use rate; on " & _
-        Plural(streets, "street", "streets") & " some houses moved to a different use rate.", vbInformation
+        Plural(streets, "street", "streets") & " some houses have a new use rate.", vbInformation
     LoadQuarterFiles = True
     Exit Function
 Fail:
@@ -1117,7 +1116,7 @@ Private Sub CloseReports()
 End Sub
 
 ' First pass over the boundary file: check it is one, and find its date (the
-' newest Beginning Effective Date; the file answers from that day on).
+' newest Beginning Effective Date; the file's rates apply from that day on).
 Private Function ReadFileDate(ByVal path As String, ByRef msg As String) As Long
     Dim f As Integer, s As String, p1 As Long, p2 As Long, d As Long, mx As Long, n As Long, total As Double
     f = FreeFile
@@ -1202,8 +1201,8 @@ Private Function ImportBoundary(ByVal path As String, db As DAO.Database, ByVal 
     Do While Not EOF(f)
         Line Input #f, s
         n = n + 1
-        ' the code is found by its look, never by the header (the header is
-        ' shifted): the first field after the 21st that looks like one
+        ' the code is the first field after the 21st that looks like a code;
+        ' the header is shifted, so it can't be used
         code = ""
         If InStr(1, s, """") > 0 Then
             a = SplitQuoted(s)
@@ -1357,8 +1356,8 @@ Private Function ImportRates(ByVal path As String, db As DAO.Database, ByRef msg
 End Function
 
 ' The first sheet of an Excel file as a grid of values, row 1 first. Empty
-' (and msg says why) if Excel couldn't open it. Excel is let go piece by
-' piece, or a hidden copy of it can stay open until Access closes.
+' (and msg says why) if Excel couldn't open it. Each Excel object is released
+' in turn, or a hidden copy of Excel can stay open until Access closes.
 Private Function ReadSheet(ByVal path As String, ByRef msg As String) As Variant
     Dim xl As Object, wb As Object, ws As Object, v As Variant, lastRow As Long, lastCol As Long
     On Error GoTo Fail
@@ -1418,9 +1417,9 @@ Private Function RateValue(ByVal v As Variant) As Variant
     End If
 End Function
 
-'============================================== step one: what changed
+'============================================== what changed
 
-' This quarter's file (dbN) against last quarter's (dbL). The answer goes in
+' This quarter's file (dbN) against last quarter's (dbL). The results go in
 ' this quarter's file: RateChanges, Moves, MoveGroups and the counts in Info.
 Private Sub CompareQuarters(dbN As DAO.Database, dbL As DAO.Database, ByVal lastQ As String)
     Dim useL As Collection, useN As Collection
@@ -1502,7 +1501,7 @@ Private Sub CompareRates(db As DAO.Database, useL As Collection)
     out.Close
     rs.Close
 
-    ' mail cities: grouped the way the state's spellings meet (SAINT LOUIS = ST. LOUIS)
+    ' mail cities, with the state's different spellings of one city grouped (SAINT LOUIS = ST. LOUIS)
     Set rs = db.OpenRecordset("SELECT B.JCode, B.CityKey, B.City, Count(*) AS N FROM Boundary AS B " & _
         "INNER JOIN RateChanges AS R ON B.JCode = R.JCode WHERE B.Kind='A' " & _
         "GROUP BY B.JCode, B.CityKey, B.City ORDER BY B.JCode", dbOpenSnapshot)
@@ -1534,7 +1533,7 @@ Private Sub CompareRates(db As DAO.Database, useL As Collection)
     Loop
     rs.Close
 
-    ' a code only zip+4 or zip rows use still has addresses; one no row uses has none
+    ' a code used only by zip or zip+4 rows still has addresses; a code no row uses has none
     Set rs = db.OpenRecordset("SELECT B.JCode, Count(*) AS N FROM Boundary AS B INNER JOIN RateChanges AS R " & _
         "ON B.JCode = R.JCode WHERE B.Kind<>'A' GROUP BY B.JCode", dbOpenSnapshot)
     Do While Not rs.EOF
@@ -1578,7 +1577,7 @@ End Sub
 
 ' Every street in both quarters, compared house number by house number. The
 ' state re-splits ranges between quarters, so rows can't be matched one to one.
-' db is this quarter's file and gets the answer; dbL is last quarter's.
+' db is this quarter's file and gets the results; dbL is last quarter's.
 Private Sub CompareStreets(db As DAO.Database, dbL As DAO.Database, useL As Collection, useN As Collection)
     Dim cN As Cursor, cL As Cursor, rsOut As DAO.Recordset
     Dim L As StreetRows, N As StreetRows, zip As String, key As String, done As Long, total As Long
@@ -1716,7 +1715,7 @@ Private Sub CompareStreet(ByVal zip As String, L As StreetRows, N As StreetRows,
 End Sub
 
 ' True when both quarters list the street's numbered rows alike and in the
-' same order: nothing on it moved. Most streets; quicker than NumberSig.
+' same order: nothing on it moved. True for most streets, and quicker than NumberSig.
 Private Function SameRows(L As StreetRows, N As StreetRows) As Boolean
     Dim i As Long, j As Long
     i = NextNumbered(L, 0)
@@ -1862,7 +1861,7 @@ End Function
 
 ' The codes in force for house numbers a to b on one side: the narrowest rows
 ' covering them win (the state lists a wide range, then the houses inside it
-' that sit somewhere else). "" if no row covers them.
+' that have a different code). "" if no row covers them.
 Private Function Effective(sr As StreetRows, ByVal a As Long, ByVal b As Long, ByVal par As String) As String
     Dim i As Long, w As Long, best As Long, nc As Long
     best = -1
@@ -2040,7 +2039,7 @@ Private Function MostCommon(arr() As String, ByVal n As Long) As String
     MostCommon = pick
 End Function
 
-'============================================ step two: the ship-to list
+'============================================ the ship-to list
 
 ' Loads the ship-to list (.xlsx or .csv) into the ShipTos table. The list is
 ' kept: a later list adds new ship-tos and updates the ones it has, so a later
@@ -2284,7 +2283,7 @@ Public Function CheckShipTos() As Boolean
     If hasLast Then cityL.rs.Close: countyL.rs.Close: dbL.Close
     SysCmd acSysCmdRemoveMeter
 
-    ' this quarter's answers go in the history
+    ' this quarter's results go in the history (Checks)
     db.Execute "DELETE FROM Checks WHERE Quarter='" & nowQ & "'", dbFailOnError
     db.Execute "INSERT INTO Checks (Quarter, CheckedOn, AcctNo, ShipToNo, Code, How, UseRate, Tax, Result, Why) " & _
         "SELECT '" & nowQ & "', CheckedOn, AcctNo, ShipToNo, CodeNow, HowNow, UseNow, Tax, Result, Why " & _
@@ -2392,15 +2391,16 @@ Private Sub CheckOne(rs As DAO.Recordset, cityN As Cursor, countyN As Cursor, _
     End If
 End Sub
 
-' Placed means street-exact. A street-only guess (the house number isn't in
-' the state's ranges) goes to the map, its likely code in the note.
+' Placed means EXACT or CLOSE. A street-only guess (the house number isn't in
+' the state's ranges) goes to the map, with its likely code in the note.
 Private Function IsPlaced(ByVal how As String) As Boolean
     IsPlaced = (how = "EXACT" Or how = "CLOSE")
 End Function
 
 ' Both address lines, Address 2 first (it usually holds the street, but
-' people use either). One places: that's it. Both place on the same code:
-' fine. Both place, different codes, or neither places: the map.
+' people use either). If one places, it's used. If both place on the same
+' code, fine. If they place on different codes, or neither places, it goes
+' to the map.
 Private Sub CombineLines(rsCity As Cursor, rsCounty As Cursor, ByVal a2 As String, _
         ByVal a1 As String, ByVal city As String, ByVal county As String, how As String, code As String, _
         note As String, where As String, lineName As String)
@@ -2461,8 +2461,8 @@ Private Sub MatchShipTo(rsCity As Cursor, rsCounty As Cursor, ByVal addr As Stri
     End If
 End Sub
 
-' One address line against one quarter: the street within the city on the
-' mail (the state's City Name is the postal city), then within the county.
+' One address line against one quarter: the street within the mailing city
+' (the state's City Name is the postal city), then within the county.
 ' how: EXACT (as written, number in range), CLOSE (a word left off or spelled
 ' another way), STREET (number not in the state's ranges, but the whole street
 ' is one code), MIXED (the state's rows disagree), NONE.
@@ -2767,7 +2767,7 @@ Private Function RowHas(rows As MatchRows, ByVal i As Long, ByVal numS As String
 End Function
 
 ' On one street, the narrowest rows win (a carved-out house beats the range
-' around it); two different streets never knock each other out.
+' around it); rows on two different streets don't rule each other out.
 Private Sub Narrowest(rows As MatchRows, hit() As Boolean)
     Dim i As Long, j As Long, keep() As Boolean
     ReDim keep(0 To rows.n - 1)
@@ -2876,13 +2876,13 @@ Public Function ChangesSummary() As String
     Dim s As String, nowQ As String, lastQ As String, places As Long, unused As Long, streets As Long, zips As Long
     ReadChanges nowQ, lastQ, places, unused, streets, zips
     s = "New rates start " & DateText(nowQ) & ". Only the use rate counts here; " & _
-        "sales tax only changes are left out." & vbCrLf
+        "changes to the sales rate alone are left out." & vbCrLf
     s = s & Plural(places, "place has", "places have") & " a new use rate"
     If unused > 0 Then s = s & " (" & unused & " more did, but no " & _
         "address in the state's file is in them, so they're left out)"
     s = s & ". On " & Plural(streets, "street", "streets") & " (in " & Plural(zips, "zip", "zips") & _
-        "), some house numbers moved to a place with a different use rate." & vbCrLf
-    s = s & "By county. Each street line shows the house numbers that moved and the city on their mail."
+        "), some house numbers are now in a place with a different use rate." & vbCrLf
+    s = s & "By county. Each street line shows the house numbers that changed and their mailing city."
     ChangesSummary = s
 End Function
 
@@ -2949,8 +2949,8 @@ End Function
 
 '================================================== the street spelling rules
 
-' The same rules as the reference matcher: words to their standard spelling
-' (AVENUE -> AVE), highways written one way (HWY 50), units dropped.
+' Words to their standard spelling (AVENUE -> AVE), highways written one way
+' (HWY 50), units dropped.
 Private Sub InitWords()
     Dim s As String, p As Variant, kv() As String
     If Not mSyn Is Nothing Then Exit Sub
@@ -3153,7 +3153,7 @@ Public Function StreetPieces(ByVal pre As String, ByVal nm As String, ByVal suf 
     StreetPieces = v
 End Function
 
-' The postal city, standardized so the state's own spellings meet:
+' The postal city, standardized so the state's different spellings match:
 ' SAINT LOUIS = ST. LOUIS, O'FALLON = O FALLON.
 Public Function CityKeyOf(ByVal city As String) As String
     Dim i As Long, c As Long, buf As String, pos As Long, parts() As String, out As String, w As String
@@ -3331,7 +3331,7 @@ Private Function ToClipboard(ByVal s As String) As Boolean
     CloseClipboard
 End Function
 
-'=================================================================== helpers
+'=========================================================== small functions
 
 Private Function JoinWords(ParamArray w() As Variant) As String
     Dim i As Long, s As String

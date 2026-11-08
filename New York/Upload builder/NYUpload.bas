@@ -5,18 +5,18 @@
 ' becomes a space, since Web File reads any comma as a column break; 999999999 becomes nine
 ' spaces when it fills a whole field; and each * becomes a comma. A file with no * between
 ' fields keeps its commas, and only its 999999999s become spaces. If 999999999 is still in a
-' line after that, inside a longer value, it says so and CHECK marks the line. Every line
-' starts on its own line, blank lines are dropped, nothing comes after the last line, files
+' line after that, inside a longer value, it says so and CHECK marks the line. Line breaks
+' are cleaned up, blank lines are dropped, nothing comes after the last line, files
 ' join in name order (A before B), and the files you pick are never changed.
 '
 ' Setting it up, once:
 '   1. Download this file (the download button at the top right of its page).
-'   2. Open a new blank workbook in Excel. Alt F11, then File > Import File, and pick this
-'      file. Close that window.
+'   2. Open a new blank workbook in Excel. Alt F11, Insert, Module, then Ctrl A and Ctrl V to
+'      paste all of this in. Close that window.
 '   3. File > Save As > Excel Macro-Enabled Workbook (.xlsm). Name it NY Upload Builder.
 '
 ' Each time:
-'   1. Export the schedule from Crystal with * as the separator, the way you do now.
+'   1. Export the schedule from Crystal with * as the separator.
 '   2. In NY Upload Builder, Alt F8, pick BuildNYUpload, Run.
 '   3. Pick the export. For an A and a B, Ctrl click both, then Open.
 '   4. It saves "<name> upload.txt" next to the first file and fills the CHECK sheet with
@@ -56,8 +56,8 @@ Private Const CHECK_HEADS As String = "File|Line|What changed|Upload line|Before
 Private Const CHECK_COLS As Long = 5
 Private Const CHECK_TOP As Long = 8     ' header row of the table on CHECK
 
-Private mQuiet As Boolean       ' test runs only: no boxes
-Private mSaid As String         ' test runs only: what the boxes would have said
+Private mQuiet As Boolean       ' True: no message boxes
+Private mSaid As String         ' what the message boxes would have said
 
 
 Public Sub BuildNYUpload()
@@ -70,8 +70,8 @@ Public Sub BuildNYUpload()
 End Sub
 
 Public Function NyUploadTest(ByVal paths As String) As String
-    ' For test runs: builds from these files, joined by |, with no boxes, and
-    ' returns what the boxes would have said.
+    ' Builds from these files, joined by |, with no message boxes, and
+    ' returns what they would have said.
     mQuiet = True
     mSaid = ""
     RunBuild Split(paths, "|")

@@ -5,9 +5,9 @@ the Home tab, then the Borders button.
 
 ## Once: turn on the Developer tab
 
-File > Options > Customize Ribbon. In the list on the right, tick
+File > Options > Customize Ribbon. In the list on the right, check
 **Developer** and click OK. A Developer tab now shows at the top of Word.
-If that box won't tick, IT has locked it. Copying a box you already have
+If you can't check that box, IT has locked it. Copying a box you already have
 (further down) still works then, but its gray words stay as they are.
 
 ## Add a gray box people type into
@@ -23,10 +23,10 @@ If that box won't tick, IT has locked it. Copying a box you already have
 Whatever someone types replaces the gray words, in black. Clear it out
 and the gray words come back.
 
-## Add a tick box
+## Add a check box
 
-Developer > **Check Box Content Control** (the button with a ticked box).
-Click the box to tick it, and again to clear it. For a different tick
+Developer > **Check Box Content Control** (the button with a checked box).
+Click the box to check it, and again to clear it. For a different check
 mark, click the box, then Developer > **Properties** > Checked symbol >
 Change.
 
@@ -43,11 +43,11 @@ date shows, like 10/1/2026.
 2. Press Ctrl+C, click the new spot, and press Ctrl+V.
 3. Change the copy's gray words in Design Mode, as above.
 
-## Tidy up a box
+## Clean up a box
 
 - To name its little tab, click the box, then Developer > Properties >
   Title.
-- To guard it from being deleted by accident, open Properties and tick
+- To keep it from being deleted by accident, open Properties and check
   "Content control cannot be deleted."
 - To remove the box but keep what's typed in it, right-click inside it >
   **Remove Content Control**.
@@ -56,7 +56,7 @@ date shows, like 10/1/2026.
 # Formatting basics
 
 - **See what's really there.** Home > the ¶ button (or Ctrl+Shift+8)
-  shows every space, tab and Enter. Most spacing mysteries make sense
+  shows every space, tab and Enter. Most spacing problems make sense
   once you can see them. The same button hides them again.
 - **Space between lines without extra Enters.** Click the line, then
   Layout > Spacing Before and After. Blank Enter lines are what usually

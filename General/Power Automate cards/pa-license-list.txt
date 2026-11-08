@@ -36,13 +36,13 @@ The flow, in the designer (make.powerautomate.com, work account):
    seconds whatever happened. Steps 6 to 9 check the file is really
    there.
 6. Add a Delay: Count 2, Unit Minute. On its Settings tab, under Run
-   after, tick Is successful, Has failed and Has timed out.
+   after, check Is successful, Has failed and Has timed out.
 7. Add "Get file metadata using path" (OneDrive for Business). File
    Path: Outputs, under Path.
 8. Add a Condition. Left box, as an expression:
    coalesce(body('Get_file_metadata_using_path')?['Size'],0)
    Middle: is greater than. Right box: 100000.
-   On its Settings tab, under Run after, tick Is successful and Has
+   On its Settings tab, under Run after, check Is successful and Has
    failed.
    Today's file is about 220,000 bytes. A missing file counts as 0 and
    the state's error page is about 1,200, so both go to False.
@@ -59,7 +59,7 @@ Test it, the bad day first:
     to be sure it's the list.
 
 If something looks off:
-- A connector greyed out or "blocked by policy" is IT's doing, not a
+- A connector grayed out or "blocked by policy" is IT's doing, not a
   wrong click. The connectors here come with the work license; ask IT
   whether Power Automate is allowed.
 - The mail came but the file is there: the state was slow that morning.

@@ -17,10 +17,11 @@
 ' nothing new. Saved rates holds the files' rates for next time. Read here says all this on a
 ' tab of its own.
 '
-' First time: bring this file into a new workbook (Alt F11, File > Import File), save it as a
-' macro-enabled workbook (.xlsm), then Alt F8 and run CheckIllinoisRates. It sets up the sheets and the button, then
-' asks for the files. With nothing loaded before, it shows what changed on the files' own start
-' date, from the old rates the state lists beside each rate.
+' First time: in a new workbook, Alt F11, Insert, Module, then Ctrl A and Ctrl V to paste all of
+' this in. Save it as a macro-enabled workbook (.xlsm), then Alt F8 and run CheckIllinoisRates. It
+' sets up the sheets and the button, then asks for the files. With nothing loaded before, it
+' shows what changed on the files' own start date, from the old rates the state lists beside
+' each rate.
 '
 ' A change is a rate that went up or down (the low rate too), a place or business district
 ' that's new or gone, or a new name. A row the state only re-dated isn't a change.
@@ -117,8 +118,8 @@ Tidy:
 End Sub
 
 Public Sub Auto_Open()
-    ' Opening the workbook puts up a red line once newer files should be out. That isn't
-    ' anything to save, so the workbook is marked unchanged and closing won't ask.
+    ' On open, shows the red line once newer files should be out, then marks the workbook
+    ' unchanged so closing won't ask to save.
     On Error Resume Next
     If SheetByName(SH_MAIN) Is Nothing Then Exit Sub
     DueLine
@@ -206,10 +207,10 @@ Private Sub LoadFiles()
 
     files = FileNameOf(mainPath)
     If addrPath <> "" Then files = files & " and " & FileNameOf(addrPath)
-    If nOld > 0 Then against = savedFiles & ", loaded " & ShowWhen(savedWhen) Else against = "Nothing, first files"
+    If nOld > 0 Then against = savedFiles & ", loaded " & ShowWhen(savedWhen) Else against = "Nothing loaded before"
 
     Application.ScreenUpdating = False
-    Application.StatusBar = "Drawing..."
+    Application.StatusBar = "Filling in the tabs..."
     DrawFront changes, others, files, today, change, (nAddr > 0), (nOld > 0), savedFiles, savedWhen, _
         savedChange, savedAddr
     AddToLog changes, files, today, against
@@ -955,7 +956,7 @@ Private Sub DrawWelcome(ByVal ws As Worksheet)
     ws.Range("A4").Value = "Get them from tax.illinois.gov: Research, Tax Rates, Sales Tax Rate - Machine Readable " & _
         "Files. Under Sales Tax, the top two links: the Effective file and the Addendum Address File."
     ws.Rows(4).RowHeight = 24
-    ws.Range("A5").Value = "How it works, step by step: the Read here tab."
+    ws.Range("A5").Value = "The Read here tab has the steps."
     ws.Rows(5).RowHeight = 24
     FreezeAt ws, 1
     ActiveWindow.DisplayGridlines = False
@@ -963,8 +964,7 @@ Private Sub DrawWelcome(ByVal ws As Worksheet)
 End Sub
 
 Private Sub DrawReadHere(ByVal ws As Worksheet)
-    ' How to work it, in the same words as the notes posted with the macro. Redrawn on each
-    ' load, so it keeps up with a pasted update.
+    ' How to use it, in the same words as il_rates_notes.txt. Redrawn on each load.
     Dim r As Long
     ClearSheet ws
     ws.Cells.Font.Size = 16
@@ -1053,7 +1053,7 @@ Private Sub ReadLine(ByVal ws As Worksheet, ByRef r As Long, ByVal kind As Strin
                 End If
             End With
             ws.Rows(r).AutoFit
-            ws.Rows(r).RowHeight = ws.Rows(r).RowHeight + 6     ' a little air between lines
+            ws.Rows(r).RowHeight = ws.Rows(r).RowHeight + 6     ' a little space between lines
             If ws.Rows(r).RowHeight < 26 Then ws.Rows(r).RowHeight = 26
         Case Else
             p = InStr(words, "|")
@@ -1174,7 +1174,7 @@ End Sub
 
 Private Sub Band(ByVal ws As Worksheet, ByVal r As Long, ByVal words As String, _
                  ByVal fillColor As Long, ByVal textColor As Long, ByVal pts As Long)
-    ' A colored line across the list, for the things that need to be seen
+    ' A colored line across the list
     With ws.Range(ws.Cells(r, 1), ws.Cells(r, 7))
         .Merge
         .Value = words
@@ -1513,7 +1513,7 @@ Private Sub FreezeAt(ByVal ws As Worksheet, ByVal rowsAbove As Long)
 End Sub
 
 
-' ---- small helpers -----------------------------------------------------------------------
+' ---- small functions ---------------------------------------------------------------------
 
 Private Function SheetByName(ByVal nm As String) As Worksheet
     Dim ws As Worksheet

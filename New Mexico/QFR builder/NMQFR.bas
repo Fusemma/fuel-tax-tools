@@ -3,8 +3,8 @@
 '
 ' Setting it up, once:
 '   1. Download this file (the download button at the top right of its page).
-'   2. Open a new blank workbook in Excel. Alt F11, then File > Import File, and pick this
-'      file. Close that window.
+'   2. Open a new blank workbook in Excel. Alt F11, Insert, Module, then Ctrl A and Ctrl V to
+'      paste all of this in. Close that window.
 '   3. File > Save As > Excel Macro-Enabled Workbook (.xlsm). Name it NM QFR Builder.
 '   4. Alt F8, pick BuildQFRRows, Run. The first run only makes the Report sheet.
 '
@@ -94,8 +94,8 @@ Private Const COL_NAMES As String = "BOL|Loading Date|Supplier Terminal Name|Ter
 Private Const K_BOL As Long = 0, K_DATE As Long = 1, K_TERM As Long = 2, K_TSTATE As Long = 3
 Private Const K_DEST As Long = 4, K_PROD As Long = 5, K_GAL As Long = 6, K_DOL As Long = 7
 
-Private mQuiet As Boolean       ' test runs only: no boxes
-Private mSaid As String         ' test runs only: what the boxes would have said
+Private mQuiet As Boolean       ' True: no message boxes
+Private mSaid As String         ' what the message boxes would have said
 
 ' One report row as read.
 Private rRow() As Long, rBol() As String, rDate() As Variant, rTerm() As String
@@ -116,7 +116,7 @@ Oops:
 End Sub
 
 Public Function QfrTest() As String
-    ' For test runs: runs the build with no boxes and returns what they would say.
+    ' Runs the build with no message boxes and returns what they would have said.
     mQuiet = True
     mSaid = ""
     BuildQFRRows
@@ -387,7 +387,7 @@ Private Sub WriteSheets(wb As Workbook, ByVal blanks As Long)
         order(j + 1) = t
     Next i
 
-    ' same BOL, day, product and gallons twice, both kept: a look, not a drop
+    ' same BOL, day, product and gallons twice: keep both, warn on CHECK
     For i = 1 To nk
         For j = i + 1 To nk
             If rBol(order(i)) = rBol(order(j)) And rProd(order(i)) = rProd(order(j)) And _

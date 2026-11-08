@@ -5,8 +5,8 @@ Option Explicit
 '
 '  Pulls net-zero credit + rebill sets out of an order list so the
 '  remainder can be uploaded to Texas (which rejects negatives).
-'  Credits with no offsetting rebill are quarantined and flagged --
-'  those are the ones that may mean amending a prior return.
+'  Credits with no matching rebill are moved down and marked red.
+'  Those may mean amending a prior return.
 '
 '  Run it with the sheet active. It will ask for:
 '     1. any cell in the BOL / order-number column
@@ -67,8 +67,8 @@ Public Sub MatchCreditsAndRebills()
     '--- prompts --------------------------------------------------
     On Error Resume Next
     Set rng = Application.InputBox( _
-        Prompt:="Click ANY cell inside the column containing BOLs:", _
-        Title:="Select order-number column", Type:=8)
+        Prompt:="Click any cell in the BOL column:", _
+        Title:="BOL column", Type:=8)
     On Error GoTo 0
     If rng Is Nothing Then Exit Sub
     orderCol = rng.Column
@@ -76,8 +76,8 @@ Public Sub MatchCreditsAndRebills()
     Set rng = Nothing
     On Error Resume Next
     Set rng = Application.InputBox( _
-        Prompt:="Click ANY cell inside the column containing GALLONS:", _
-        Title:="Select amount column", Type:=8)
+        Prompt:="Click any cell in the gallons column:", _
+        Title:="Gallons column", Type:=8)
     On Error GoTo 0
     If rng Is Nothing Then Exit Sub
     amtCol = rng.Column
@@ -88,20 +88,20 @@ Public Sub MatchCreditsAndRebills()
     End If
 
     v = Application.InputBox( _
-        Prompt:="Enter the first row number containing actual data:", _
-        Title:="Select start row", Default:=2, Type:=1)
+        Prompt:="Type the number of the first row of data:", _
+        Title:="First row of data", Default:=2, Type:=1)
     If VarType(v) = vbBoolean Then Exit Sub      ' Cancel
     startRow = CLng(v)
     If startRow < 1 Then Exit Sub
 
-    '--- save Excel state, then arm the handler -------------------
+    '--- save Excel's settings, then turn on error handling -------
     priorCalc = Application.Calculation
     On Error GoTo CleanFail
     Application.ScreenUpdating = False
     Application.EnableEvents = False
     Application.Calculation = xlCalculationManual
 
-    '--- work on a copy so the original survives ------------------
+    '--- work on a copy so the original isn't changed -------------
     If WORK_ON_A_COPY Then
         src.Copy After:=src
         Set ws = src.Parent.Sheets(src.Index + 1)
@@ -160,8 +160,7 @@ Public Sub MatchCreditsAndRebills()
     Next i
 
     '--- bucket the rows by BOL -----------------------------------
-    ' Matching only ever looks at the lines on one BOL, never the
-    ' whole sheet, which keeps it fast.
+    ' Matching looks at one BOL's lines at a time.
     Set dict = CreateObject("Scripting.Dictionary")
     dict.CompareMode = 0                              ' keys already normalized
 
@@ -179,7 +178,7 @@ Public Sub MatchCreditsAndRebills()
 
     '--- classify each row into an output section -----------------
     '   0 = keep / upload        2 = matched net-zero group
-    '   1 = orphan credit        3 = unreadable, needs a human
+    '   1 = credit, no rebill    3 = unreadable, check by hand
     ReDim keys(1 To n, 1 To 3)
 
     For i = 1 To n
@@ -198,9 +197,7 @@ Public Sub MatchCreditsAndRebills()
     Next i
 
     '--- reorder the sheet with ONE sort --------------------------
-    ' Sorting (rather than copy / clear / delete row by row) keeps
-    ' formulas, number formats and dates intact, and costs the same
-    ' whether there are 50 rows or 5,000.
+    ' A sort keeps formulas, number formats and dates as they were.
     h1 = lastCol + 2: h2 = h1 + 1: h3 = h2 + 1
 
     ws.Range(ws.Cells(startRow, h1), ws.Cells(lastRow, h3)).Value = keys
@@ -219,7 +216,7 @@ Public Sub MatchCreditsAndRebills()
         .SortFields.Clear
     End With
 
-    '--- colour each contiguous block in one shot -----------------
+    '--- color each block of rows -------------------------------
     sorted = ws.Range(ws.Cells(startRow, h1), ws.Cells(lastRow, h2)).Value
 
     pal = Array(RGB(255, 242, 204), RGB(217, 234, 211), RGB(208, 225, 242), RGB(234, 215, 240), _
@@ -239,11 +236,11 @@ Public Sub MatchCreditsAndRebills()
                 Case 0
                     doFill = False                               ' clean upload rows stay plain
                 Case 1
-                    clr = RGB(255, 199, 206)                     ' orphan credit -- red
+                    clr = RGB(255, 199, 206)                     ' credit with no rebill, red
                 Case 2
                     clr = CLng(pal((CLng(sorted(runStart, 2)) - 1) Mod 8))
                 Case Else
-                    clr = RGB(217, 217, 217)                     ' unreadable -- grey
+                    clr = RGB(217, 217, 217)                     ' unreadable, gray
             End Select
             If doFill Then
                 ws.Range(ws.Cells(startRow + runStart - 1, 1), _
@@ -261,13 +258,13 @@ Public Sub MatchCreditsAndRebills()
     rowSec3 = rowSec2 + matchedCount
 
     If reviewCount > 0 Then
-        InsertBanner ws, rowSec3, "--- COULD NOT READ THE BOL OR THE GALLONS - CHECK THESE BY HAND ---"
+        InsertBanner ws, rowSec3, "--- COULD NOT READ THE BOL OR THE GALLONS. CHECK THESE BY HAND ---"
     End If
     If matchedCount > 0 Then
         InsertBanner ws, rowSec2, "--- MATCHED NET-ZERO GROUPS (VERIFY, THEN DELETE) ---"
     End If
     If orphanCount > 0 Then
-        InsertBanner ws, rowSec1, "--- CREDITS WITH NO MATCHING REBILL - LIKELY NEEDS AN AMENDED RETURN ---"
+        InsertBanner ws, rowSec1, "--- CREDITS WITH NO MATCHING REBILL. MAY NEED AN AMENDED RETURN ---"
     End If
 
     '--- self-check: every matched group must sum to exactly zero --
@@ -286,13 +283,13 @@ Public Sub MatchCreditsAndRebills()
     msg = n & " data rows across " & dict.Count & " BOLs." & vbCrLf & vbCrLf & _
           keepCount & " rows left at the top to upload (" & Format$(keepTotal, "#,##0.00") & " gal)" & vbCrLf & _
           matchedCount & " rows in " & groupCount & " net-zero groups, moved down" & vbCrLf & _
-          orphanCount & " orphan credits (" & Format$(orphanTotal, "#,##0.00") & " gal) - RED"
+          orphanCount & " credits with no matching rebill (" & Format$(orphanTotal, "#,##0.00") & " gal), in red"
     If reviewCount > 0 Then
-        msg = msg & vbCrLf & reviewCount & " rows unreadable - GREY"
+        msg = msg & vbCrLf & reviewCount & " rows unreadable, in gray"
     End If
     If tooComplex > 0 Then
         msg = msg & vbCrLf & vbCrLf & "NOTE: " & tooComplex & " BOL(s) had more than " & _
-              MAX_SUBSET_CANDIDATES & " candidate lines and were left for you to eyeball."
+              MAX_SUBSET_CANDIDATES & " lines to try and were left for you to check by hand."
     End If
     If chk <> 0 Then
         msg = msg & vbCrLf & vbCrLf & "WARNING: matched groups net to " & _
@@ -325,7 +322,7 @@ CleanFail:
     If WORK_ON_A_COPY Then
         msg = msg & "Your original sheet was not touched."
     Else
-        msg = msg & "The sheet was being edited in place - check it before continuing."
+        msg = msg & "The sheet was being edited in place. Check it before continuing."
     End If
     MsgBox msg, vbCritical, "Credit / rebill matching"
 End Sub
@@ -354,7 +351,7 @@ Private Sub MatchOneOrder(ByVal members As Collection, ByRef inf() As RowInfo, _
 
     If Not (hasPos And hasNeg) Then Exit Sub          ' nothing to net against
 
-    ' (a) the whole BOL nets to zero -- take the lot, even when both
+    ' (a) the whole BOL nets to zero: take all of it, even when both
     '     sides have more than one line (2 credits against 3 rebills).
     If total = 0 Then
         groupCount = groupCount + 1
