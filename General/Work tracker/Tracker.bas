@@ -1,7 +1,7 @@
 ' Tracker: everything you're tracking in one list, with popups from Outlook.
-' To install, bring this file into a blank workbook (Alt F11, File > Import File), run TrackerSetup
-' (Alt F8) and save it as a macro workbook (.xlsm). To update, remove this module (right-click it,
-' Remove, No), Import File the newer copy and run TrackerSetup again; every row stays.
+' To install, in a blank workbook: Alt F11, Insert, Module, then Ctrl A and Ctrl V to paste all of
+' this in. Run TrackerSetup (Alt F8) and save it as a macro workbook (.xlsm). To update, open this
+' module, press Ctrl A, and paste the newer copy over it, then run TrackerSetup again; every row stays.
 ' How to use it is on the Today sheet, on the right.
 
 Option Explicit

@@ -17,9 +17,9 @@
 ' month nobody checked. Log keeps each change once, the first time a file shows it, plus
 ' a line for each check with nothing new. Saved rates holds the file's rates for next time.
 '
-' First time: bring this file into a new workbook (Alt F11, File > Import File), save it as a
-' macro-enabled workbook (.xlsm), then Alt F8 and run CheckNewRatesFile. It sets up the sheets and the
-' button, then asks for the file.
+' First time: in a new workbook, Alt F11, Insert, Module, then Ctrl A and Ctrl V to paste all of
+' this in. Save it as a macro-enabled workbook (.xlsm), then Alt F8 and run CheckNewRatesFile. It
+' sets up the sheets and the button, then asks for the file.
 '
 ' A change is a rate that's new, gone, went up or down (the PJ rate too), moved to a new
 ' administrator, or got a new name. A row the state only re-dated isn't a change.

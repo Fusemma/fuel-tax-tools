@@ -3,8 +3,8 @@
 '
 ' Setting it up, once:
 '   1. Download this file (the download button at the top right of its page).
-'   2. Open a new blank workbook in Excel. Alt F11, then File > Import File, and pick this
-'      file. Close that window.
+'   2. Open a new blank workbook in Excel. Alt F11, Insert, Module, then Ctrl A and Ctrl V to
+'      paste all of this in. Close that window.
 '   3. File > Save As > Excel Macro-Enabled Workbook (.xlsm). Name it CA Rates Check.
 '   4. Alt F8, pick CheckCaliforniaRates, Run. It makes the sheets and the big button, then
 '      asks for the rates file.
@@ -705,8 +705,8 @@ Private Sub DrawHowTo()
         "quarter's first day, like 1/1/2027."
     HowToLine ws, r, "B", "If it says another file with the same name is open, close that one and click " & _
         "the button again."
-    HowToLine ws, r, "B", "To put in a new copy of the macro: Alt F11, right-click the old module under Modules, " & _
-        "Remove, No, then File, Import File the new one, close that window and save. Saved rates and the Log stay."
+    HowToLine ws, r, "B", "To update the macro: Alt F11, open its module under Modules, press Ctrl A, and paste " & _
+        "the newer copy of CARates.bas over it. Close that window and save. Saved rates and the Log stay."
     HowToLine ws, r, "S", "This sheet is redrawn each time you click the button, so notes typed here won't stay."
 End Sub
 

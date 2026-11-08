@@ -1,4 +1,3 @@
-Attribute VB_Name = "GARefundsWorker"
 ' GA refunds, the worker: the three buttons, and everything with folders, files and Outlook;
 ' it draws CHECK, ENTRY and HOW TO. GARefundsReader reads the tabs. The HOW TO tab has the
 ' steps. Each packet and each email is worked on its own, so one problem holds only its own;
@@ -2177,14 +2176,15 @@ Private Sub WriteHowTo()
     r = r + 1
     r = HowToLine(ws, r, "First time only", True)
     r = HowToLine(ws, r, "1. This goes in the GA tracking workbook, the one with Refunds Due and Corp License Number. " & _
-        "It comes as two files, GARefundsReader.bas and GARefundsWorker.bas. Alt F11 opens the macro editor.", False)
-    r = HowToLine(ws, r, "2. First take out the old copy, so there's only one: under Modules, right-click each " & _
-        "one that holds this macro (GARefunds, GARefundsReader, GARefundsWorker, or a Module1 it was pasted into), " & _
-        "click Remove, and No when it asks to export it.", False)
-    r = HowToLine(ws, r, "3. Then File, Import File, once for each of the two files. Save the workbook as .xlsm.", False)
-    r = HowToLine(ws, r, "4. Save " & TEMPLATE_NAME & " (it comes with this macro) in the same folder as the workbook.", False)
-    r = HowToLine(ws, r, "5. You don't make any folders. The first click on Build packets asks for the company's name and " & _
+        "It comes as two files, GARefundsReader.bas and GARefundsWorker.bas, and each goes in a module of its own.", False)
+    r = HowToLine(ws, r, "2. Alt F11, Insert, Module, then Ctrl A and Ctrl V to paste all of GARefundsReader.bas in. " & _
+        "Then Insert, Module again, and Ctrl A and Ctrl V to paste all of GARefundsWorker.bas into that one. " & _
+        "Save the workbook as .xlsm.", False)
+    r = HowToLine(ws, r, "3. Save " & TEMPLATE_NAME & " (it comes with this macro) in the same folder as the workbook.", False)
+    r = HowToLine(ws, r, "4. You don't make any folders. The first click on Build packets asks for the company's name and " & _
         "address for the MF-12 and the folder the packets go in, once each.", False)
+    r = HowToLine(ws, r, "To update, open each module, press Ctrl A, and paste the matching file's newer copy over it. " & _
+        "The first line of each module says which file it is, the reader or the worker.", False)
     r = HowToLine(ws, r, "If the buttons ever go missing: Alt F8, run Refunds1_BuildPackets, and this tab redraws with them.", False)
 End Sub
 

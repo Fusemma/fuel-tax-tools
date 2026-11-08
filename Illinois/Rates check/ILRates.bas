@@ -17,10 +17,11 @@
 ' nothing new. Saved rates holds the files' rates for next time. Read here says all this on a
 ' tab of its own.
 '
-' First time: bring this file into a new workbook (Alt F11, File > Import File), save it as a
-' macro-enabled workbook (.xlsm), then Alt F8 and run CheckIllinoisRates. It sets up the sheets and the button, then
-' asks for the files. With nothing loaded before, it shows what changed on the files' own start
-' date, from the old rates the state lists beside each rate.
+' First time: in a new workbook, Alt F11, Insert, Module, then Ctrl A and Ctrl V to paste all of
+' this in. Save it as a macro-enabled workbook (.xlsm), then Alt F8 and run CheckIllinoisRates. It
+' sets up the sheets and the button, then asks for the files. With nothing loaded before, it
+' shows what changed on the files' own start date, from the old rates the state lists beside
+' each rate.
 '
 ' A change is a rate that went up or down (the low rate too), a place or business district
 ' that's new or gone, or a new name. A row the state only re-dated isn't a change.

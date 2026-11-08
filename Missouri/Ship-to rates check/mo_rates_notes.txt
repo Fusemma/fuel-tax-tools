@@ -12,12 +12,12 @@ the state's two files each quarter, and every step after. This page is only
 for setting it up, once.
 
 MORatesCheck.bas is the code. Open it on the repo page and click the
-download button at the top right.
+copy button at the top right (GitHub calls it Copy raw file).
 
 SETUP, ONCE
 1. Open Access. Blank database. Name it MO Rates Check. Create.
-2. Press Alt+F11. In that window: File > Import File.
-3. Pick the MORatesCheck.bas you downloaded.
+2. Press Alt+F11. In that window: Insert > Module.
+3. Press Ctrl+A, then Ctrl+V to paste all of MORatesCheck.bas in.
 4. Press Ctrl+S and name it MORatesCode.
 5. Click anywhere inside "Sub SetUp" near the top and press F5.
    Wait for "Set up is done."

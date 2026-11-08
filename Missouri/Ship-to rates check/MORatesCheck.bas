@@ -8,8 +8,8 @@ Option Explicit
 ' code's rates). This database keeps the last two quarters and shows where the
 ' use tax rate changed between them.
 '
-' Setup, once: in a new blank Access database press Alt+F11, then File >
-' Import File, and pick this file. Press Ctrl+S and name it MORatesCode.
+' Setup, once: in a new blank Access database press Alt F11, Insert, Module,
+' then Ctrl A and Ctrl V to paste all of this in. Press Ctrl+S and name it MORatesCode.
 ' Then click anywhere inside "Sub SetUp" just below
 ' and press F5. After that, everything runs from the MO Rates Check form.
 '

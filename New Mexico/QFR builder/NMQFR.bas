@@ -3,8 +3,8 @@
 '
 ' Setting it up, once:
 '   1. Download this file (the download button at the top right of its page).
-'   2. Open a new blank workbook in Excel. Alt F11, then File > Import File, and pick this
-'      file. Close that window.
+'   2. Open a new blank workbook in Excel. Alt F11, Insert, Module, then Ctrl A and Ctrl V to
+'      paste all of this in. Close that window.
 '   3. File > Save As > Excel Macro-Enabled Workbook (.xlsm). Name it NM QFR Builder.
 '   4. Alt F8, pick BuildQFRRows, Run. The first run only makes the Report sheet.
 '

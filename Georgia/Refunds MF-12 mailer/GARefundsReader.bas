@@ -1,4 +1,3 @@
-Attribute VB_Name = "GARefundsReader"
 ' GA refunds, the reader: reads SETUP, Refunds Due, Corp License Number and Refunds Received
 ' into rows, suppliers, packets and emails, and writes back only to those tabs. It never
 ' touches a folder, a file or Outlook; GARefundsWorker does that. A packet is a license, a

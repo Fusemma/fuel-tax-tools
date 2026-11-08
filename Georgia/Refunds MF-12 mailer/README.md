@@ -5,15 +5,18 @@ MF-12 packet from Refunds Due and makes an Outlook draft to send it.
 
 ## Putting the macros in
 
-Do this the first time and each time the macro is updated.
+The first time:
 
 1. Open the GA tracking workbook and press Alt F11.
-2. Take out the old copy. Under Modules, right-click each one that holds
-   this macro (GARefunds, GARefundsReader, GARefundsWorker, or a Module1
-   it was pasted into), click Remove, then No. Two copies stop it working.
-3. File, Import File, GARefundsReader.bas.
-4. File, Import File, GARefundsWorker.bas.
-5. Save the workbook as .xlsm. Save mf12_template.pdf in the same folder.
+2. Paste all of GARefundsReader.bas into a new module (Insert, Module,
+   Ctrl A, Ctrl V).
+3. Paste all of GARefundsWorker.bas into its own new module the same way.
+4. Save the workbook as .xlsm. Save mf12_template.pdf in the same folder.
+
+To update, paste the new copy over the old one the same way: open each
+module under Modules, press Ctrl A, and paste the new GARefundsReader.bas
+over the reader and the new GARefundsWorker.bas over the worker. The top
+lines of each say which one it is.
 
 ## The first run
 

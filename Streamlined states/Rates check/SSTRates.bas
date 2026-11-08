@@ -5,8 +5,8 @@
 ' takes only that state's files.
 '
 ' Setting up all four, once:
-'   1. Open a new blank workbook. Alt F11, then File > Import File, and pick this file.
-'      Close that window.
+'   1. Open a new blank workbook. Alt F11, Insert, Module, then Ctrl A and Ctrl V to paste
+'      all of this in. Close that window.
 '   2. File > Save As > Excel Macro-Enabled Workbook (.xlsm). Name it SST Rates Check OH.
 '   3. Before running anything, Save As three more times the same way: SST Rates Check WA,
 '      SST Rates Check NE, SST Rates Check OK. Each copy has the macro and no state yet.
@@ -850,7 +850,7 @@ Private Sub DrawInstructions()
     w.Add "H|Setting up another state"
     w.Add "P|1. Copy the macro from this workbook: press Alt F11, double-click Module1 on the left, " & _
         "then Ctrl A and Ctrl C. Close that window."
-    w.Add "P|2. Open a new blank workbook. Press Alt F11, click Insert, then Module, then Ctrl V. Close that window."
+    w.Add "P|2. Open a new blank workbook. Press Alt F11, click Insert, then Module, then Ctrl A and Ctrl V. Close that window."
     w.Add "P|3. File, Save As, Excel Macro-Enabled Workbook. Name it for the state."
     w.Add "P|4. Press Alt F8, pick CheckNewRatesFile, and click Run. It sets up the tabs and the button, " & _
         "then asks for that state's file. If you don't have it yet, click Cancel and use the button later."

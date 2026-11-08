@@ -1,4 +1,3 @@
-Attribute VB_Name = "SalesTaxRecon"
 Option Explicit
 
 '==================================================================

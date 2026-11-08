@@ -9,8 +9,9 @@ state's map. Each quarter's state data goes in its own file on the PC's
 own drive (the DataFolder setting, %LOCALAPPDATA%\MO Rates Check unless
 changed), so the database stays a few MB and never needs compacting.
 
-Setup: in a new blank Access database, Alt F11, File, Import File,
-pick MORatesCheck.bas, save it as MORatesCode, run SetUp once
+Setup: in a new blank Access database, paste all of MORatesCheck.bas
+into a new module (Alt F11, Insert, Module, Ctrl A, Ctrl V), save it as
+MORatesCode, run SetUp once
 (mo_rates_notes.txt has the clicks). Then everything runs from the MO
 Rates Check form, and its How to use it panel at the right is the whole
 guide: where to get the DOR's two files each quarter (DOR Boundary

@@ -13,7 +13,8 @@
 ' so cutting rows out of the block can't stretch them.
 '
 ' Both work on whatever sheet is active.
-' Bring it in with Alt F11, File, Import File, and run one of them with Alt F8.
+' To put it in: Alt F11, Insert, Module, then Ctrl A and Ctrl V to paste all of this in.
+' Run one of them with Alt F8.
 
 Private Const MAKE_BACKUP As Boolean = True    ' copy the sheet first, since a macro can't be undone
 Private Const SHOW_SUMMARY As Boolean = True   ' popup with the counts at the end
