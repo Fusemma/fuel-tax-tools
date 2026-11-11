@@ -4,7 +4,7 @@ The monthly Virginia ST-1 sales and use tax return from two pasted
 reports. Paste the TERSE report and the AR sales tax by county report,
 once each, as downloaded. The ST-1 tab fills in the return, ST-1R&B fills
 in the ST-1R and ST-1B, and ENTRY lists what to type on Virginia Tax's
-eForms site. The VA sales recap sits on the ST-1 tab, right of the form.
+eForms site. The VA sales recap has its own tab, RECAP.
 A status light at the top of ST-1 says whether every check is OK.
 
 No macro. Every number is a formula.
@@ -24,7 +24,7 @@ No macro. Every number is a formula.
 5. Read the light at the top of ST-1. All checks OK means every check
    passes. LOOK says how many checks to look at: open CHECKS, and each
    LOOK line says what to do.
-6. Type the recap's yellow cells on ST-1, columns H to J.
+6. Type the recap's yellow cells on the RECAP tab.
 7. On the eForms site, open ENTRY. For each line, pick the locality in
    Select Locality and type its Gross general sales and Exempt sales and
    deductions, the green cells. Only localities with sales show, in the
@@ -41,9 +41,10 @@ One legend line under the light on ST-1.
 
 - **INSTRUCTIONS:** these steps, and where each rate comes from, each
   source a link.
-- **ST-1:** the return, the VA sales recap to its right, and the rates
-  box under the recap. Every rate the formulas use is in the rates box;
-  change one there and every formula follows.
+- **ST-1:** the return, and the rates box to its right. Every rate the
+  formulas use is in the rates box; change one there and every formula
+  follows.
+- **RECAP:** the VA sales recap.
 - **ENTRY:** the ST-1A lines to type on the eForms site.
 - **ST-1R&B:** one row for each locality on the site's Select Locality
   list, 133 rows, under the site's names. Each has its region marks (a
