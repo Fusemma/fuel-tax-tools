@@ -51,8 +51,8 @@ One legend line under the light on ST-1.
   sales, the state's rate from its January 2026 rate file, and the rate
   the marks add up to. The regions table at the top right gives ST-1
   lines 10A to 10D and 12A.
-- **CHECKS:** 11 checks, and the product types that don't count in gross
-  sales.
+- **CHECKS:** 12 checks, the product types that don't count in gross
+  sales, and the list of orders check 12 finds off (row 71, folded away).
 - **TERSE** and **AR-SALES-TAX-BY-CNTY:** the paste tabs.
 
 ## The recap
@@ -89,6 +89,33 @@ says otherwise.
    ST-1 line.
 10. AR charged no tax at a rate or name the sheet doesn't know.
 11. Every locality's marks add up to the state's rate for it.
+12. Every dyed order is on both reports and taxed right for where it
+    shipped. On LOOK, open the order list at row 71 (click the + at the
+    left). Each line gives the order number and what is off on it.
+
+## Check 12, order by order
+
+TERSE has one line per product on an order. AR has one line per tax on
+an order, so an order in a region is on AR twice: its 5.3% line and its
+0.7% line. Check 12 counts each order once, from its 5.3% line, and
+checks every other AR line against where the order shipped.
+
+- Orders match on Order Number, on both reports.
+- An order's locality is AR's County, found on ST-1R&B. Its marks there
+  say which lines it needs: NVR or HRR, the NVTC/PRTC & HRPDC 0.7% line;
+  CVR, Central Virginia 0.7%; HTR, Historic Triangle 1%; LOCAL, a county
+  1% line.
+- Exempt orders need the same lines, marked exempt.
+- What it can say about an order: Not on AR; Not on TERSE; Amounts
+  differ (over 1.00, the same as check 8); No 5.3% line; Two 5.3% lines;
+  Locality not on ST-1R&B; Missing or Extra (Northern Virginia or Hampton
+  Roads 0.7%, Central Virginia 0.7%, Historic Triangle 1%, local 1%); A
+  0.7% or 1% line's amount differs from the 5.3% line; Paid and exempt
+  mixed; Tax doesn't match the rate; TERSE and AR tax differ. An order
+  with more than one problem lists them all.
+- It holds 3,000 TERSE lines, 1,500 AR lines and 600 orders. Past that,
+  check 12 says LOOK: "More lines than the order check holds. Check
+  orders by hand this month."
 
 ## What to know
 
@@ -106,10 +133,4 @@ says otherwise.
 
 ## Open
 
-- The dealer discount uses 1.6, 1.2 and 0.8 percent of the first 3
-  percent of the state tax, from Ruling of the Tax Commissioner 13-103
-  (2013). Va. Code § 58.1-622 reads 4, 3 and 2 percent. Whether 1.6, 1.2
-  and 0.8 still hold in 2026 isn't confirmed.
-- Crossing Months is the sales x 0.007. Which 0.7% that is (Northern
-  Virginia, Hampton Roads or Central Virginia) isn't written down yet, so
-  it doesn't read the rates box.
+Nothing open.
