@@ -19,9 +19,9 @@ buttons fill the state's import file for each return.
 1. Open your copy of the workbook. Save As with the month in the name,
    like GA Sales Tax 2026-09.xlsm. The rates and account numbers come
    along.
-2. Paste the month's AR sales tax report into the AR SALES tab at A1,
-   headers and all, over last month's. Paste the TERSE into the TERSE tab
-   the same way.
+2. On the month's AR sales tax report, press Ctrl A and Ctrl C. Click A1
+   on the AR SALES tab and press Ctrl V. The report's header row comes
+   with it. Paste the TERSE into the TERSE tab the same way.
 3. On RECAP, type the month as its first day, like 9/1/2026, and the
    collected general ledger amount.
 4. First month of a quarter only: download the state's ST-3 Excel import
@@ -45,10 +45,11 @@ Excel shows each step while it works.
 
 ## What it checks
 
-REVIEW flags these. If an AR line was charged a rate that isn't the
-state's, it shows the state's rate, and the return uses the state's. It
-also flags a county with no state code, a code with no rate for the
-month, rates loaded for the wrong quarter, an AR line whose tax name says
+REVIEW flags these, and each line says how it decides. If an AR line was
+charged a rate that isn't the state's, it shows the state's rate, and the
+return uses the state's. It also flags a county with no state code, a
+code with no rate for the month, rates loaded for the wrong quarter, rows
+left from another month under the paste, an AR line whose tax name says
 neither off road nor on road, stale orders, untaxed fuel with no
 exemption, and gallons or sales that didn't land on a return.
 
