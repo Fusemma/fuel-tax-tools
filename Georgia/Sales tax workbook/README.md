@@ -16,32 +16,15 @@ buttons fill the state's import file for each return.
 
 ## Each month
 
-1. Open your copy of the workbook. Save As with the month in the name,
-   like GA Sales Tax 2026-09.xlsm. The rates and account numbers come
-   along.
-2. On the month's AR sales tax report, press Ctrl A and Ctrl C. Click A1
-   on the AR SALES tab and press Ctrl V. The report's header row comes
-   with it. Paste the TERSE into the TERSE tab the same way.
-3. On RECAP, type the month as its first day, like 9/1/2026, and the
-   collected general ledger amount.
-4. First month of a quarter only: download the state's ST-3 Excel import
-   template for the quarter from dor.georgia.gov/sales-use-tax-import.
-   Press Get rates and pick it. The rate table hidden inside it goes onto
-   the RATES tab and stays there for the rest of the quarter. If you skip
-   this, REVIEW says the rates don't cover the month.
-5. Look at the light at the top of RECAP. If it's red, open REVIEW. Every
-   line marked LOOK says what to do.
-6. Press Make the state's files. It saves two filled copies of the
-   template, like GA ST-3 off-road 2026-09.xls and GA ST-3 on-road
-   2026-09.xls. The box says which folder they're in and shows each
-   copy's Main tab lines next to RECAP's. Every line should match. Import
-   the two files the box names, each on its own return in GTC.
+The steps are on the RECAP tab, under the two buttons. The workbook's
+READ ME tab has the rest: what each tab is for, the rates and other
+numbers, and notes.
 
-You can also key RECAP's lines 1 to 13 into the state site by hand.
-
-If a box says Nothing made or Nothing saved, it says why, and where it
-stopped. Nothing half-made is left behind. The status bar at the bottom of
-Excel shows each step while it works.
+The state's ST-3 Excel import template comes from
+dor.georgia.gov/sales-use-tax-import, once a quarter. Make the state's
+files saves two filled copies of it, like GA ST-3 off-road 2026-09.xls,
+and a box shows each copy's lines next to RECAP's. If a box says Nothing
+made or Nothing saved, it says why. Nothing half-made is left behind.
 
 ## What it checks
 
