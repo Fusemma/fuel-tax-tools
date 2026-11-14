@@ -39,12 +39,8 @@ exemption, and gallons or sales that didn't land on a return.
 ## Files
 
 GA Sales Tax Workbook.xlsm is the workbook, with the two buttons and the
-3Q26 rates already in it. GASalesTax.bas is the same macro as text. If
-the .xlsm won't download, open GA Sales Tax Workbook - BLANK.xlsx and
-paste all of GASalesTax.bas into a new module (Alt F11, Insert, Module,
-Ctrl A, Ctrl V), as the steps at the top of the .bas say. Then Alt F8
-runs GetRates and MakeStateFiles.
-The state import files folder holds the 3Q26 template.
+3Q26 rates already in it. The state import files folder holds the 3Q26
+template.
 
 ## College Park, East Point and Hapeville
 
