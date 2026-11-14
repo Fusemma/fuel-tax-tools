@@ -7,7 +7,8 @@ tool's folder has a README: what it does, how to set it up, what's still
 open.
 
 To get a file: click its name below. For a workbook or Word file, click
-the download button at the top right of the file. A .bas file is a macro:
+the download button at the top right of the file. An .xlsm workbook has
+its macro in it already, so download it and use it. A .bas file is a macro:
 click the copy button at the top right of the file (GitHub calls it Copy
 raw file), then open the workbook, press Alt F11, click Insert, Module,
 and press Ctrl A, then Ctrl V to paste it in. To update a macro, open its
@@ -22,7 +23,7 @@ own module.
 | California | [Rates check](California/Rates%20check/) | Shows what changed in city and county rates, from the CDTFA's quarterly rates file. | [CARates.bas](California/Rates%20check/CARates.bas) |
 | Federal | [Forms templates](Federal/Forms%20templates/) | Word templates for the 637 notification certificate, the excise exemption certificate, and the written explanation that goes with a Form 843 claim. | [Notification Certificate - TEMPLATE.docx](Federal/Forms%20templates/Notification%20Certificate%20-%20TEMPLATE.docx), [Exemption Certificate - TEMPLATE.docx](Federal/Forms%20templates/Exemption%20Certificate%20-%20TEMPLATE.docx), [Form 843 Explanation - TEMPLATE.docx](Federal/Forms%20templates/Form%20843%20Explanation%20-%20TEMPLATE.docx) |
 | Georgia | [Refunds MF-12 mailer](Georgia/Refunds%20MF-12%20mailer/) | Works the running list of GA refunds: files the invoices into packets, fills each supplier's MF-12, makes the Outlook drafts, and follows each refund until it's paid. | [GARefundsReader.bas](Georgia/Refunds%20MF-12%20mailer/GARefundsReader.bas), [GARefundsWorker.bas](Georgia/Refunds%20MF-12%20mailer/GARefundsWorker.bas), [mf12_template.pdf](Georgia/Refunds%20MF-12%20mailer/mf12_template.pdf) |
-| Georgia | [Sales tax workbook](Georgia/Sales%20tax%20workbook/) | The monthly sales tax returns; paste the reports in, rates come from the state's template, and a button makes both upload files. | [GA Sales Tax Workbook.xlsm](Georgia/Sales%20tax%20workbook/GA%20Sales%20Tax%20Workbook.xlsm), [GASalesTax.bas](Georgia/Sales%20tax%20workbook/GASalesTax.bas), [GA Sales Tax Workbook - BLANK.xlsx](Georgia/Sales%20tax%20workbook/GA%20Sales%20Tax%20Workbook%20-%20BLANK.xlsx) |
+| Georgia | [Sales tax workbook](Georgia/Sales%20tax%20workbook/) | The monthly sales tax returns; paste the reports in, rates come from the state's template, and a button makes both upload files. | [GA Sales Tax Workbook.xlsm](Georgia/Sales%20tax%20workbook/GA%20Sales%20Tax%20Workbook.xlsm) |
 | Illinois | [Rates check](Illinois/Rates%20check/) | Shows which rates changed since the last machine-readable files you loaded. | [ILRates.bas](Illinois/Rates%20check/ILRates.bas) |
 | Indiana | [Freight on exempt diesel](Indiana/Freight%20on%20exempt%20diesel/) | What Indiana has written on sales tax on freight billed with exempt diesel, both ways, and how refunds work. | [README.md](Indiana/Freight%20on%20exempt%20diesel/README.md) |
 | Missouri | [Sales tax workbook](Missouri/Sales%20tax%20workbook/) | The quarterly use tax worksheet; paste the month's two reports in and RECAP adds up the month and the quarter by county and rate. | [MO Use Tax Workbook - BLANK.xlsx](Missouri/Sales%20tax%20workbook/MO%20Use%20Tax%20Workbook%20-%20BLANK.xlsx) |
@@ -30,7 +31,7 @@ own module.
 | Nebraska | [Streamlined rates check](Streamlined%20states/Rates%20check/) | Shows what changed in the state's rates since its last Streamlined file. | [SSTRates.bas](Streamlined%20states/Rates%20check/SSTRates.bas) |
 | New Mexico | [QFR builder](New%20Mexico/QFR%20builder/) | Turns the non-excise purchase report into rows for NMED's quarterly fuel report upload. | [NMQFR.bas](New%20Mexico/QFR%20builder/NMQFR.bas) |
 | New York | [Upload builder](New%20York/Upload%20builder/) | Turns PBT schedule exports into one Web File upload file. | [NYUpload.bas](New%20York/Upload%20builder/NYUpload.bas) |
-| Ohio | [PAT recap](Ohio/PAT%20recap/) | The quarterly Petroleum Activity Tax recap: three month tabs add up to the quarter return and its EFT amount, with one status light, and buttons to add a row or take out the empty ones. | [OH PAT Recap - BLANK.xlsx](Ohio/PAT%20recap/OH%20PAT%20Recap%20-%20BLANK.xlsx), [PATRecap.bas](Ohio/PAT%20recap/PATRecap.bas) |
+| Ohio | [PAT recap](Ohio/PAT%20recap/) | The quarterly Petroleum Activity Tax recap: three month tabs add up to the quarter return and its EFT amount, with one status light, and buttons to add a row or take out the empty ones. | [OH PAT Recap.xlsm](Ohio/PAT%20recap/OH%20PAT%20Recap.xlsm) |
 | Ohio | [Streamlined rates check](Streamlined%20states/Rates%20check/) | Shows what changed in the state's rates since its last Streamlined file. | [SSTRates.bas](Streamlined%20states/Rates%20check/SSTRates.bas) |
 | Oklahoma | [Streamlined rates check](Streamlined%20states/Rates%20check/) | Shows what changed in the state's rates since its last Streamlined file. | [SSTRates.bas](Streamlined%20states/Rates%20check/SSTRates.bas) |
 | Texas | [Credit rebill matcher](Texas/Credit%20rebill%20matcher/) | Pulls credits and rebills that net to zero out of the order list so the rest can be uploaded, and flags credits with no rebill. | [CreditRebillMatcher.bas](Texas/Credit%20rebill%20matcher/CreditRebillMatcher.bas) |

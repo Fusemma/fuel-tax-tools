@@ -6,22 +6,16 @@ down to GL RESIDUAL and works out what you're paying on the quarter
 return, and RATES holds each quarter's rates. A status light at the top of
 QTR RECAP says whether every check is OK.
 
-Two buttons come with the macro: Add row puts one more empty row at the
+Two buttons come on the workbook: Add row puts one more empty row at the
 bottom of the section you're in, and Tidy up takes out the empty rows.
 The workbook works the same without the macro. Every total is a formula;
 the buttons only save time.
 
-## Putting the macro in once
+## Once
 
-1. Open OH PAT Recap - BLANK.xlsx.
-2. Alt F11, then Insert, Module.
-3. Open PATRecap.bas as text, press Ctrl A and Ctrl C, click in the new
-   module, then Ctrl A and Ctrl V to paste all of it in.
-4. Close that window. Save the workbook as a macro-enabled workbook
-   (.xlsm).
-5. Alt F8, pick TidyUp, Run. The first run puts the buttons on: Add row
-   and Tidy up on each month tab, Tidy up on QTR RECAP. After that, press
-   the buttons.
+Download OH PAT Recap.xlsm and keep it in a folder. If Excel blocks the
+macros, close it, right-click the file, Properties, tick Unblock, OK, and
+open it again.
 
 ## Each quarter
 
@@ -47,8 +41,8 @@ the buttons only save time.
 
 ## Updating the macro
 
-Open the workbook, Alt F11, open its module under Modules, press Ctrl A,
-and paste the new copy of PATRecap.bas over the old one.
+A new version comes as a new OH PAT Recap.xlsm. Start the next quarter in
+it.
 
 ## What to know
 
