@@ -24,7 +24,8 @@ No macro. Every number is a formula.
 5. Read the light at the top of ST-1. All checks OK means every check
    passes. LOOK says how many checks to look at: open CHECKS, and each
    LOOK line says what to do.
-6. Type the recap's yellow cells on the RECAP tab.
+6. Type the recap's yellow cells on the RECAP tab. Collected is the AR
+   GL amount.
 7. On the eForms site, open ENTRY. For each line, pick the locality in
    Select Locality and type its Gross general sales and Exempt sales and
    deductions, the green cells. Only localities with sales show, in the
@@ -58,20 +59,26 @@ One legend line under the light on ST-1.
 
 ## The recap
 
+The month sits top left, then the title with the account number under
+it, then the lines, with a subtotal after Paid Thru AP and after Paid on
+DSL Return.
+
 | Line | Where it comes from |
 |---|---|
-| Account | type it |
-| Collected | AR's Tax Paid |
+| Account number | type it, under the title |
+| Collected | type it: the AR GL amount |
 | Paid Thru AP | type it |
-| Paid on DSL Return | ST-1 line 18, or the site's total typed beside it when the two differ |
+| (subtotal) | Collected plus Paid Thru AP |
+| Paid on DSL Return | ST-1 line 18, or the site's total typed to its right when the two differ |
+| (subtotal) | the subtotal above plus Paid on DSL Return |
 | Discount | ST-1 line 8 |
 | Crossing Months | the crossing months' sales typed beside it, x 0.007 |
 | AR In Price | type it |
-| Rounding | the sum of the lines above |
-| Order number Crossing months | type it |
+| Rounding | the second subtotal plus Discount, Crossing Months and AR In Price |
+| Order number Crossing months | type it, to the right of the label |
 
-The two cells beside Paid on DSL Return and Crossing Months carry a note
-saying what goes there.
+The account number cell, the site's total cell and the crossing months
+sales cell each carry a note saying what goes there.
 
 ## What it checks
 
