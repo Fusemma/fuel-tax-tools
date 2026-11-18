@@ -1,18 +1,25 @@
 # North Carolina simple recap
 
-One North Carolina month, October 2026, laid out plain with made-up
-numbers. The recap's STATE, INSPECTION and Recap Summary numbers come
-first, cleaned up. Then GAS-1202 and GAS-1202W OCT are filled out.
-Every number has a note beside it that says what it is and where to
-look: a cell on the recap, one filter on one report, NC's rate, or math
-on numbers on the same tab.
+One North Carolina month, October 2026, laid out plain. The recap's
+STATE, INSPECTION and Recap Summary numbers come first, cleaned up.
+Then GAS-1202 and GAS-1202W OCT are filled out. Every number has a note
+beside it that says what it is and where to look: a cell on the recap,
+one filter on one report, NC's rate, or math on numbers on the same tab.
+
+There are two files, laid out the same:
+
+- NC Simple Recap.xlsx has made-up numbers. They still tie, and each
+  note says where a real month's number comes from.
+- NC Simple Recap - October 2026.xlsx has the month's own numbers. Its
+  government gallons are an estimate, since the October government
+  sales report wasn't pulled, and every line they reach says ESTIMATE.
 
 No macro, and nothing calculates: every number is typed. It shows how a
 suspension month ties out, and why the recap and the return won't match.
 
 ## Use it
 
-1. Open NC Simple Recap.xlsx. Start on Recap.
+1. Open either file. Start on Recap.
 2. Recap sections 1 to 3 are the recap's STATE and INSPECTION tabs,
    down to the EFT total.
 3. Recap section 4 walks the recap's EFT total to GAS-1202 Line 20. It
@@ -53,6 +60,6 @@ not to file it with the return.
   Division.
 - Whether pipeline batches go on GAS-1202 Line 28 (Schedule 6X). Ask
   the Excise Tax Division.
-- NC doesn't say how tare rounds. The file rounds it to whole gallons.
-- The file splits the government gallons between gas and undyed diesel
+- NC doesn't say how tare rounds. Both files round it to whole gallons.
+- Both files split the government gallons between gas and undyed diesel
   by what each sold October 1 to 9.
