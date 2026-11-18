@@ -6,18 +6,18 @@ number comes from and how each worksheet's last line gets to GAS-1202
 Line 19, on paper and in the EDI file.
 
 No macro. Every number is a formula. Type over the yellow cells and the
-rest fills itself, so you can also run your own month through it. Gray
-is a box NC shades on its form. Each tab with math has a Check row at
-the top that should say OK.
+rest fills itself, so a real month can run through it too. Gray is a
+box NC shades on its form. Each tab with math has a Check row at the
+top that should say OK.
 
 Left out on purpose: the Jet Fuel and Aviation Gasoline columns (we
 don't sell them), and made-up numbers in Schedule 5F, dyed sold for
-taxable purposes (we don't sell dyed for road use). Schedule 5F still
-flows if you type there.
+taxable purposes (we don't sell dyed for road use). A number typed in
+Schedule 5F still flows.
 
 ## Use it
 
-1. Open NC GAS-1202W mockup.xlsx. Start on Your numbers.
+1. Open NC GAS-1202W mockup.xlsx. Start on the Gallons tab.
 2. The yellow cells are each schedule's gallons, split by Date Shipped:
    October 1 to 9, then October 10 to 31. The whole-month block under
    them is GAS-1202 page 2, and it fills itself.
@@ -29,12 +29,12 @@ flows if you type there.
    S03A lines for the EDI file.
 6. GAS-1202W NOV is November's worksheet, with its own yellow cells.
 
-Keep both worksheets for your records; NC says don't file them with the
-return.
+Keep both worksheets with the month's records; NC says don't file them
+with the return.
 
 ## The tabs
 
-- Your numbers: the made-up gallons by schedule and date, GAS-1202
+- Gallons: the made-up gallons by schedule and date, GAS-1202
   page 2 for the whole month, the rates, and the color legend.
 - GAS-1202 Oct: GAS-1202 Lines 7 to 20, with a box for each fuel on
   GAS-1202 Line 19. Its check: GAS-1202 Line 20 equals road tax on
