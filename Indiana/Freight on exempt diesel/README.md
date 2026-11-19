@@ -78,7 +78,29 @@ The five are a 2009 ruling, a 2010 audit letter, a 2016 ruling and two 2023 audi
 
 > [12] [Letter of Findings 09-0457 (posted Feb. 24, 2010)](https://iar.iga.in.gov/register/20100224-IR-045100080NRA) · Part I, Discussion, protest category eleven
 >
-> **The reason the steel banding is exempt is that there is a specific exemption for that banding. The freight charge is a separate charge. Therefore, the freight charge is taxable**, but the price of the exempt banding will be removed from the audit calculations.
+> 45 IAC 2.2-4-3(c)(2) does not say that delivery charges with an otherwise exempt sale are also exempt. **The reason the steel banding is exempt is that there is a specific exemption for that banding. The freight charge is a separate charge. Therefore, the freight charge is taxable**, but the price of the exempt banding will be removed from the audit calculations.
+
+The rule the 2010 letter read is 45 IAC 2.2-4-3, DOR's delivery charge rule, last changed in 1987 [22]. The steel processor pointed to its (c)(2) to argue the freight was exempt with the banding [12]. DOR repealed the rule in 2026 [17]. In 2006 the Tax Court held its line (b)(3) invalid for the case before it [23].
+
+> [22] 45 IAC 2.2-4-3, repealed · the whole section, 2026 edition · quoted whole in [Letter of Findings 09-0457](https://iar.iga.in.gov/register/20100224-IR-045100080NRA)
+>
+> Sec. 3. (a) Separately stated delivery charges are considered part of selling at retail and subject to sales and use tax if the delivery is made by or on behalf of the seller of property not owned by the buyer.\
+> (b) The following guidelines have been developed:\
+> (1) Delivery charge separately stated with F.O.B. destination–taxable.\
+> (2) Delivery charge separately stated with F.O.B. origin–non taxable.\
+> (3) Delivery charge separately stated where no F.O.B. has been established–non taxable.\
+> (4) Delivery charges included in the purchase price are taxable.\
+> (c) Two considerations must always be kept in mind in applying these guidelines:\
+> (1) The rules do not override established interstate commerce exemptions recognized by IC 6-2.1-3-3 (see 6-2.5-5-24(b)(010) [45 IAC 2.2-5-54]).\
+> **(2) The rules are only applicable in determining whether or not the delivery charge of an otherwise taxable sale is also subject to sales or use tax.**
+
+> [17] [LSA Document #24-395 (posted Sept. 30, 2026)](https://iar.iga.in.gov/register/20260930-IR-045240395FRA) · Section 91
+>
+> **SECTION 91. THE FOLLOWING ARE REPEALED:** 45 IAC 2.2-2-1; … 45 IAC 2.2-3-25; **45 IAC 2.2-4-3;** 45 IAC 2.2-4-12;
+
+> [23] [Dreaded, Inc. v. Indiana Department of State Revenue (Ind. Tax Ct., Apr. 20, 2006)](https://web.archive.org/web/20200929183548/https://www.in.gov/judiciary/opinions/pdf/04200601tgf.pdf) · page 6, the paragraph on subsection (b)(3)
+>
+> To that end, **subsection (b)(3) is contrary to the purpose and scope of Indiana Code § 6-2.5-4-1(e)(2), and the regulation itself; therefore, it is invalid and inapplicable** … to this case.
 
 > [13] [Revenue Ruling #2016-05ST (July 27, 2016)](https://iar.iga.in.gov/register/20160831-IR-045160367NRA) · Discussion, Part IV
 >
@@ -184,3 +206,9 @@ Spot: subsection (a) · Date: last amended by P.L.128-2026 · [iga.in.gov/ic/202
 
 **[21] Ind. Code § 6-8.1-1-4.5**, "periodic tax." A tax filed and paid four or more times a year.
 Spot: the first sentence · Date: added by P.L.118-2024, amended by P.L.205-2025 · [iga.in.gov/ic/2026/Title_6.html](https://iga.in.gov/ic/2026/Title_6.html), search the page for 6-8.1-1-4.5
+
+**[22] 45 IAC 2.2-4-3**, "Selling at retail; delivery charges." DOR's rule on separately stated delivery charges and F.O.B. terms. Repealed by LSA Document #24-395 [17]. The 2026 edition of the Indiana Administrative Code still showed it when read Nov. 6, 2026.
+Spot: the whole section · Date: filed Dec. 1, 1982; last changed by a filing of Aug. 6, 1987 · quoted whole in [Letter of Findings 09-0457](https://iar.iga.in.gov/register/20100224-IR-045100080NRA), Part I, protest category eleven
+
+**[23] Indiana Tax Court, Dreaded, Inc. d/b/a V-Line Corp. v. Indiana Department of State Revenue**, Cause No. 49T10-0209-TA-105. A wholesale building materials distributor that delivered with its own or leased trucks appealed sales tax on its delivery charges for 1994–1996. The court granted DOR's motion and held line (b)(3) of 45 IAC 2.2-4-3 invalid and inapplicable to the case. Not for publication. Archived copy.
+Spot: page 6, the paragraph on subsection (b)(3) · Date: April 20, 2006 · [web.archive.org copy of in.gov/judiciary/opinions/pdf/04200601tgf.pdf](https://web.archive.org/web/20200929183548/https://www.in.gov/judiciary/opinions/pdf/04200601tgf.pdf)
