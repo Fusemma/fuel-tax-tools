@@ -23,8 +23,9 @@ refund, it's $33,006.57.
 
 In the flow-through copy, GAS-1202W OCT Line 13 no longer ties to
 GAS-1202 Line 7 less GAS-1202W OCT Line 1, by the 10,000 sample
-gallons. The inspection tax lines, GAS-1202W OCT Lines 19 to 23, move
-with the gallons too, but they don't reach GAS-1202W OCT Line 28.
+gallons. The inspection tax lines, GAS-1202W OCT Lines 19, 20, 21 and
+23, move with the gallons too, but they don't reach GAS-1202W OCT Line
+28.
 
 No macro. Sheet1 is the worksheet, Parts 1 to 3. Sheet2 has each
 schedule's month total and its October 1 to 9 loads; October 10 to 31
