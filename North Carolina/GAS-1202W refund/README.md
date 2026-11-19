@@ -2,7 +2,7 @@
 
 The October 2026 GAS-1202W OCT worksheet with the month's own numbers,
 in two copies, each with a sample refund of $1,000 in it. The refund is
-tax we paid a seller on fuel and are getting back. NC hasn't said in
+the tax we'd get back when we had to pay someone for fuel. NC hasn't said in
 writing where a refund goes on the return. By phone, NC said to put it
 in the adjustments for now. GAS-1202W OCT Line 28 is the worksheet's
 adjustment, and it goes on GAS-1202 Line 19.
