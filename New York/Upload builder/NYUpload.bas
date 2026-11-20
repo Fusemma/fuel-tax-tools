@@ -19,8 +19,10 @@
 '   1. Export the schedule from Crystal with * as the separator.
 '   2. In NY Upload Builder, Alt F8, pick BuildNYUpload, Run.
 '   3. Pick the export. For an A and a B, Ctrl click both, then Open.
-'   4. It saves "<name> upload.txt" next to the first file and fills the CHECK sheet with
-'      every line and what changed. Read CHECK, then upload the .txt in Web File.
+'   4. It saves "<name> upload.txt" next to the first file. Nothing pops up; the CHECK sheet
+'      opens with one line. Green: good to go, upload the .txt in Web File. Red: the lines
+'      to look at are right under it, or it says why nothing was saved; fix that and run it
+'      again. Every line, and what changed, is folded away under the + on the left.
 '
 ' The settings below are the only lines to change when a rule changes.
 
@@ -51,13 +53,16 @@ Private Const OUT_EXT As String = ".txt"
 ' ---- the rest -------------------------------------------------------------------------
 
 Private Const SH_CHECK As String = "CHECK"
-Private Const BOX_TITLE As String = "NY upload"
 Private Const CHECK_HEADS As String = "File|Line|What changed|Upload line|Before"
+Private Const LOOK_HEADS As String = "File|Line|What's wrong|Upload line|Before"
 Private Const CHECK_COLS As Long = 5
-Private Const CHECK_TOP As Long = 8     ' header row of the table on CHECK
-
-Private mQuiet As Boolean       ' True: no message boxes
-Private mSaid As String         ' what the message boxes would have said
+Private Const WORDS_WIDTH As Long = 60  ' widest the words column gets; longer words wrap
+Private Const FOLD_HEAD As String = "Every line, and what changed (click + on the left to open)"
+Private Const SAID_FIELDS As String = "Has an extra or missing field, so Web File will likely " & _
+    "refuse it. Often a stray "     ' then * or comma, and " in a name."
+Private Const SAID_DUMMY As String = " is inside a longer number here, so it was left alone. " & _
+    "Check the FEIN."
+Private Const SAID_CLOSE As String = " is open in another program, close it and run this again."
 
 
 Public Sub BuildNYUpload()
@@ -70,42 +75,43 @@ Public Sub BuildNYUpload()
 End Sub
 
 Public Function NyUploadTest(ByVal paths As String) As String
-    ' Builds from these files, joined by |, with no message boxes, and
-    ' returns what they would have said.
-    mQuiet = True
-    mSaid = ""
+    ' Builds from these files, joined by |, without the file box, and returns CHECK's top line.
     RunBuild Split(paths, "|")
-    mQuiet = False
-    NyUploadTest = mSaid
+    On Error Resume Next
+    NyUploadTest = CStr(ThisWorkbook.Worksheets(SH_CHECK).Range("A1").Value)
 End Function
 
 Private Sub RunBuild(ByVal picked As Variant)
+    Dim why As String
     On Error GoTo Oops
     Build picked
     Exit Sub
 Oops:
+    why = Trim$(Err.Description)
+    If Right$(why, 1) = "." Then why = Left$(why, Len(why) - 1)
+    Resume Tell
+Tell:
+    On Error GoTo 0                     ' if CHECK can't be written either, stop here, don't loop
     Application.ScreenUpdating = True
-    Say "Something went wrong: " & Err.Description & vbLf & vbLf & _
-        "The files you picked were not changed. If the upload file is open in another " & _
-        "program, close it and run this again."
+    NothingSaved "Something went wrong: " & why & "."
 End Sub
 
-Private Sub Say(ByVal msg As String)
-    If mQuiet Then
-        mSaid = mSaid & msg & vbLf
-    Else
-        MsgBox msg, vbOKOnly, BOX_TITLE
-    End If
+Private Sub NothingSaved(ByVal why As String)
+    ' CHECK with only a red top line, saying why nothing was saved.
+    Dim ws As Worksheet
+    Set ws = FreshSheet(ThisWorkbook, SH_CHECK)
+    StatusLine ws, "Nothing was saved. " & why, False
+    ShowCheck ws
 End Sub
 
 Private Sub Build(ByVal picked As Variant)
     Dim files() As String, n As Long, i As Long, j As Long
     Dim lines() As Variant, parts As Variant, t As String, cap As Long
-    Dim outA() As String, outN As Long, chk() As String
+    Dim outA() As String, outN As Long, chk() As String, looks() As String, nLook As Long
     Dim isRaw As Boolean, started As Boolean, sep As String, want As Long
-    Dim upLine As String, what As String, gone As Long, blanked As Long
-    Dim commas As Long, dummies As Long, odd As Long, fileN As Long, left9 As Long
-    Dim perFile As String, kept As String, outPath As String, summary As String
+    Dim upLine As String, what As String, wrong As String, d As String, gone As Long, blanked As Long
+    Dim commas As Long, dummies As Long, fileN As Long
+    Dim perFile As String, kept As String, outPath As String, status As String, notes As String
 
     ' The picked files, A before B.
     n = UBound(picked) - LBound(picked) + 1
@@ -119,22 +125,26 @@ Private Sub Build(ByVal picked As Variant)
     ReDim lines(1 To n)
     For i = 1 To n
         If Len(Dir(files(i))) = 0 Then
-            Say "Can't find " & files(i) & ". Nothing was saved."
+            NothingSaved "Can't find " & FileOf(files(i)) & "."
             Exit Sub
         End If
-        t = ReadText(files(i))
+        If Not TryRead(files(i), t) Then
+            NothingSaved "Can't open " & FileOf(files(i)) & ". If it" & SAID_CLOSE
+            Exit Sub
+        End If
         t = Replace(t, vbCrLf, vbLf)
         t = Replace(t, vbCr, vbLf)
         lines(i) = Split(t, vbLf)
         cap = cap + UBound(lines(i)) + 1
     Next i
     If cap = 0 Then
-        Say "The files you picked are empty. Nothing was saved."
+        NothingSaved "The files you picked are empty."
         Exit Sub
     End If
 
     ReDim outA(1 To cap)
     ReDim chk(1 To cap, 1 To CHECK_COLS)
+    ReDim looks(1 To cap, 1 To CHECK_COLS)
     For i = 1 To n
         parts = lines(i)
         started = False
@@ -143,26 +153,29 @@ Private Sub Build(ByVal picked As Variant)
             t = parts(j)
             If Len(Trim$(t)) > 0 Then
                 If Not started Then
-                    ' The file's first line says what kind of file it is.
+                    ' The file's first line says what kind of file it is; most of its
+                    ' lines say how many fields a line should have.
                     isRaw = (CountOf(t, IN_SEP) >= MIN_SEPS)
                     sep = IIf(isRaw, IN_SEP, OUT_SEP)
-                    want = CountOf(t, sep)
+                    want = UsualCount(parts, sep)
                     started = True
                 End If
                 upLine = CleanLine(t, isRaw, gone, blanked)
                 commas = commas + gone
                 dummies = dummies + blanked
                 what = ""
+                wrong = ""
                 If CountOf(t, sep) <> want Then
-                    what = "different number of fields than this file's first line"
-                    odd = odd + 1
+                    what = "different number of fields than most of this file's lines"
+                    wrong = SAID_FIELDS & IIf(isRaw, "*", "comma") & " in a name."
                 End If
                 If gone > 0 Then what = AddTo(what, gone & IIf(gone = 1, " comma to a space", " commas to spaces"))
                 If blanked > 0 Then what = AddTo(what, "dummy FEIN to spaces")
-                If HasDummy(upLine) Then
+                d = DummyIn(upLine)
+                If Len(d) > 0 Then
                     ' Notepad's Find and Replace would hit this one; it's left alone and shown.
                     what = AddTo(what, "dummy FEIN still here, inside a longer value")
-                    left9 = left9 + 1
+                    wrong = Trim$(wrong & " " & d & SAID_DUMMY)
                 End If
                 outN = outN + 1
                 fileN = fileN + 1
@@ -172,34 +185,82 @@ Private Sub Build(ByVal picked As Variant)
                 chk(outN, 3) = what
                 chk(outN, 4) = upLine
                 If upLine <> t Then chk(outN, 5) = t
+                If Len(wrong) > 0 Then
+                    nLook = nLook + 1
+                    looks(nLook, 1) = chk(outN, 1)
+                    looks(nLook, 2) = chk(outN, 2)
+                    looks(nLook, 3) = wrong
+                    looks(nLook, 4) = upLine
+                    looks(nLook, 5) = t
+                End If
             End If
         Next j
         perFile = AddTo(perFile, FileOf(files(i)) & ": " & fileN & IIf(fileN = 1, " line", " lines"))
         If started And Not isRaw Then kept = AddTo(kept, FileOf(files(i)))
     Next i
     If outN = 0 Then
-        Say "No lines in the files you picked. Nothing was saved."
+        NothingSaved "No lines in the files you picked."
         Exit Sub
     End If
 
     ReDim Preserve outA(1 To outN)
     outPath = OutPathFor(files)
-    WriteText outPath, Join(outA, vbCrLf)   ' no line break after the last line, as by hand
 
-    summary = "Saved " & FileOf(outPath) & ", " & outN & IIf(outN = 1, " line", " lines") & _
+    If nLook = 0 Then
+        status = "Done. " & FileOf(outPath) & " is saved next to your exports. Nothing needs a look."
+    Else
+        status = nLook & IIf(nLook = 1, " line needs", " lines need") & " a look before you upload. " & _
+            FileOf(outPath) & " is saved next to your exports."
+    End If
+    notes = "Saved " & FileOf(outPath) & ", " & outN & IIf(outN = 1, " line", " lines") & _
         ", in " & Left$(outPath, InStrRev(outPath, "\")) & vbLf & perFile & "." & vbLf & _
         "Commas turned to spaces: " & commas & ". Dummy FEINs turned to spaces: " & dummies & "."
-    If kept <> "" Then summary = summary & vbLf & _
+    If kept <> "" Then notes = notes & vbLf & _
         "No * between fields, so its commas were kept as separators: " & kept & "."
-    If odd > 0 Then summary = summary & vbLf & odd & IIf(odd = 1, " line has", " lines have") & _
-        " a different number of fields than its file's first line. Web File will likely " & _
-        "refuse " & IIf(odd = 1, "it", "them") & ". CHECK marks which."
-    If left9 > 0 Then summary = summary & vbLf & left9 & IIf(left9 = 1, " line still has", _
-        " lines still have") & " a dummy FEIN inside a longer value, left alone. CHECK marks " & _
-        IIf(left9 = 1, "it", "them") & "; look before you upload."
-    WriteCheck summary, chk, outN
-    Say summary & vbLf & vbLf & "CHECK lists every line and what changed."
+
+    ' CHECK first, then the file: if saving fails, CHECK turns red and says nothing was saved.
+    WriteCheck status, notes, looks, nLook, chk, outN
+    If Not TryWrite(outPath, Join(outA, vbCrLf)) Then  ' no line break after the last line, as by hand
+        NothingSaved "Can't save " & FileOf(outPath) & ". If it" & SAID_CLOSE
+    End If
 End Sub
+
+Private Function UsualCount(ByVal parts As Variant, ByVal sep As String) As Long
+    ' How many separators most of the file's lines have; on a tie, the line that comes first.
+    Dim seen As Object, j As Long, c As Long, best As Long, k As Variant
+    Set seen = CreateObject("Scripting.Dictionary")
+    For j = 0 To UBound(parts)
+        If Len(Trim$(parts(j))) > 0 Then
+            c = CountOf(parts(j), sep)
+            seen(c) = seen(c) + 1
+        End If
+    Next j
+    best = -1
+    For Each k In seen.Keys             ' in the order first seen
+        If best < 0 Then
+            best = k
+        ElseIf seen(k) > seen(best) Then
+            best = k
+        End If
+    Next k
+    UsualCount = best
+End Function
+
+Private Function TryRead(ByVal path As String, ByRef text As String) As Boolean
+    ' Reads the file; False when it can't, like when another program has it open.
+    On Error GoTo Nope
+    text = ReadText(path)
+    TryRead = True
+Nope:
+End Function
+
+Private Function TryWrite(ByVal path As String, ByVal body As String) As Boolean
+    ' Saves the file; False when it can't, like when another program has it open.
+    On Error GoTo Nope
+    WriteText path, body
+    TryWrite = True
+Nope:
+End Function
 
 Private Function CleanLine(ByVal s As String, ByVal isRaw As Boolean, ByRef gone As Long, _
         ByRef blanked As Long) As String
@@ -230,12 +291,15 @@ Private Function IsDummy(ByVal s As String) As Boolean
     If Len(s) > 0 Then IsDummy = (InStr(1, DUMMY_FEINS, "|" & s & "|", vbBinaryCompare) > 0)
 End Function
 
-Private Function HasDummy(ByVal s As String) As Boolean
-    ' True when a dummy FEIN is anywhere in the line.
+Private Function DummyIn(ByVal s As String) As String
+    ' The dummy FEIN found anywhere in the line, or "" when there's none.
     Dim d As Variant
     For Each d In Split(DUMMY_FEINS, "|")
         If Len(d) > 0 Then
-            If InStr(1, s, d, vbBinaryCompare) > 0 Then HasDummy = True
+            If InStr(1, s, d, vbBinaryCompare) > 0 Then
+                DummyIn = d
+                Exit Function
+            End If
         End If
     Next d
 End Function
@@ -409,44 +473,104 @@ Private Sub WriteText(ByVal path As String, ByVal body As String)
     st.Close
 End Sub
 
-Private Sub WriteCheck(ByVal summary As String, chk() As String, ByVal rows As Long)
-    ' Fills CHECK: the summary on top, then every upload line and what changed.
-    Dim ws As Worksheet, info() As String, heads() As String, grid() As Variant
-    Dim k As Long, r As Long, c As Long
+Private Sub WriteCheck(ByVal status As String, ByVal notes As String, looks() As String, _
+        ByVal nLook As Long, chk() As String, ByVal rows As Long)
+    ' Fills CHECK: the top line, then the lines to look at if there are any, then every
+    ' line and what changed, folded away under a +.
+    Dim ws As Worksheet, info() As String, k As Long, r As Long, fold As Long, top As Long
     Application.ScreenUpdating = False
     Set ws = FreshSheet(ThisWorkbook, SH_CHECK)
     ws.Cells.NumberFormat = "@"         ' text, so 065 stays 065 and dates stay as written
     ws.Columns(2).NumberFormat = "General"  ' line numbers as numbers, so no green corners
-    info = Split(summary, vbLf)
+    ws.Cells.VerticalAlignment = xlTop  ' a wrapped line reads level with its row
+    StatusLine ws, status, (nLook = 0)
+    r = 3
+    If nLook > 0 Then
+        PutTable ws, r, LOOK_HEADS, looks, nLook
+        FitColumns ws, r, r + nLook
+        r = r + nLook + 2
+    End If
+    fold = r
+    ws.Cells(fold, 1).Value = FOLD_HEAD
+    info = Split(notes, vbLf)
     For k = 0 To UBound(info)
-        ws.Cells(1 + k, 1).Value = info(k)
+        ws.Cells(fold + 1 + k, 1).Value = info(k)
     Next k
-    heads = Split(CHECK_HEADS, "|")
-    For k = 0 To UBound(heads)
-        ws.Cells(CHECK_TOP, 1 + k).Value = heads(k)
-    Next k
-    ws.Rows(CHECK_TOP).Font.Bold = True
-    ReDim grid(1 To rows, 1 To CHECK_COLS)
-    For r = 1 To rows
-        For c = 1 To CHECK_COLS
-            grid(r, c) = chk(r, c)
-        Next c
-        grid(r, 2) = CLng(chk(r, 2))
-    Next r
-    ws.Cells(CHECK_TOP + 1, 1).Resize(rows, CHECK_COLS).Value = grid
-    ws.Range(ws.Cells(CHECK_TOP, 1), ws.Cells(CHECK_TOP + rows, 3)).Columns.AutoFit
+    top = fold + UBound(info) + 3       ' one blank row after the notes
+    PutTable ws, top, CHECK_HEADS, chk, rows
+    FitColumns ws, top, top + rows
     ws.Columns(4).ColumnWidth = 90
     ws.Columns(5).ColumnWidth = 90
+    ws.Columns(3).WrapText = True
+    ws.Range(ws.Rows(2), ws.Rows(top + rows)).AutoFit
+    ws.Outline.SummaryRow = xlAbove     ' the + sits on the fold's heading row
+    ws.Range(ws.Rows(fold + 1), ws.Rows(top + rows)).Group
+    ws.Outline.ShowLevels RowLevels:=1
+    ShowCheck ws
+End Sub
+
+Private Sub PutTable(ws As Worksheet, ByVal r As Long, ByVal headText As String, src() As String, _
+        ByVal n As Long)
+    ' Headings on row r, then n rows from src: file, line, words, upload line, before.
+    Dim heads() As String, grid() As Variant, i As Long, c As Long
+    heads = Split(headText, "|")
+    For c = 0 To UBound(heads)
+        ws.Cells(r, 1 + c).Value = heads(c)
+    Next c
+    ws.Range(ws.Cells(r, 1), ws.Cells(r, CHECK_COLS)).Font.Bold = True
+    ReDim grid(1 To n, 1 To CHECK_COLS)
+    For i = 1 To n
+        For c = 1 To CHECK_COLS
+            grid(i, c) = src(i, c)
+        Next c
+        grid(i, 2) = CLng(src(i, 2))
+    Next i
+    ws.Cells(r + 1, 1).Resize(n, CHECK_COLS).Value = grid
+End Sub
+
+Private Sub FitColumns(ws As Worksheet, ByVal r1 As Long, ByVal r2 As Long)
+    ' Fits File, Line and the words column to rows r1 to r2, never narrower than they are.
+    Dim c As Long, was As Double
+    For c = 1 To 3
+        was = ws.Columns(c).ColumnWidth
+        ws.Range(ws.Cells(r1, c), ws.Cells(r2, c)).Columns.AutoFit
+        If ws.Columns(c).ColumnWidth < was Then ws.Columns(c).ColumnWidth = was
+    Next c
+    If ws.Columns(3).ColumnWidth > WORDS_WIDTH Then ws.Columns(3).ColumnWidth = WORDS_WIDTH
+End Sub
+
+Private Sub StatusLine(ws As Worksheet, ByVal msg As String, ByVal good As Boolean)
+    ' Row 1: green when it's good to go, red when it isn't.
+    With ws.Range(ws.Cells(1, 1), ws.Cells(1, CHECK_COLS))
+        .Interior.Color = IIf(good, RGB(198, 239, 206), RGB(255, 199, 206))
+        .Font.Color = IIf(good, RGB(0, 97, 0), RGB(156, 0, 6))
+        .Font.Bold = True
+    End With
+    ws.Cells(1, 1).Value = msg
+End Sub
+
+Private Sub ShowCheck(ws As Worksheet)
+    ' CHECK to the front, scrolled to the top.
     Application.ScreenUpdating = True
-    If Not mQuiet Then ws.Activate
+    On Error Resume Next                ' a hidden workbook can't show it; the line is still there
+    ws.Visible = xlSheetVisible
+    ws.Parent.Activate
+    ws.Activate
+    Application.Goto ws.Range("A1"), True
 End Sub
 
 Private Function FreshSheet(wb As Workbook, ByVal nm As String) As Worksheet
-    ' The named sheet, emptied, or a new one at the front.
+    ' The named sheet, with nothing left from the last run, or a new one at the front.
     Dim ws As Worksheet
     For Each ws In wb.Worksheets
         If StrComp(ws.Name, nm, vbTextCompare) = 0 Then
+            On Error Resume Next        ' no fold to take out is fine
+            ws.Cells.ClearOutline
+            On Error GoTo 0
             ws.Cells.Clear
+            ws.Rows.Hidden = False
+            ws.Rows.RowHeight = ws.StandardHeight
+            ws.Columns.ColumnWidth = ws.StandardWidth
             Set FreshSheet = ws
             Exit Function
         End If
