@@ -37,28 +37,6 @@ The five are a 2009 ruling, a 2010 audit letter, a 2016 ruling and two 2023 audi
 >
 > 45 IAC 2.2-4-3(c)(2) does not say that delivery charges with an otherwise exempt sale are also exempt. **The reason the steel banding is exempt is that there is a specific exemption for that banding. The freight charge is a separate charge. Therefore, the freight charge is taxable**, but the price of the exempt banding will be removed from the audit calculations.
 
-The rule the 2010 letter read is 45 IAC 2.2-4-3, DOR's delivery charge rule, last changed in 1987 [22]. The steel processor pointed to its (c)(2) to argue the freight was exempt with the banding [12]. DOR repealed the rule in 2026 [17]. In 2006 the Tax Court held its line (b)(3) invalid for the case before it [23].
-
-> [22] 45 IAC 2.2-4-3, repealed · the whole section, 2026 edition · quoted whole in [Letter of Findings 09-0457](https://iar.iga.in.gov/register/20100224-IR-045100080NRA)
->
-> Sec. 3. (a) Separately stated delivery charges are considered part of selling at retail and subject to sales and use tax if the delivery is made by or on behalf of the seller of property not owned by the buyer.\
-> (b) The following guidelines have been developed:\
-> (1) Delivery charge separately stated with F.O.B. destination–taxable.\
-> (2) Delivery charge separately stated with F.O.B. origin–non taxable.\
-> (3) Delivery charge separately stated where no F.O.B. has been established–non taxable.\
-> (4) Delivery charges included in the purchase price are taxable.\
-> (c) Two considerations must always be kept in mind in applying these guidelines:\
-> (1) The rules do not override established interstate commerce exemptions recognized by IC 6-2.1-3-3 (see 6-2.5-5-24(b)(010) [45 IAC 2.2-5-54]).\
-> **(2) The rules are only applicable in determining whether or not the delivery charge of an otherwise taxable sale is also subject to sales or use tax.**
-
-> [17] [LSA Document #24-395 (posted Sept. 30, 2026)](https://iar.iga.in.gov/register/20260930-IR-045240395FRA) · Section 91
->
-> **SECTION 91. THE FOLLOWING ARE REPEALED:** 45 IAC 2.2-2-1; … 45 IAC 2.2-3-25; **45 IAC 2.2-4-3;** 45 IAC 2.2-4-12;
-
-> [23] [Dreaded, Inc. v. Indiana Department of State Revenue (Ind. Tax Ct., Apr. 20, 2006)](https://web.archive.org/web/20200929183548/https://www.in.gov/judiciary/opinions/pdf/04200601tgf.pdf) · page 6, the paragraph on subsection (b)(3)
->
-> To that end, **subsection (b)(3) is contrary to the purpose and scope of Indiana Code § 6-2.5-4-1(e)(2), and the regulation itself; therefore, it is invalid and inapplicable** … to this case.
-
 > [13] [Revenue Ruling #2016-05ST (July 27, 2016)](https://iar.iga.in.gov/register/20160831-IR-045160367NRA) · Discussion, Part IV
 >
 > Taxpayer charges its customers the following fees, charges and surcharges: (a) delivery fees for delivering liquid CO2 or High Pressure Cylinder containing gas; … **Delivery fees are included explicitly in gross retail income pursuant to IC 6-2.5-1-5(a)(4) and are, therefore, subject to sales tax.**
@@ -139,9 +117,33 @@ Heating oil hasn't been exempt since March 21, 2018 [3]. Heating oil is special 
 >
 > **Effective Jan. 1, 2004, Indiana enacted legislation** to bring Indiana's sales and use tax statutes into conformity with the Streamlined Sales and Use Tax Agreement. … P.L.257-2003 amended IC 6-2.5-1-5 concerning the definition of "gross retail income." **That amendment included delivery and installation in the definition of gross retail income**, the amount in a transaction subject to Indiana sales tax.
 
-### 6. Courts: we found no Indiana court decision on freight billed with an exempt item.
+### 6. The 2010 letter's rule: 45 IAC 2.2-4-3, DOR's delivery charge rule, repealed in 2026.
 
-### 7. Refunds: the refund belongs to the customer; for monthly sales tax paid on time, 2023 is open until Jan. 31, 2027.
+The rule the 2010 letter read is 45 IAC 2.2-4-3, DOR's delivery charge rule, last changed in 1987 [22]. The steel processor pointed to its (c)(2) to argue the freight was exempt with the banding [12]. DOR repealed the rule in 2026 [17]. In 2006 the Tax Court held its line (b)(3) invalid for the case before it [23].
+
+> [22] 45 IAC 2.2-4-3, repealed · the whole section, 2026 edition · quoted whole in [Letter of Findings 09-0457](https://iar.iga.in.gov/register/20100224-IR-045100080NRA)
+>
+> Sec. 3. (a) Separately stated delivery charges are considered part of selling at retail and subject to sales and use tax if the delivery is made by or on behalf of the seller of property not owned by the buyer.\
+> (b) The following guidelines have been developed:\
+> (1) Delivery charge separately stated with F.O.B. destination–taxable.\
+> (2) Delivery charge separately stated with F.O.B. origin–non taxable.\
+> (3) Delivery charge separately stated where no F.O.B. has been established–non taxable.\
+> (4) Delivery charges included in the purchase price are taxable.\
+> (c) Two considerations must always be kept in mind in applying these guidelines:\
+> (1) The rules do not override established interstate commerce exemptions recognized by IC 6-2.1-3-3 (see 6-2.5-5-24(b)(010) [45 IAC 2.2-5-54]).\
+> **(2) The rules are only applicable in determining whether or not the delivery charge of an otherwise taxable sale is also subject to sales or use tax.**
+
+> [17] [LSA Document #24-395 (posted Sept. 30, 2026)](https://iar.iga.in.gov/register/20260930-IR-045240395FRA) · Section 91
+>
+> **SECTION 91. THE FOLLOWING ARE REPEALED:** 45 IAC 2.2-2-1; … 45 IAC 2.2-3-25; **45 IAC 2.2-4-3;** 45 IAC 2.2-4-12;
+
+> [23] [Dreaded, Inc. v. Indiana Department of State Revenue (Ind. Tax Ct., Apr. 20, 2006)](https://web.archive.org/web/20200929183548/https://www.in.gov/judiciary/opinions/pdf/04200601tgf.pdf) · page 6, the paragraph on subsection (b)(3)
+>
+> To that end, **subsection (b)(3) is contrary to the purpose and scope of Indiana Code § 6-2.5-4-1(e)(2), and the regulation itself; therefore, it is invalid and inapplicable** … to this case.
+
+### 7. Courts: we found no Indiana court decision on freight billed with an exempt item.
+
+### 8. Refunds: the refund belongs to the customer; for monthly sales tax paid on time, 2023 is open until Jan. 31, 2027.
 
 Sales tax can only be refunded to the customer, not to the retail merchant [18]. A retail merchant isn't entitled to a refund unless it refunds the tax to the person it was collected from [19]. A claim is due within three years after the later of the return's due date or the payment [20]. For a periodic tax, one filed and paid four or more times a year, the due date counts as 31 days after the end of the calendar year that contains the period [20] [21]. For monthly sales tax paid by the due date, 2023's deadline is Jan. 31, 2027, and 2022 and earlier are past it.
 
