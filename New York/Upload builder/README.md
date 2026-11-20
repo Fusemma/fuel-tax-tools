@@ -4,13 +4,17 @@ What it does: an Excel macro (NYUpload.bas) that turns New York PBT
 schedule exports from Crystal into one Web File upload file. Pick one
 export, or the A and B exports of a schedule together. It does the three
 Notepad steps: each comma in the data becomes a space, 999999999 becomes
-nine spaces when it fills a whole field, and each * becomes a comma. If
-999999999 is still in a line inside a longer value, the macro leaves it
-alone, says so, and CHECK marks the line. Line breaks are cleaned up,
-the A file goes first, and nothing comes after the last line. It saves "<name>
-upload.txt" next to the first file you picked and lists every line, and
-what changed in it, on a CHECK sheet. The files you pick are never
-changed.
+nine spaces when it fills a whole field, and each * becomes a comma.
+Line breaks are cleaned up, the A file goes first, and nothing comes
+after the last line. It saves "<name> upload.txt" next to the first file
+you picked. The files you pick are never changed.
+
+Nothing pops up. The CHECK sheet opens with one line: green when it's
+good to go, red when something needs a look. Red lists only the lines to
+look at, like a line with an extra field, or 999999999 inside a longer
+number, which it leaves alone. Or it says why nothing was saved, like a
+file that's open in another program; fix that and run it again. Every
+line, and what changed in it, is folded away under the + on the left.
 
 Setup: copy NYUpload.bas and follow "Setting it up, once" at the top:
 in a new workbook, paste all of NYUpload.bas into a new module (Alt F11,
