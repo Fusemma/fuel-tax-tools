@@ -517,7 +517,7 @@ Private Sub MakeShipTosQuery(db As DAO.Database)
 End Sub
 
 ' Ship-tos to fix: one scrolling list, the ones to fix first, the ones to look
-' up on the map last. One click on a 100879/4 copies it.
+' up on the map last. One click on a 123456/1 copies it.
 Private Sub MakeShipTosForm()
     Dim frm As Form, nm As String, c As Control
     DeleteObject acReport, FORM_SHIPTOS
@@ -545,7 +545,7 @@ Private Sub MakeShipTosForm()
     MapHead nm, "What to do", 10360, 3700
     MapHead nm, "Code", 14200, 1800
 
-    ' only the 100879/4 box takes a click; the rest just shows
+    ' only the 123456/1 box takes a click; the rest just shows
     Set c = MapBox(nm, "ShipToName", 240, 40, 3300, 360, 14, True)
     Fixed c
     CopyBox nm
@@ -585,7 +585,7 @@ Private Sub ListLook(frm As Form)
     frm.Section(acFooter).Height = 0
 End Sub
 
-' The 100879/4 box (account 100879, ship-to 4): one click copies it.
+' The 123456/1 box (account 123456, ship-to 1): one click copies it.
 Private Sub CopyBox(ByVal frmName As String)
     Dim c As Control
     Set c = CreateControl(frmName, acTextBox, acDetail, , , 240, 420, 2200, 300)
@@ -626,7 +626,7 @@ Private Sub MakeMapForm()
     Look c, 22, True
     Set c = CreateControl(nm, acLabel, acHeader, , , 240, 760, 10200, 700)
     c.Caption = "For each one, find the address on the state's map and type the code it shows into the " & _
-        "white box at the right, like 37000-051-000. Then click Check again. Click a 100879/4 to copy it."
+        "white box at the right, like 37000-051-000. Then click Check again. Click a 123456/1 to copy it."
     Look c, 13, False
     Set c = CreateControl(nm, acLabel, acHeader, , , 240, 1460, 4000, 320)
     c.Caption = "Open the state's map"
@@ -761,7 +761,7 @@ Fail:
     Say "Couldn't open the list: " & Err.Description, vbExclamation
 End Function
 
-' One click on a 100879/4 box puts that text on the clipboard.
+' One click on a 123456/1 box puts that text on the clipboard.
 Public Function CopyShipTo(ByVal acct As Variant, ByVal shipTo As Variant) As Boolean
     Dim s As String
     s = Nz(acct, "") & "/" & Nz(shipTo, "")
@@ -789,7 +789,7 @@ Public Function ShipTosHelp() As String
     nMap = Val(GetOpt("ShipToMap"))
     s = Plural(nFix, "to fix in the system", "to fix in the system")
     If nMap > 0 Then s = s & ", then " & Plural(nMap, "to look up on the map", "to look up on the map") & " at the bottom"
-    ShipTosHelp = s & ". Click a 100879/4 to copy it, then paste it into the system."
+    ShipTosHelp = s & ". Click a 123456/1 to copy it, then paste it into the system."
 End Function
 
 ' What the list says to do for one ship-to.
@@ -921,7 +921,7 @@ Public Function HowToText() As String
     s = s & "<b>Ship-tos</b><br>"
     s = s & "5. When a ship-to list comes, click Load ship-to list and pick it. Every ship-to " & _
         "gets checked, and again each new quarter. A later list only needs the new ship-tos.<br>"
-    s = s & "6. Click Ship-tos to fix. Click a number like 100879/4 to copy it, paste it into " & _
+    s = s & "6. Click Ship-tos to fix. Click a number like 123456/1 to copy it, paste it into " & _
         "the system and fix the rate.<br>"
     s = s & "7. Click Look up on the map. Look each address up on the state's map, type the " & _
         "code, click Check again. The code is kept.<br><br>"

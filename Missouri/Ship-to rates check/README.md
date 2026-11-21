@@ -4,7 +4,7 @@ What it does: an Access database (MORatesCheck.bas) that loads the DOR's
 quarterly boundary and total-rate files, keeps the last two quarters,
 re-matches every ship-to against the boundary file, and shows where the
 use tax rate changed, which ship-tos need fixing (one scrolling list; a
-click on a ship-to's 100879/4 copies it), and the ones to look up on the
+click on a ship-to's 123456/1 copies it), and the ones to look up on the
 state's map. Each quarter's state data goes in its own file on the PC's
 own drive (the DataFolder setting, %LOCALAPPDATA%\MO Rates Check unless
 changed), so the database stays a few MB and never needs compacting.
