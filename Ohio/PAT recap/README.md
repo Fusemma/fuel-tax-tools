@@ -28,9 +28,10 @@ open it again.
 4. On each month tab, type Collected, Paid through AP and AR in price in
    the shaded cells at the top, and AP in price, per AP in Q4.
 5. Paste or type each line's gallons in G and product in H. Pick the
-   product from the dropdown: NO2ULS, NO2ULR, KERULS or GASOHOL. Gallons
-   are always positive. The section decides the sign. A note about a line
-   goes in D, beside it.
+   product from the dropdown, which lists the product codes on RATES:
+   NO2ULS, NO2ULR, KERULS and GASOHOL to start. Gallons are always
+   positive. The section decides the sign. A note about a line goes in D,
+   beside it.
 6. If a section runs out of rows, click a line in it and press Add row.
 7. Press Tidy up to take out the empty rows. The box says how many came
    out on each tab.
@@ -56,11 +57,30 @@ it.
   is typed in D, G or H, and it keeps one empty row in a section with
   nothing typed.
 - Each category rounds to whole dollars before the EFT AMOUNT adds them.
+- The product codes are a list on RATES, each with its return line:
+  Highway Gas, Highway Diesel or NonHighway Diesel. A code's return line
+  decides which bucket its DIV OWE and Additive owed gallons go in, and
+  its tax a gallon: gas for Highway Gas, diesel for the other two. A new
+  code goes in the first empty yellow row, with its return line, and the
+  dropdown, the tax and the buckets all take it.
 - The checks: AP in price against the In price lines, the rounding
   difference on the return (within $5), the gallons in the three buckets
-  against the gallons flagged, every line inside its section, and that the
-  quarter's rates are filled in. A product that isn't one of the four shows
-  up as CHECK PRODUCT CODES.
+  against the gallons flagged, every line inside its section, that the
+  quarter's rates are filled in, that A1 is the first month of a quarter,
+  that every line's product is on the list on RATES once (any section),
+  and that no gallons sit outside a section, where no total counts them.
+  The product check starts with the first such line's row and what to do:
+  retype a product with a space in front or behind it, add the code on
+  RATES or retype it, delete one of a code's two rows, pick a code's
+  return line, or move a code typed in a row inserted in the list to the
+  first empty yellow row. A code typed with a space counts as a different
+  code. The codes on RATES are text, so one like 87E10 shows as typed.
+- Take empty rows out with Tidy up, not by deleting whole rows. Deleting a
+  whole row can take a check with it, and the light then stays red.
+- The light counts every check that isn't OK, including one showing an
+  error like #N/A and one cleared by mistake. The A1, product and
+  outside-a-section checks say when they can't be worked out because a
+  cell they read shows an error.
 - Gridlines are on, the way they come.
 - If Excel blocks the macros, close the workbook, right-click it,
   Properties, tick Unblock, OK, and open it again.
