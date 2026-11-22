@@ -53,8 +53,9 @@ One legend line under the light on ST-1.
   sales, the state's rate from its January 2026 rate file, and the rate
   the marks add up to. The regions table at the top right gives ST-1
   lines 10A to 10D and 12A.
-- **CHECKS:** 12 checks, the product types that don't count in gross
-  sales, and the list of orders check 12 finds off (row 71, folded away).
+- **CHECKS:** 15 checks, the product type table (each type's Fuel and
+  whether it counts in sales), and the list of orders check 12 finds off
+  (row 131, folded away).
 - **TERSE** and **AR-SALES-TAX-BY-CNTY:** the paste tabs.
 
 ## The recap
@@ -88,7 +89,9 @@ says otherwise.
 1. The columns the formulas read are where they were.
 2. Every invoice date is in the month.
 3. TERSE is all VA and AR is all Sales Tax.
-4. Every TERSE product type is on the product type table.
+4. Every TERSE product type is on the product type table, once, with its
+   Fuel and Yes or No under Counts in sales. The On LOOK words name the
+   first type that isn't.
 5. Every sale landed on one of the site's localities.
 6. Every INDEPENDENT CITIES line found its city.
 7. Every taxable sale landed on one of the site's localities.
@@ -98,8 +101,18 @@ says otherwise.
 10. AR charged no tax at a rate or name the sheet doesn't know.
 11. Every locality's marks add up to the state's rate for it.
 12. Every dyed order is on both reports and taxed right for where it
-    shipped. On LOOK, open the order list at row 71 (click the + at the
+    shipped. On LOOK, open the order list at row 131 (click the + at the
     left). Each line gives the order number and what is off on it.
+13. Lines below the helper rows: the helper rows for check 12 stop at
+    TERSE row 3001 and AR row 1501 and hold 600 orders. LOOK says which
+    tab ran past, and its row.
+14. No cell in either pasted report shows an error, like #N/A.
+15. No TERSE line is on the tab twice. TERSE gives each line its own line
+    ID (column AR, cnt Order Item ID), so a repeat means old lines from an
+    earlier paste are still under the report. Paste the TERSE again by the
+    box above row 1, which clears them. It can't catch a re-paste that
+    lost only its last lines: the old lines left under the report are
+    then exactly the lines it dropped, so no line repeats.
 
 ## Check 12, order by order
 
@@ -123,13 +136,16 @@ checks every other AR line against where the order shipped.
   with more than one problem lists them all.
 - It holds 3,000 TERSE lines, 1,500 AR lines and 600 orders. Past that,
   check 12 says LOOK: "More lines than the order check holds. Check
-  orders by hand this month."
+  orders by hand this month." Check 13 names the tab and row.
 
 ## What to know
 
-- The product types that don't count in gross sales (F, S, O and Z) are
-  marked No on CHECKS. Change Yes or No there. When check 4 asks, add the
-  new type in the next empty row.
+- The product type table on CHECKS lists each type with its Fuel (Clear
+  diesel, Dyed diesel or Gas) and Yes or No under Counts in sales. Only a
+  type on the table with Yes and a Fuel counts in gross sales; a type that
+  is not on the table stays out of the numbers, and check 4 names it.
+  Dyed diesel in check 8 and check 12 means the types marked Dyed diesel
+  there.
 - A TERSE line with county INDEPENDENT CITIES counts under its Ship To
   City.
 - If the state changes a locality's rate, change its marks on ST-1R&B and
@@ -141,4 +157,6 @@ checks every other AR line against where the order shipped.
 
 ## Open
 
-Nothing open.
+- A new product type: add it there in the first empty yellow row, then
+  tell whoever keeps this workbook, so the next copy comes with it.
+- A re-paste that lost only its last lines isn't caught (check 15).
