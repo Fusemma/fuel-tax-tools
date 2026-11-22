@@ -36,9 +36,18 @@ REVIEW flags these, and each line says how it decides. If an AR line was
 charged a rate that isn't the state's, it shows the state's rate, and the
 return uses the state's. It also flags a county with no state code, a
 code with no rate for the month, rates loaded for the wrong quarter, rows
-left from another month under the paste, an AR line whose tax name says
-neither off road nor on road, stale orders, untaxed fuel with no
-exemption, and gallons or sales that didn't land on a return.
+left from another month under the paste, stale orders, untaxed fuel with
+no exemption, and gallons or sales that didn't land on a return.
+
+An AR line whose tax name says neither OFF ROAD nor ON ROAD still goes on
+a return. Its Tax Rate says which: the county's total rate is off-road,
+its local part on-road. The order's fuel on the TERSE has to agree: dyed
+is off-road, clear diesel or gas on-road. An order with both goes by the
+rate. When they agree, the line goes on that return, and the light on
+RECAP says how many tax names to fix in the system. When they don't, or
+the order isn't on the TERSE, the light goes red and REVIEW names the
+line and what each one says. Typing OFF ROAD or ON ROAD in its Tax Name
+puts it on that return.
 
 REVIEW also flags a product type that isn't on the LISTS tab, or whose
 row there is missing Fuel or Counts in sales; report lines below the gray
