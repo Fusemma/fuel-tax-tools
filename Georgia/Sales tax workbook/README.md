@@ -26,6 +26,10 @@ files saves two filled copies of it, like GA ST-3 off-road 2026-09.xls,
 and a box shows each copy's lines next to RECAP's. If a box says Nothing
 made or Nothing saved, it says why. Nothing half-made is left behind.
 
+A month longer than the gray helper rows (2,500 AR lines, 4,000 TERSE
+lines) shows on REVIEW. Copy the last gray helper row down to the
+report's last line, and those lines count.
+
 ## What it checks
 
 REVIEW flags these, and each line says how it decides. If an AR line was
@@ -36,11 +40,18 @@ left from another month under the paste, an AR line whose tax name says
 neither off road nor on road, stale orders, untaxed fuel with no
 exemption, and gallons or sales that didn't land on a return.
 
+REVIEW also flags a product type that isn't on the LISTS tab, or whose
+row there is missing Fuel or Counts in sales; report lines below the gray
+helper columns at the right of each tab; gray helper columns gone after a
+paste over the whole sheet; and a gray helper cell showing an error, like
+#N/A. A check that can't be worked out because a cell it reads shows an
+error says so, and the light on RECAP counts it.
+
 ## Files
 
-GA Sales Tax Workbook.xlsm is the workbook, with the two buttons and the
-3Q26 rates already in it. The state import files folder holds the 3Q26
-template.
+GA Sales Tax Workbook.xlsm is the workbook, with the two buttons, the
+3Q26 rates and the system's 40 product types on LISTS already in it. The
+state import files folder holds the 3Q26 template.
 
 ## College Park, East Point and Hapeville
 
@@ -59,3 +70,7 @@ question for DOR (1-877-423-6711) still stands. The template's off-road motor fu
 tab claims a flat 3% vendor's compensation, and the state takes the
 tiered rate. The workbook matches what the state does and leaves that
 tab empty.
+
+When a product type shows up that isn't on LISTS, add it there in the
+first empty yellow row, then tell whoever keeps this workbook, so the
+next copy comes with it.
