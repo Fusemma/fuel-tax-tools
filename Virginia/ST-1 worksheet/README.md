@@ -7,7 +7,8 @@ in the ST-1R and ST-1B, and ENTRY lists what to type on Virginia Tax's
 eForms site. The VA sales recap has its own tab, RECAP.
 A status light at the top of ST-1 says whether every check is OK.
 
-No macro. Every number is a formula.
+No macro. Every number is a formula. It needs Microsoft 365: ENTRY's list and
+check 12's order list each fill themselves in from one formula.
 
 ## Each month
 
@@ -29,7 +30,8 @@ No macro. Every number is a formula.
 7. On the eForms site, open ENTRY. For each line, pick the locality in
    Select Locality and type its Gross general sales and Exempt sales and
    deductions, the green cells. Only localities with sales show, in the
-   site's order and under the site's names.
+   site's order and under the site's names. Don't type in ENTRY's list; it
+   fills itself in.
 
 ## Cell colors
 
@@ -46,7 +48,9 @@ One legend line under the light on ST-1.
   formulas use is in the rates box; change one there and every formula
   follows.
 - **RECAP:** the VA sales recap.
-- **ENTRY:** the ST-1A lines to type on the eForms site.
+- **ENTRY:** the ST-1A lines to type on the eForms site. The list is one
+  formula in A6 that fills A6 down to E138 by itself, so it can't run out
+  of rows.
 - **ST-1R&B:** one row for each locality on the site's Select Locality
   list, 133 rows, under the site's names. Each has its region marks (a
   yellow X under NVR, HRR, CVR, HTR or LOCAL), gross, exempt and taxable
@@ -55,7 +59,7 @@ One legend line under the light on ST-1.
   lines 10A to 10D and 12A.
 - **CHECKS:** 15 checks, the product type table (each type's Fuel and
   whether it counts in sales), and the list of orders check 12 finds off
-  (row 131, folded away).
+  (row 131, folded away; one formula in A133 fills it in).
 - **TERSE** and **AR-SALES-TAX-BY-CNTY:** the paste tabs.
 
 ## The recap
@@ -106,7 +110,16 @@ says otherwise.
 13. Lines below the helper rows: the helper rows for check 12 stop at
     TERSE row 3001 and AR row 1501 and hold 600 orders. LOOK says which
     tab ran past, and its row.
-14. No cell in either pasted report shows an error, like #N/A.
+14. No cell shows an error, like #N/A or #SPILL!, and no list has lost its
+    top cell. It looks at both pasted reports, the product type table,
+    ENTRY's list and check 12's order list. The On LOOK words say which: a
+    report error (paste the report again), a product type table error
+    (press Ctrl Z, or type that cell again), a list blocked by something
+    typed in it (press Ctrl Z, or click the list's top cell, click the
+    warning sign beside it, pick Select Obstructing Cells and press Delete,
+    and leave the top cell alone), or a list that is gone because its top
+    cell was typed over, deleted or cleared (press Ctrl Z right away, or
+    start again from a fresh copy of the blank worksheet).
 15. No TERSE line is on the tab twice. TERSE gives each line its own line
     ID (column AR, cnt Order Item ID), so a repeat means old lines from an
     earlier paste are still under the report. Paste the TERSE again by the
@@ -152,7 +165,8 @@ checks every other AR line against where the order shipped.
   type the new rate in its State's rate cell.
 - If the site's Select Locality list changes, ST-1R&B needs the same
   change.
-- It uses INDEX and MATCH, no FILTER or SORT, so it works in any Excel.
+- ENTRY's list and check 12's order list use FILTER, UNIQUE, VSTACK,
+  HSTACK, SEQUENCE and LET, so the workbook needs Microsoft 365.
 - Gridlines are on, the way they come.
 
 ## Open
@@ -160,3 +174,6 @@ checks every other AR line against where the order shipped.
 - A new product type: add it there in the first empty yellow row, then
   tell whoever keeps this workbook, so the next copy comes with it.
 - A re-paste that lost only its last lines isn't caught (check 15).
+- Inserting or deleting a column inside ENTRY's list (A to E) moves its
+  headers off their numbers: the headers move, the list doesn't. A column
+  to the right of the list is fine.
